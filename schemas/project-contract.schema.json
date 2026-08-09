@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/project-contract.schema.json",
+  "title": "New Earth Project Contract",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "project",
+    "repository",
+    "design",
+    "engineering",
+    "integrations",
+    "provides",
+    "consumes",
+    "governance"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "family",
+        "type",
+        "owner",
+        "status",
+        "maturity"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2
+        },
+        "family": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "maturity": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "repository": {
+      "type": "object",
+      "required": [
+        "version",
+        "versioning",
+        "default_branch",
+        "release_channel"
+      ],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "versioning": {
+          "enum": [
+            "semver"
+          ]
+        },
+        "default_branch": {
+          "type": "string"
+        },
+        "release_channel": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "design": {
+      "type": "object"
+    },
+    "engineering": {
+      "type": "object"
+    },
+    "integrations": {
+      "type": "object"
+    },
+    "provides": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "consumes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "governance": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

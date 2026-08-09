@@ -1,0 +1,55 @@
+registry_version: "1.0"
+dependencies:
+  - source: neos
+    target: new-earth-platform-core
+    kind: consumes
+    contract: platform-registry-v1
+    required: true
+
+  - source: gaia
+    target: new-earth-platform-core
+    kind: consumes
+    contract: platform-registry-v1
+    required: true
+
+  - source: command-centre
+    target: new-earth-platform-core
+    kind: consumes
+    contract: platform-registry-v1
+    required: true
+
+  - source: gaia
+    target: neos
+    kind: consumes
+    contract: neos-context-api
+    required: true
+
+  - source: command-centre
+    target: neos
+    kind: consumes
+    contract: neos-status-api
+    required: true
+
+  - source: microgrow-control-centre
+    target: microgrow
+    kind: controls
+    contract: microgrow-device-api
+    required: true
+
+  - source: neos
+    target: microgrow
+    kind: observes
+    contract: repository-intelligence
+    required: false
+
+  - source: neos
+    target: biocalm
+    kind: observes
+    contract: repository-intelligence
+    required: false
+
+  - source: neos
+    target: embedded-engineering-lab
+    kind: observes
+    contract: repository-intelligence
+    required: false

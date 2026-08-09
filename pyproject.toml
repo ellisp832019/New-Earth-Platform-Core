@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "new-earth-platform-core"
+version = "0.1.0"
+description = "Machine-readable architecture, contracts, dependency intelligence and validation for the New Earth ecosystem."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Proprietary"}
+authors = [{name = "New Earth Advanced Technologies Ltd"}]
+dependencies = [
+  "PyYAML>=6.0.1",
+  "jsonschema>=4.23.0",
+  "packaging>=24.1",
+  "typer>=0.12.3",
+  "rich>=13.7.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.2",
+  "pytest-cov>=5.0.0",
+  "ruff>=0.6.2",
+  "mypy>=1.11.1",
+  "types-PyYAML>=6.0.12",
+]
+
+[project.scripts]
+new-earth-platform = "new_earth_platform.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["new_earth_platform"]

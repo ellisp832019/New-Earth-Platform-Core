@@ -1,0 +1,47 @@
+contract_version: "1.0"
+project:
+  id: neos
+  name: NEOS
+  family: core
+  type: engineering-os
+  owner: New Earth Advanced Technologies Ltd
+  status: active
+  maturity: development
+
+repository:
+  version: 1.3.0
+  versioning: semver
+  default_branch: main
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: desktop-standard
+  personality: core
+  accessibility: required
+
+engineering:
+  local_first: true
+  logging: standard
+  security: baseline
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: true
+  command_centre: true
+
+provides:
+  - neos-status-api
+  - neos-context-api
+  - repository-intelligence
+consumes:
+  - platform-registry-v1
+
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development

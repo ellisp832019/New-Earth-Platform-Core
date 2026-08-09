@@ -1,0 +1,18 @@
+neds_version: "0.1"
+tokens:
+  spacing:
+    xs: 4
+    sm: 8
+    md: 16
+    lg: 24
+    xl: 32
+  radius:
+    button: 6
+    card: 12
+    dialog: 16
+  status:
+    healthy: success
+    attention: warning
+    critical: error
+    offline: neutral
+    unknown: neutral

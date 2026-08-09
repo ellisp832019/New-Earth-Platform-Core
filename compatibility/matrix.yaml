@@ -1,0 +1,16 @@
+matrix_version: "1.0"
+rules:
+  - consumer: command-centre
+    provider: neos
+    contract: neos-status-api
+    requirement: ">=1.0"
+
+  - consumer: gaia
+    provider: neos
+    contract: neos-context-api
+    requirement: ">=1.0"
+
+  - consumer: microgrow-control-centre
+    provider: microgrow
+    contract: microgrow-device-api
+    requirement: ">=1.0,<2.0"

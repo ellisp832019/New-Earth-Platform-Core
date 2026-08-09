@@ -1,0 +1,46 @@
+contract_version: "1.0"
+project:
+  id: gaia
+  name: Gaia
+  family: intelligence
+  type: ai-employee
+  owner: New Earth Advanced Technologies Ltd
+  status: active
+  maturity: development
+
+repository:
+  version: 0.1.0
+  versioning: semver
+  default_branch: main
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: desktop-standard
+  personality: intelligence
+  accessibility: required
+
+engineering:
+  local_first: true
+  logging: standard
+  security: baseline
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: true
+  command_centre: true
+
+provides:
+  - gaia-assistant
+consumes:
+  - platform-registry-v1
+  - neos-context-api
+
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development

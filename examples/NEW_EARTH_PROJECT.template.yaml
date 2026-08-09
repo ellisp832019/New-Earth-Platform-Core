@@ -1,0 +1,43 @@
+contract_version: "1.0"
+project:
+  id: replace-me
+  name: Replace Me
+  family: core
+  type: application
+  owner: New Earth Advanced Technologies Ltd
+  status: active
+  maturity: development
+
+repository:
+  version: 0.1.0
+  versioning: semver
+  default_branch: main
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: desktop-standard
+  personality: core
+  accessibility: required
+
+engineering:
+  local_first: true
+  logging: standard
+  security: baseline
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: false
+  command_centre: true
+
+provides: []
+consumes: []
+
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development

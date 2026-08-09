@@ -1,0 +1,12 @@
+registry_version: "1.0"
+release_channels:
+  - development
+  - alpha
+  - beta
+  - release-candidate
+  - stable
+  - deprecated
+
+platform:
+  current: 0.1.0
+  channel: development

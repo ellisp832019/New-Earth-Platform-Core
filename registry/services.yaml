@@ -1,0 +1,25 @@
+registry_version: "1.0"
+services:
+  - id: platform-registry
+    owner: new-earth-platform-core
+    kind: data-contract
+    interface: file
+    version: "1.0"
+
+  - id: platform-validator
+    owner: new-earth-platform-core
+    kind: cli
+    interface: command
+    version: "0.1.0"
+
+  - id: neos-status-api
+    owner: neos
+    kind: api
+    interface: localhost
+    status: external
+
+  - id: gaia-assistant
+    owner: gaia
+    kind: ai-service
+    interface: local
+    status: external

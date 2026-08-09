@@ -1,0 +1,22 @@
+registry_version: "1.0"
+interfaces:
+  - id: platform-registry-v1
+    owner: new-earth-platform-core
+    schema: schemas/registry.schema.json
+    stability: experimental
+
+  - id: platform-project-contract-v1
+    owner: new-earth-platform-core
+    schema: schemas/project-contract.schema.json
+    stability: experimental
+
+  - id: neos-status-api
+    owner: neos
+    type: http
+    endpoint: http://127.0.0.1:8765
+    stability: external
+
+  - id: microgrow-device-api
+    owner: microgrow
+    type: http
+    stability: external

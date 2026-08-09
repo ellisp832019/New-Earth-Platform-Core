@@ -1,0 +1,48 @@
+contract_version: "1.0"
+project:
+  id: new-earth-platform-core
+  name: New Earth Platform Core
+  family: platform
+  type: platform-core
+  owner: New Earth Advanced Technologies Ltd
+  status: active
+  maturity: foundation
+
+repository:
+  version: 0.1.0
+  versioning: semver
+  default_branch: main
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: none
+  personality: platform
+  accessibility: required
+
+engineering:
+  local_first: true
+  logging: standard
+  security: baseline
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: true
+  command_centre: true
+
+provides:
+  - platform-project-contract-v1
+  - platform-registry-v1
+  - platform-dependency-model-v1
+  - platform-compatibility-model-v1
+
+consumes: []
+
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development

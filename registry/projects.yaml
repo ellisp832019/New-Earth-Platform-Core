@@ -1,0 +1,81 @@
+registry_version: "1.0"
+projects:
+  - id: new-earth-platform-core
+    name: New Earth Platform Core
+    family: platform
+    type: platform-core
+    repository: New-Earth-Platform-Core
+    status: active
+    contract: ../../NEW_EARTH_PROJECT.yaml
+
+  - id: neos
+    name: NEOS
+    family: core
+    type: engineering-os
+    repository: New-Earth-Engineering-OS-Omega
+    status: active
+    contract: examples/contracts/NEOS.NEW_EARTH_PROJECT.yaml
+
+  - id: gaia
+    name: Gaia
+    family: intelligence
+    type: ai-employee
+    repository: New-Earth-Gaia
+    status: planned
+    contract: examples/contracts/GAIA.NEW_EARTH_PROJECT.yaml
+
+  - id: command-centre
+    name: New Earth Command Centre
+    family: core
+    type: operations-hub
+    repository: New-Earth-Command-Centre
+    status: active
+    contract: examples/contracts/COMMAND_CENTRE.NEW_EARTH_PROJECT.yaml
+
+  - id: microgrow
+    name: MicroGrow
+    family: growing
+    type: product
+    repository: MicroGrow-V1
+    status: active
+    contract: examples/contracts/MICROGROW.NEW_EARTH_PROJECT.yaml
+
+  - id: microgrow-control-centre
+    name: MicroGrow Control Centre
+    family: growing
+    type: control-application
+    repository: MicroGrow-V1
+    status: active
+    contract: examples/contracts/MICROGROW_CONTROL.NEW_EARTH_PROJECT.yaml
+
+  - id: biocalm
+    name: BioCalm
+    family: wellbeing
+    type: wearable
+    repository: BioCalm
+    status: developing
+    contract: examples/contracts/BIOCALM.NEW_EARTH_PROJECT.yaml
+
+  - id: new-earth-living
+    name: New Earth Living
+    family: wellbeing
+    type: application
+    repository: New-Earth-Living
+    status: developing
+    contract: examples/contracts/NEW_EARTH_LIVING.NEW_EARTH_PROJECT.yaml
+
+  - id: life-os
+    name: New Earth Life OS
+    family: personal
+    type: application
+    repository: New-Earth-Life-OS
+    status: developing
+    contract: examples/contracts/LIFE_OS.NEW_EARTH_PROJECT.yaml
+
+  - id: embedded-engineering-lab
+    name: Embedded Engineering Lab
+    family: engineering
+    type: laboratory
+    repository: Embedded-Engineering-Lab
+    status: developing
+    contract: examples/contracts/EMBEDDED_LAB.NEW_EARTH_PROJECT.yaml

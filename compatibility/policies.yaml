@@ -1,0 +1,13 @@
+policy_version: "1.0"
+policies:
+  schema_breaking_change:
+    requires_major_version: true
+    requires_impact_review: true
+    requires_migration_notes: true
+
+  dependency_upgrade:
+    requires_affected_project_validation: true
+
+  platform_contract_change:
+    requires_neos_validation: true
+    requires_command_centre_compatibility_review: true

@@ -1,0 +1,33 @@
+architecture_version: "1.0"
+layers:
+  - id: standards
+    contains:
+      - branding
+      - design-system
+      - engineering-standards
+      - security-standards
+
+  - id: platform-core
+    contains:
+      - registry
+      - contracts
+      - compatibility
+      - dependency-graph
+
+  - id: intelligence
+    contains:
+      - neos
+      - gaia
+
+  - id: orchestration
+    contains:
+      - command-centre
+
+  - id: products
+    contains:
+      - microgrow
+      - microgrow-control-centre
+      - biocalm
+      - new-earth-living
+      - life-os
+      - embedded-engineering-lab

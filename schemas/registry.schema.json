@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "New Earth Project Registry",
+  "type": "object",
+  "required": [
+    "registry_version",
+    "projects"
+  ],
+  "properties": {
+    "registry_version": {
+      "type": "string"
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "family",
+          "type",
+          "repository",
+          "status",
+          "contract"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
