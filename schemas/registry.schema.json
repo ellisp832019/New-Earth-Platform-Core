@@ -24,9 +24,7 @@
           "contract"
         ],
         "properties": {
-          "id": {
-            "type": "string"
-          },
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
           "name": {
             "type": "string"
           },
@@ -36,15 +34,9 @@
           "type": {
             "type": "string"
           },
-          "repository": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "contract": {
-            "type": "string"
-          }
+          "repository": {"type": "string", "minLength": 1},
+          "status": {"enum": ["active", "developing", "planned", "deprecated", "archived"]},
+          "contract": {"type": "string", "minLength": 1}
         },
         "additionalProperties": false
       }

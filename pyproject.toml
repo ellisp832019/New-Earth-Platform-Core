@@ -25,6 +25,8 @@ dev = [
   "ruff>=0.6.2",
   "mypy>=1.11.1",
   "types-PyYAML>=6.0.12",
+  "types-jsonschema>=4.23.0",
+  "build>=1.2.2",
 ]
 
 [project.scripts]

@@ -22,21 +22,22 @@
           "required"
         ],
         "properties": {
-          "source": {
-            "type": "string"
-          },
-          "target": {
-            "type": "string"
-          },
+          "source": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+          "target": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
           "kind": {
-            "type": "string"
+            "enum": [
+              "compatible_with",
+              "consumes",
+              "controls",
+              "depends_on",
+              "observes",
+              "provides",
+              "publishes",
+              "subscribes"
+            ]
           },
-          "contract": {
-            "type": "string"
-          },
-          "required": {
-            "type": "boolean"
-          }
+          "contract": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+          "required": {"type": "boolean"}
         },
         "additionalProperties": false
       }

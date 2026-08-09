@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .graph import load_dependencies, load_projects, mermaid
+from .graph import graph_diagnostics, load_dependencies, load_projects, mermaid
 from .validation import (
-    validate_project_ids,
-    validate_unique_project_ids,
+    validate_contracts,
+    validate_registry,
     validate_yaml_against_schema,
 )
 
@@ -24,11 +24,8 @@ def validate_repository(root: Path) -> list[str]:
         root / "NEW_EARTH_PROJECT.yaml",
         root / "schemas/project-contract.schema.json",
     )
-    errors += validate_unique_project_ids(root / "registry/projects.yaml")
-    errors += validate_project_ids(
-        root / "registry/projects.yaml",
-        root / "registry/dependencies.yaml",
-    )
+    errors += validate_registry(root)
+    errors += validate_contracts(root)
     return errors
 
 
@@ -36,3 +33,9 @@ def graph_text(root: Path) -> str:
     projects = load_projects(root / "registry/projects.yaml")
     dependencies = load_dependencies(root / "registry/dependencies.yaml")
     return mermaid(projects, dependencies)
+
+
+def graph_report(root: Path) -> list[str]:
+    projects = load_projects(root / "registry/projects.yaml")
+    dependencies = load_dependencies(root / "registry/dependencies.yaml")
+    return graph_diagnostics(projects, dependencies)

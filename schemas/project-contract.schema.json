@@ -16,95 +16,90 @@
   ],
   "properties": {
     "contract_version": {
-      "type": "string"
+      "type": "string",
+      "enum": ["1.0"]
     },
     "project": {
       "type": "object",
-      "required": [
-        "id",
-        "name",
-        "family",
-        "type",
-        "owner",
-        "status",
-        "maturity"
-      ],
+      "required": ["id", "name", "family", "type", "owner", "status", "maturity"],
       "properties": {
-        "id": {
-          "type": "string",
-          "pattern": "^[a-z0-9][a-z0-9-]*$"
-        },
-        "name": {
-          "type": "string",
-          "minLength": 2
-        },
-        "family": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
-        "owner": {
-          "type": "string"
-        },
-        "status": {
-          "type": "string"
-        },
-        "maturity": {
-          "type": "string"
-        }
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "name": {"type": "string", "minLength": 2},
+        "family": {"type": "string", "minLength": 2},
+        "type": {"type": "string", "minLength": 2},
+        "owner": {"type": "string", "minLength": 2},
+        "status": {"enum": ["active", "developing", "planned", "deprecated", "archived"]},
+        "maturity": {"enum": ["foundation", "prototype", "development", "alpha", "beta", "production"]}
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "repository": {
       "type": "object",
-      "required": [
-        "version",
-        "versioning",
-        "default_branch",
-        "release_channel"
-      ],
+      "required": ["version", "versioning", "default_branch", "release_channel"],
       "properties": {
-        "version": {
-          "type": "string"
-        },
-        "versioning": {
-          "enum": [
-            "semver"
-          ]
-        },
-        "default_branch": {
-          "type": "string"
-        },
+        "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+        "versioning": {"enum": ["semver"]},
+        "default_branch": {"type": "string", "minLength": 1},
         "release_channel": {
-          "type": "string"
+          "enum": ["development", "alpha", "beta", "release-candidate", "stable", "deprecated"]
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "design": {
-      "type": "object"
+      "type": "object",
+      "required": ["system", "version", "shell", "personality", "accessibility"],
+      "properties": {
+        "system": {"enum": ["NEDS"]},
+        "version": {"type": "string", "minLength": 1},
+        "shell": {"type": "string", "minLength": 1},
+        "personality": {"type": "string", "minLength": 1},
+        "accessibility": {"enum": ["required", "not-applicable"]}
+      },
+      "additionalProperties": false
     },
     "engineering": {
-      "type": "object"
+      "type": "object",
+      "required": ["local_first", "logging", "security", "ci", "testing", "documentation"],
+      "properties": {
+        "local_first": {"type": "boolean"},
+        "logging": {"enum": ["none", "standard", "structured"]},
+        "security": {"enum": ["baseline", "enhanced", "regulated"]},
+        "ci": {"enum": ["required", "not-applicable"]},
+        "testing": {"enum": ["required", "not-applicable"]},
+        "documentation": {"enum": ["required", "not-applicable"]}
+      },
+      "additionalProperties": false
     },
     "integrations": {
-      "type": "object"
+      "type": "object",
+      "required": ["neos", "gaia", "command_centre"],
+      "properties": {
+        "neos": {"type": "boolean"},
+        "gaia": {"type": "boolean"},
+        "command_centre": {"type": "boolean"}
+      },
+      "additionalProperties": false
     },
     "provides": {
       "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}
     },
     "consumes": {
       "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}
     },
     "governance": {
-      "type": "object"
+      "type": "object",
+      "required": ["owner_review", "architecture_review", "release_status"],
+      "properties": {
+        "owner_review": {"enum": ["required", "not-applicable"]},
+        "architecture_review": {"enum": ["required", "not-applicable"]},
+        "release_status": {"enum": ["in-development", "ready", "released", "deprecated"]}
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false
