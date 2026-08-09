@@ -34,6 +34,14 @@ jobs:
       - name: Platform validation
         run: new-earth-platform validate
 
+      - name: Platform doctor
+        run: new-earth-platform doctor
+
+      - name: Platform read model smoke
+        run: |
+          new-earth-platform projects --json
+          new-earth-platform compatibility --json
+
       - name: Tests
         run: pytest --cov=new_earth_platform --cov-report=term-missing
 
