@@ -6,6 +6,9 @@
 - dependency registry
 - compatibility rules
 - validator CLI
+- doctor CLI
+- declared impact analysis
+- compatibility rule parsing
 - Mermaid graph generation
 - CI
 - tests

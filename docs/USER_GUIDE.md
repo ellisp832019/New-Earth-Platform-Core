@@ -1,47 +1,87 @@
 # User Guide
 
-## Validate the whole Platform Core repository
+Platform Core is a local-first declared-state repository. It describes the New Earth ecosystem; it does not inspect external source code or change other repositories.
+
+## Installation
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+python -m pip install -e ".[dev]"
+```
+
+## Validation
 
 ```powershell
 new-earth-platform validate
+new-earth-platform doctor
+pytest
+ruff check src tests
+mypy src
 ```
 
-## Show registered projects
+## CLI Commands
 
 ```powershell
-new-earth-platform projects
-```
-
-## Generate a Mermaid dependency graph
-
-```powershell
-new-earth-platform graph --format mermaid
-```
-
-## Write the graph to a file
-
-```powershell
-new-earth-platform graph --format mermaid --output artifacts/generated/platform.mmd
-```
-
-## Validate a project contract
-
-```powershell
+new-earth-platform version
+new-earth-platform validate
 new-earth-platform validate-contract NEW_EARTH_PROJECT.yaml
+new-earth-platform projects
+new-earth-platform projects --json
+new-earth-platform project microgrow
+new-earth-platform dependencies
+new-earth-platform interfaces
+new-earth-platform services
+new-earth-platform compatibility
+new-earth-platform graph --format mermaid
+new-earth-platform graph --format mermaid --output artifacts/generated/platform.mmd
+new-earth-platform impact microgrow
+new-earth-platform doctor --json
 ```
 
-## How to onboard a new repository
+## Adding A Project
 
-1. Copy `examples/NEW_EARTH_PROJECT.template.yaml` into the repository root as `NEW_EARTH_PROJECT.yaml`.
-2. Replace all placeholders.
-3. Add the project to `registry/projects.yaml`.
-4. Add dependency edges to `registry/dependencies.yaml`.
-5. Add compatibility rules if the repository consumes versioned shared contracts.
-6. Run `new-earth-platform validate`.
-7. Open a PR in Platform Core.
-8. Only after the registry PR is merged, integrate NEOS/Command Centre/Gaia as needed.
+1. Add or update a `NEW_EARTH_PROJECT.yaml` contract using `examples/NEW_EARTH_PROJECT.template.yaml`.
+2. Register the project in `registry/projects.yaml`.
+3. Ensure the project ID is lowercase kebab-case and unique.
+4. Run `new-earth-platform validate-contract <path>`.
+5. Run `new-earth-platform validate`.
 
-## Golden rule
+## Adding Dependencies
 
-The registry should describe reality.  
-If code and registry disagree, investigate rather than automatically rewriting one to match the other.
+Add declared edges to `registry/dependencies.yaml`. Supported relationship kinds are `consumes`, `provides`, `controls`, `observes`, `depends_on`, `publishes`, `subscribes`, and `compatible_with`.
+
+Each edge must use known project IDs, must not be a self-dependency, must have a boolean `required` flag, and must reference a declared interface, service, or contract.
+
+## Adding Interfaces And Services
+
+Add interfaces to `registry/interfaces.yaml` and services to `registry/services.yaml`. Owners must be registered projects. Schema paths must point to tracked schema files when present.
+
+## Compatibility Rules
+
+Add rules to `compatibility/matrix.yaml`. Requirements use Python packaging specifier syntax, including:
+
+```text
+>=1.0
+>=1.0,<2.0
+~=1.4
+```
+
+Platform Core validates syntax and can answer declared compatibility questions. It does not invent provider versions for external projects.
+
+## Impact Analysis
+
+```powershell
+new-earth-platform impact microgrow
+```
+
+Impact output is declared architecture impact only. NEOS will later compare this declared state against observed repository reality.
+
+## Interpreting Errors
+
+Validation failures mean the authoritative platform data is incomplete, ambiguous, or malformed. Fix the registry, schema, or contract in Platform Core through a reviewed pull request. Do not silently rewrite external repositories to satisfy the registry.
+
+## Branch And PR Workflow
+
+Work on feature branches. Keep `main` protected. Run validation before opening a PR. Schema changes, breaking interface changes, and cross-repository changes require explicit architecture review and impact analysis.

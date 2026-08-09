@@ -12,3 +12,5 @@ A release should be blocked if:
 Release lifecycle:
 
 development → alpha → beta → release-candidate → stable → deprecated
+
+Release evidence should include validation results, tests, lint, typing, package build status, declared impact, known limitations, rollback or recovery notes, and any required migration notes for breaking changes.

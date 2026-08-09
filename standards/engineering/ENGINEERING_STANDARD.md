@@ -15,3 +15,5 @@ Every active repository should have:
 - rollback or recovery notes for operationally significant releases
 
 Cross-repository changes must declare impact before merge.
+
+Schema, interface, and compatibility changes require architecture review when they can affect another project. Pull requests should include validation evidence, expected impact, rollback notes where relevant, and links to coordinated repository work.

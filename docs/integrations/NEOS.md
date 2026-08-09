@@ -1,23 +1,34 @@
-# NEOS Integration Contract
+# NEOS Integration Boundary
 
-NEOS should consume:
+Platform Core exposes declared state. NEOS observes engineering reality and derives engineering intelligence.
 
+## Platform Core Read Model
+
+NEOS may consume these read-only inputs:
+
+- `NEW_EARTH_PROJECT.yaml`
 - `registry/projects.yaml`
 - `registry/dependencies.yaml`
 - `registry/interfaces.yaml`
+- `registry/services.yaml`
+- `registry/releases.yaml`
 - `compatibility/matrix.yaml`
-- each repository's `NEW_EARTH_PROJECT.yaml`
+- `compatibility/policies.yaml`
+- `standards/**`
+- project contracts referenced by `registry/projects.yaml`
 
-NEOS should return derived intelligence such as:
+## Responsibility Split
 
-- observed git branch/SHA;
-- build health;
-- test health;
-- documentation health;
-- contract drift;
-- dependency drift;
-- compatibility warnings;
-- architecture impact;
-- release readiness.
+Declared state is owned by Platform Core. Observed state is owned by NEOS. Derived engineering intelligence is owned by NEOS.
 
-NEOS must not silently mutate Platform Core authoritative registries.
+NEOS should inspect repositories, git state, builds, tests, docs, source code, security posture, design-system drift, and compliance. It should compare observed reality against Platform Core declarations.
+
+## Future Sequence
+
+1. Platform Core validates declared projects, dependencies, interfaces, services, compatibility, and standards.
+2. NEOS reads the validated Platform Core model.
+3. NEOS discovers repositories and records observed SHA, branch, build, test, documentation, and contract state.
+4. NEOS reports drift and release readiness without mutating Platform Core.
+5. Governed humans decide whether Platform Core declarations or repository implementations must change.
+
+NEOS must not silently mutate authoritative registries.
