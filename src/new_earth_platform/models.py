@@ -10,7 +10,7 @@ import yaml
 def load_yaml(path: Path) -> dict[str, Any]:
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
-        raise ValueError(f"{path} must contain a YAML object at its root")
+        raise TypeError(f"{path} must contain a YAML object at its root")
     return data
 
 
@@ -25,7 +25,7 @@ class Project:
     contract: str
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Project":
+    def from_dict(cls, data: dict[str, Any]) -> Project:
         return cls(
             id=str(data["id"]),
             name=str(data["name"]),
@@ -46,11 +46,53 @@ class Dependency:
     required: bool
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Dependency":
+    def from_dict(cls, data: dict[str, Any]) -> Dependency:
         return cls(
             source=str(data["source"]),
             target=str(data["target"]),
             kind=str(data["kind"]),
             contract=str(data["contract"]),
             required=bool(data["required"]),
+        )
+
+
+@dataclass(frozen=True)
+class Service:
+    id: str
+    owner: str
+    kind: str
+    interface: str
+    version: str | None
+    status: str | None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Service:
+        return cls(
+            id=str(data["id"]),
+            owner=str(data["owner"]),
+            kind=str(data["kind"]),
+            interface=str(data["interface"]),
+            version=str(data["version"]) if "version" in data else None,
+            status=str(data["status"]) if "status" in data else None,
+        )
+
+
+@dataclass(frozen=True)
+class Interface:
+    id: str
+    owner: str
+    stability: str
+    schema: str | None
+    type: str | None
+    endpoint: str | None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Interface:
+        return cls(
+            id=str(data["id"]),
+            owner=str(data["owner"]),
+            stability=str(data["stability"]),
+            schema=str(data["schema"]) if "schema" in data else None,
+            type=str(data["type"]) if "type" in data else None,
+            endpoint=str(data["endpoint"]) if "endpoint" in data else None,
         )

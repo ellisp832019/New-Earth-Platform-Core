@@ -16,6 +16,16 @@ interfaces:
     endpoint: http://127.0.0.1:8765
     stability: external
 
+  - id: neos-context-api
+    owner: neos
+    type: http
+    stability: external
+
+  - id: repository-intelligence
+    owner: neos
+    type: data-contract
+    stability: external
+
   - id: microgrow-device-api
     owner: microgrow
     type: http

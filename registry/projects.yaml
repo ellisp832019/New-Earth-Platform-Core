@@ -6,7 +6,7 @@ projects:
     type: platform-core
     repository: New-Earth-Platform-Core
     status: active
-    contract: ../../NEW_EARTH_PROJECT.yaml
+    contract: NEW_EARTH_PROJECT.yaml
 
   - id: neos
     name: NEOS

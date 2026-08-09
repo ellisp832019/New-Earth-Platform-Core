@@ -1,16 +1,21 @@
-# Command Centre Integration Contract
+# Command Centre Integration Boundary
 
-Command Centre should initially consume Platform Core read-only.
+Command Centre should consume Platform Core as a read-only declared-state model. It is the operator cockpit, not the registry authority.
 
-Recommended views:
+## Platform Core Data For Future Views
 
-- ecosystem overview;
-- all projects;
-- project health;
-- dependency graph;
-- compatibility warnings;
-- active releases;
-- standards/compliance summary;
-- NEOS-derived attention items.
+- registered projects
+- project identity, owner, lifecycle, maturity, and release channel
+- declared dependency graph
+- declared interfaces and services
+- compatibility rules and policies
+- release registry status
+- standards and design-system metadata
 
-Command Centre is the operator surface, not the registry authority.
+## Later NEOS Data
+
+Command Centre should use NEOS for observed repository health, build health, test health, compliance, release readiness, documentation status, and drift.
+
+## Boundary
+
+Command Centre can present warnings and request governed actions. It must not directly rewrite Platform Core registries without an explicit reviewed workflow.

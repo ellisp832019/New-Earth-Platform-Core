@@ -1,13 +1,20 @@
-# Gaia Integration Contract
+# Gaia Integration Boundary
 
-Gaia should receive platform context from Platform Core plus engineering intelligence from NEOS.
+Gaia should explain Platform Core declared state together with NEOS observed and derived intelligence. Gaia is not the authoritative registry writer.
 
-Example queries:
+## Inputs
 
-- What projects depend on MicroGrow?
-- What is blocking the next release?
-- Which projects are out of design-system compliance?
-- What can I safely work on without affecting another active branch?
-- What must be rebuilt if contract X changes?
+- Platform Core declared projects, contracts, dependencies, interfaces, services, releases, standards, and compatibility rules.
+- NEOS observed repository state and derived engineering intelligence.
 
-Gaia should explain and recommend; execution remains explicitly governed.
+## Example Queries
+
+- What projects declare a dependency on MicroGrow?
+- What may be affected if `neos-status-api` changes?
+- Which projects are out of compliance according to NEOS?
+- What is blocking MicroGrow from release readiness?
+- What can be worked on without touching a shared interface?
+
+## Governance
+
+Gaia may recommend changes, draft explanations, and prepare governed action proposals. It must not directly rewrite authoritative registries from natural-language requests without explicit review and approval.

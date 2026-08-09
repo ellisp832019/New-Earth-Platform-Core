@@ -10,3 +10,5 @@ Minimum layers:
 - release validation.
 
 Platform-wide orchestration should eventually run only tests affected by a dependency change, plus mandatory safety-critical lanes.
+
+Platform Core tests must remain deterministic and offline. Critical coverage includes project contracts, duplicate IDs, unknown references, self-dependencies, graph generation, cycle detection, compatibility requirement parsing, impact analysis, CLI validation, doctor output, and version drift.

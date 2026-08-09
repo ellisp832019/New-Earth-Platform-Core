@@ -8,3 +8,6 @@
 6. Security-sensitive dependency changes require review.
 7. Release artifacts should have checksums.
 8. Critical actions should be auditable.
+9. YAML must be loaded with safe parsers.
+10. Tooling must avoid arbitrary code execution from registry data.
+11. Machine-specific paths, tokens, private keys, credentials and local environment files must not be committed.

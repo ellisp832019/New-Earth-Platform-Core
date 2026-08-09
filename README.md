@@ -57,6 +57,11 @@ py -m venv .venv
 python -m pip install -U pip
 pip install -e .[dev]
 new-earth-platform validate
+new-earth-platform doctor
+new-earth-platform projects
+new-earth-platform dependencies
+new-earth-platform compatibility
+new-earth-platform impact microgrow
 new-earth-platform graph --format mermaid
 pytest
 ```
@@ -69,6 +74,11 @@ source .venv/bin/activate
 python -m pip install -U pip
 pip install -e '.[dev]'
 new-earth-platform validate
+new-earth-platform doctor
+new-earth-platform projects
+new-earth-platform dependencies
+new-earth-platform compatibility
+new-earth-platform impact microgrow
 new-earth-platform graph --format mermaid
 pytest
 ```
@@ -110,3 +120,7 @@ This starter includes a real working Python package, JSON schemas, example proje
 - no hidden dependency resolution.
 
 The platform must remain inspectable, deterministic, local-first, and human-governed.
+
+## Declared impact only
+
+`new-earth-platform impact <project-id>` calculates impact from Platform Core declarations. It does not claim observed source-code dependencies, build failures, or repository drift. Those facts belong to NEOS.
