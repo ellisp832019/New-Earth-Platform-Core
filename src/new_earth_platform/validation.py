@@ -100,6 +100,7 @@ GOV_CANONICAL_STATUS_SET = {
 GOV_LIFECYCLE_SET = {
     "active",
     "developing",
+    "embedded",
     "planned",
     "probable",
     "placeholder",
@@ -117,7 +118,7 @@ GOV_REFERENCE_STATUSES = {"reference", "vendor_reference", "learning_reference"}
 GOV_PLANNED_LIFECYCLE = {"planned", "probable", "placeholder"}
 GOV_STATUS_LIFECYCLE: dict[str, set[str]] = {
     "canonical": {"active", "developing"},
-    "canonical_specialist": {"active", "developing"},
+    "canonical_specialist": {"active", "developing", "embedded"},
     "canonical_programme": {"active", "planned", "developing"},
     "planned_extraction": {"planned"},
     "probable_extraction": {"probable"},
@@ -201,11 +202,20 @@ def _validate_governance_record(
             errors.append(f"Planned extraction must not declare canonical_repo for {record.id}")
         if record.lifecycle not in GOV_PLANNED_LIFECYCLE:
             errors.append(f"Planned extraction has invalid lifecycle for {record.id}: {record.lifecycle}")
+    if record.lifecycle == "embedded":
+        if record.repository.canonical_repo is not None:
+            errors.append(f"Embedded system must not declare canonical_repo for {record.id}")
+        if record.release_independence:
+            errors.append(f"Embedded system should not be release independent: {record.id}")
     if record.canonical_status in GOV_REFERENCE_STATUSES and record.ownership.system_owner == GOV_INTERNAL_OWNER:
         errors.append(f"Reference or vendor record cannot use the internal owner for {record.id}")
     if record.canonical_status in GOV_CANONICAL_STATUSES and record.id not in registered_project_ids:
         errors.append(f"Canonical system must be registered in Platform Core: {record.id}")
-    if record.canonical_status in GOV_CANONICAL_STATUSES and not record.release_independence:
+    if (
+        record.canonical_status in GOV_CANONICAL_STATUSES
+        and record.lifecycle != "embedded"
+        and not record.release_independence
+    ):
         errors.append(f"Canonical system should be release independent: {record.id}")
     if (
         (record.canonical_status in GOV_EXTRACTED_STATUSES or record.canonical_status in GOV_REFERENCE_STATUSES)

@@ -31,11 +31,15 @@ Supported architecture roles are:
 
 ## Canonical State
 
-The governance registry distinguishes canonical systems, specialist canonicals, programmes, planned extractions, probable extractions, placeholders, prototypes, legacy systems, and reference or vendor material.
+The governance registry distinguishes canonical systems, specialist canonicals, programmes, embedded systems, planned extractions, probable extractions, placeholders, prototypes, legacy systems, and reference or vendor material.
+
+The registry also distinguishes repository identity from system identity so that an embedded or conceptual project can remain known to Platform Core without claiming a confirmed independent GitHub repository.
 
 ## Planned Extractions
 
 Planned extractions are declared separately from active systems. They point back to a source system and must not be modeled as already active canonical repositories unless a dedicated repository truly exists and is declared as such.
+
+An embedded system is different from a planned extraction: it is current, but still lives inside another repository boundary and does not yet have release independence.
 
 ## Validation Rules
 

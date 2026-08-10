@@ -148,6 +148,7 @@
           "enum": [
             "active",
             "developing",
+            "embedded",
             "planned",
             "probable",
             "placeholder",

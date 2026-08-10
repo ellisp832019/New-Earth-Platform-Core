@@ -260,17 +260,17 @@ systems:
     canonical_name: New Earth Command Dashboard
     record_type: system
     architecture_role: OPERATIONS_UI
-    canonical_status: planned_extraction
-    lifecycle: planned
+    canonical_status: canonical_specialist
+    lifecycle: active
     maturity: development
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
-      canonical_repo: null
-      current_location: New-Earth-Command-Centre
+      canonical_repo: New_Earth_Command_Dashboard
+      current_location: New_Earth_Command_Dashboard
     contains_extractable_systems: true
-    release_independence: false
-    dependency_class: planned_extraction
+    release_independence: true
+    dependency_class: specialist_system
     relationships:
       platform_core:
         kind: registered_in
@@ -294,8 +294,8 @@ systems:
         notes: This record declares the future operations UI boundary.
     recommended_action: Extract dashboard concerns out of Command Centre when the UI boundary is stable.
     architecture_notes:
-      - Current state is modeled as a planned extraction, not a separate live repo.
-      - Backend engines must not permanently live inside the dashboard.
+      - The dashboard is an active canonical repository and visual operations layer.
+      - Planned internal extractions remain governed separately from the repository boundary.
     supersedes: []
     superseded_by: []
     overlaps_with: ["command-centre"]
@@ -349,15 +349,15 @@ systems:
     record_type: system
     architecture_role: OPERATIONS_UI
     canonical_status: canonical_specialist
-    lifecycle: developing
+    lifecycle: embedded
     maturity: development
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
       canonical_repo: null
-      current_location: MicroGrow-V1
+      current_location: microgrow
     contains_extractable_systems: false
-    release_independence: true
+    release_independence: false
     dependency_class: specialist_system
     relationships:
       platform_core:
@@ -382,8 +382,8 @@ systems:
         notes: Dashboard may host this control centre experience.
     recommended_action: Keep the control surface focused on MicroGrow operations.
     architecture_notes:
-      - Specialist control surface for MicroGrow.
-      - Controls MicroGrow but does not become the product itself.
+      - Embedded specialist control surface for MicroGrow.
+      - Controls MicroGrow but does not become an independent repository yet.
     supersedes: []
     superseded_by: []
     overlaps_with: ["microgrow"]
@@ -486,8 +486,8 @@ systems:
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
-      canonical_repo: New-Earth-Life-OS
-      current_location: New-Earth-Life-OS
+      canonical_repo: null
+      current_location: life-os
     contains_extractable_systems: false
     release_independence: true
     dependency_class: product
@@ -514,7 +514,7 @@ systems:
         notes: Dashboard can expose status views.
     recommended_action: Keep the product declaration separate from tooling or shell concerns.
     architecture_notes:
-      - Life OS is a product, not infrastructure.
+      - Life OS is a product identity in Platform Core, but no confirmed independent GitHub repository is declared here.
       - It should not absorb orchestration responsibilities.
     supersedes: []
     superseded_by: []
@@ -530,8 +530,8 @@ systems:
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
-      canonical_repo: Embedded-Engineering-Lab
-      current_location: Embedded-Engineering-Lab
+      canonical_repo: null
+      current_location: embedded-engineering-lab
     contains_extractable_systems: false
     release_independence: true
     dependency_class: lab
@@ -559,7 +559,7 @@ systems:
     recommended_action: Keep the lab a distinct experimental boundary.
     architecture_notes:
       - The lab is a specialist boundary and not a product runtime.
-      - NEOS should later inspect evidence from lab repos.
+      - No confirmed independent GitHub repository is declared here yet.
     supersedes: []
     superseded_by: []
     overlaps_with: []

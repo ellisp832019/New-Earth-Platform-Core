@@ -1,6 +1,6 @@
 # Command Dashboard Integration Boundary
 
-The Command Dashboard is the visual operations layer for the New Earth estate.
+The Command Dashboard is the active visual operations layer for the New Earth estate.
 
 ## Intended Scope
 
@@ -21,4 +21,4 @@ The Command Dashboard is the visual operations layer for the New Earth estate.
 
 ## Relationship To Platform Core
 
-The dashboard consumes Platform Core declarations and will later consume NEOS evidence. It must not become a parallel source of truth.
+The dashboard consumes Platform Core declarations and will later consume NEOS evidence. It must not become a parallel source of truth, and its internal planned extractions remain separate from the dashboard repository boundary.

@@ -4,6 +4,7 @@ from typing import cast
 
 import yaml
 
+from new_earth_platform.governance import governance_index, load_governance
 from new_earth_platform.validation import validate_governance
 
 
@@ -74,6 +75,56 @@ def test_planned_extractions_are_represented_separately(tmp_path: Path) -> None:
     _planned(data, "microgrow-hub")["repository"]["canonical_repo"] = "MicroGrow-Hub"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     assert any("Planned extraction must not declare canonical_repo" in error for error in validate_governance(tmp_path))
+
+
+def test_dashboard_is_active_repo_with_internal_planned_extractions() -> None:
+    root = Path(__file__).resolve().parents[1]
+    catalog = load_governance(root / "registry/governance.yaml")
+    dashboard = governance_index(root / "registry/governance.yaml")["new-earth-command-dashboard"]
+
+    assert dashboard.architecture_role == "OPERATIONS_UI"
+    assert dashboard.canonical_status == "canonical_specialist"
+    assert dashboard.lifecycle == "active"
+    assert dashboard.repository.canonical_repo == "New_Earth_Command_Dashboard"
+    assert dashboard.repository.current_location == "New_Earth_Command_Dashboard"
+    assert dashboard.release_independence is True
+    assert {
+        record.id
+        for record in catalog.planned_extractions
+        if record.source_system == "new-earth-command-dashboard"
+    } == {
+        "new-earth-experiment-validation-engine",
+        "new-earth-backup-guardian",
+        "new-earth-knowledge-librarian",
+    }
+    assert validate_governance(root) == []
+
+
+def test_microgrow_control_centre_is_embedded_not_independent_repo() -> None:
+    root = Path(__file__).resolve().parents[1]
+    record = governance_index(root / "registry/governance.yaml")["microgrow-control-centre"]
+
+    assert record.architecture_role == "OPERATIONS_UI"
+    assert record.canonical_status == "canonical_specialist"
+    assert record.lifecycle == "embedded"
+    assert record.repository.canonical_repo is None
+    assert record.repository.current_location == "microgrow"
+    assert record.release_independence is False
+    assert validate_governance(root) == []
+
+
+def test_known_system_identities_do_not_claim_unconfirmed_repositories() -> None:
+    root = Path(__file__).resolve().parents[1]
+    records = governance_index(root / "registry/governance.yaml")
+
+    life_os = records["life-os"]
+    embedded_lab = records["embedded-engineering-lab"]
+
+    assert life_os.repository.canonical_repo is None
+    assert life_os.repository.current_location == "life-os"
+    assert embedded_lab.repository.canonical_repo is None
+    assert embedded_lab.repository.current_location == "embedded-engineering-lab"
+    assert validate_governance(root) == []
 
 
 def test_legacy_system_requires_successor(tmp_path: Path) -> None:
