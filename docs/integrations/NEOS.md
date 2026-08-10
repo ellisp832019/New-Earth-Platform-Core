@@ -8,6 +8,7 @@ NEOS may consume these read-only inputs:
 
 - `NEW_EARTH_PROJECT.yaml`
 - `registry/projects.yaml`
+- `registry/governance.yaml`
 - `registry/dependencies.yaml`
 - `registry/interfaces.yaml`
 - `registry/services.yaml`

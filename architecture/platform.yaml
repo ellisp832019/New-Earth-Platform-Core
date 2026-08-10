@@ -1,4 +1,8 @@
 architecture_version: "1.0"
+governance:
+  version: "1.0"
+  registry: registry/governance.yaml
+  schema: schemas/governance.schema.json
 layers:
   - id: standards
     contains:
@@ -13,6 +17,7 @@ layers:
       - contracts
       - compatibility
       - dependency-graph
+      - governance
 
   - id: intelligence
     contains:

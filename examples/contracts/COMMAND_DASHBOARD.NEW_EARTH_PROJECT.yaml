@@ -1,0 +1,47 @@
+contract_version: "1.0"
+project:
+  id: new-earth-command-dashboard
+  name: New Earth Command Dashboard
+  family: core
+  type: operations-dashboard
+  owner: New Earth Advanced Technologies Ltd
+  status: active
+  maturity: development
+
+repository:
+  version: 0.1.0
+  versioning: semver
+  default_branch: main
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: desktop-standard
+  personality: core
+  accessibility: required
+
+engineering:
+  local_first: true
+  logging: standard
+  security: baseline
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: true
+  command_centre: true
+
+provides:
+  - command-dashboard-views
+consumes:
+  - platform-registry-v1
+  - neos-status-api
+  - command-centre-ui
+
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development

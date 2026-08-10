@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +10,7 @@ from jsonschema import Draft202012Validator
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import InvalidVersion, Version
 
+from .governance import GovernanceRecord, governance_records, load_governance
 from .models import load_yaml
 
 
@@ -66,6 +68,82 @@ def validate_unique_project_ids(projects_path: Path) -> list[str]:
 
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
+GOV_ROLE_SET = {
+    "PLATFORM",
+    "ENGINEERING_INTELLIGENCE",
+    "AI_SYSTEM",
+    "SHELL",
+    "OPERATIONS_UI",
+    "PRODUCT",
+    "LAB",
+    "PROGRAMME",
+    "ENGINE",
+    "SERVICE",
+    "TOOLING",
+    "PROTOTYPE",
+    "LEGACY",
+    "REFERENCE",
+}
+GOV_CANONICAL_STATUS_SET = {
+    "canonical",
+    "canonical_specialist",
+    "canonical_programme",
+    "planned_extraction",
+    "probable_extraction",
+    "placeholder",
+    "prototype",
+    "legacy",
+    "reference",
+    "vendor_reference",
+    "learning_reference",
+}
+GOV_LIFECYCLE_SET = {
+    "active",
+    "developing",
+    "embedded",
+    "planned",
+    "probable",
+    "placeholder",
+    "prototype",
+    "legacy",
+    "reference",
+    "vendor_reference",
+    "learning_reference",
+    "superseded",
+}
+GOV_INTERNAL_OWNER = "New Earth Advanced Technologies Ltd"
+GOV_CANONICAL_STATUSES = {"canonical", "canonical_specialist", "canonical_programme"}
+GOV_EXTRACTED_STATUSES = {"planned_extraction", "probable_extraction"}
+GOV_REFERENCE_STATUSES = {"reference", "vendor_reference", "learning_reference"}
+GOV_PLANNED_LIFECYCLE = {"planned", "probable", "placeholder"}
+GOV_STATUS_LIFECYCLE: dict[str, set[str]] = {
+    "canonical": {"active", "developing"},
+    "canonical_specialist": {"active", "developing", "embedded"},
+    "canonical_programme": {"active", "planned", "developing"},
+    "planned_extraction": {"planned"},
+    "probable_extraction": {"probable"},
+    "placeholder": {"placeholder", "planned"},
+    "prototype": {"prototype"},
+    "legacy": {"legacy", "superseded"},
+    "reference": {"reference"},
+    "vendor_reference": {"reference", "vendor_reference"},
+    "learning_reference": {"reference", "learning_reference"},
+}
+GOV_RELATIONSHIP_KINDS = {
+    "authoritative",
+    "registered_in",
+    "consumes_declarations",
+    "consumes_evidence",
+    "observed_by",
+    "explained_by",
+    "operated_by",
+    "bridge_target",
+    "extracted_from",
+    "superseded_by",
+    "overlaps",
+    "not_applicable",
+}
+
 
 def _duplicates(values: list[str], label: str) -> list[str]:
     seen: set[str] = set()
@@ -91,6 +169,132 @@ def validate_requirement(value: str) -> bool:
     except InvalidSpecifier:
         return False
     return bool(value.strip())
+
+
+def validate_governance_schema(governance_path: Path, schema_path: Path) -> list[str]:
+    return validate_yaml_against_schema(governance_path, schema_path)
+
+
+def _validate_governance_record(
+    record: GovernanceRecord,
+    registered_project_ids: set[str],
+    all_record_ids: set[str],
+    duplicate_canonical_names: set[str],
+    canonical_repo_owners: dict[str, str],
+) -> list[str]:
+    errors: list[str] = []
+    if record.architecture_role not in GOV_ROLE_SET:
+        errors.append(f"Invalid architecture role for {record.id}: {record.architecture_role}")
+    if record.canonical_status not in GOV_CANONICAL_STATUS_SET:
+        errors.append(f"Invalid canonical status for {record.id}: {record.canonical_status}")
+    if record.lifecycle not in GOV_LIFECYCLE_SET:
+        errors.append(f"Invalid lifecycle for {record.id}: {record.lifecycle}")
+    if record.canonical_status in GOV_STATUS_LIFECYCLE and record.lifecycle not in GOV_STATUS_LIFECYCLE[record.canonical_status]:
+        errors.append(
+            f"Contradictory lifecycle for {record.id}: {record.canonical_status} cannot be {record.lifecycle}"
+        )
+    if not record.ownership.system_owner.strip():
+        errors.append(f"Missing owner for {record.id}")
+    if record.record_type == "planned_extraction":
+        if record.canonical_status not in GOV_EXTRACTED_STATUSES:
+            errors.append(f"Planned extraction has invalid status for {record.id}: {record.canonical_status}")
+        if record.repository.canonical_repo is not None:
+            errors.append(f"Planned extraction must not declare canonical_repo for {record.id}")
+        if record.lifecycle not in GOV_PLANNED_LIFECYCLE:
+            errors.append(f"Planned extraction has invalid lifecycle for {record.id}: {record.lifecycle}")
+    if record.lifecycle == "embedded":
+        if record.repository.canonical_repo is not None:
+            errors.append(f"Embedded system must not declare canonical_repo for {record.id}")
+        if record.release_independence:
+            errors.append(f"Embedded system should not be release independent: {record.id}")
+    if record.canonical_status in GOV_REFERENCE_STATUSES and record.ownership.system_owner == GOV_INTERNAL_OWNER:
+        errors.append(f"Reference or vendor record cannot use the internal owner for {record.id}")
+    if record.canonical_status in GOV_CANONICAL_STATUSES and record.id not in registered_project_ids:
+        errors.append(f"Canonical system must be registered in Platform Core: {record.id}")
+    if (
+        record.canonical_status in GOV_CANONICAL_STATUSES
+        and record.lifecycle != "embedded"
+        and not record.release_independence
+    ):
+        errors.append(f"Canonical system should be release independent: {record.id}")
+    if (
+        (record.canonical_status in GOV_EXTRACTED_STATUSES or record.canonical_status in GOV_REFERENCE_STATUSES)
+        and record.release_independence
+    ):
+        errors.append(f"Non-canonical record should not be release independent: {record.id}")
+    if record.canonical_status in {"placeholder", "prototype", "legacy"} and record.release_independence:
+        errors.append(f"Placeholder, prototype, or legacy records should not be release independent: {record.id}")
+    if (
+        record.record_type == "system"
+        and record.canonical_status in {"canonical", "canonical_programme"}
+        and record.repository.canonical_repo is None
+    ):
+        errors.append(f"Canonical system must declare a canonical repository: {record.id}")
+    if record.record_type == "system" and record.repository.canonical_repo is not None and record.canonical_status not in GOV_REFERENCE_STATUSES:
+        repo = record.repository.canonical_repo
+        owner = canonical_repo_owners.get(repo)
+        if owner is None:
+            canonical_repo_owners[repo] = record.id
+        elif owner != record.id:
+            errors.append(f"Canonical repository ownership is ambiguous for {repo}: {owner} and {record.id}")
+    if record.canonical_name in duplicate_canonical_names:
+        errors.append(f"Duplicate canonical name: {record.canonical_name}")
+    if (
+        record.repository.canonical_repo is not None
+        and record.record_type == "system"
+        and record.canonical_status not in GOV_REFERENCE_STATUSES
+        and record.repository.canonical_repo in canonical_repo_owners
+        and canonical_repo_owners[record.repository.canonical_repo] != record.id
+    ):
+        errors.append(
+            f"Canonical repository ownership is ambiguous for {record.repository.canonical_repo}: "
+            f"{canonical_repo_owners[record.repository.canonical_repo]} and {record.id}"
+        )
+    for key, relationship in record.relationships.items():
+        if relationship.kind not in GOV_RELATIONSHIP_KINDS:
+            errors.append(f"Invalid relationship kind for {record.id}.{key}: {relationship.kind}")
+        if relationship.target is not None and relationship.target not in all_record_ids:
+            errors.append(f"Unresolved relationship target for {record.id}.{key}: {relationship.target}")
+    if record.record_type == "system" and record.canonical_status == "legacy" and not record.superseded_by:
+        errors.append(f"Superseded system should declare a successor when known: {record.id}")
+    return errors
+
+
+def validate_governance(root: Path) -> list[str]:
+    governance_path = root / "registry/governance.yaml"
+    schema_path = root / "schemas/governance.schema.json"
+    errors = validate_governance_schema(governance_path, schema_path)
+    catalog = load_governance(governance_path)
+    if not catalog.ownership_model:
+        errors.append("Governance ownership model is required")
+
+    registered_project_ids = {str(item["id"]) for item in load_yaml(root / "registry/projects.yaml").get("projects", [])}
+    records = governance_records(governance_path)
+    record_ids = [record.id for record in records]
+    canonical_names = [record.canonical_name for record in records]
+    if len(set(record_ids)) != len(record_ids):
+        errors.append("Duplicate governance record IDs detected")
+    duplicate_canonical_names = {name for name, count in Counter(canonical_names).items() if count > 1}
+    if duplicate_canonical_names:
+        errors.append("Duplicate governance canonical names detected")
+
+    all_record_ids = set(record_ids)
+    canonical_repo_owners: dict[str, str] = {}
+    for record in records:
+        errors += _validate_governance_record(
+            record,
+            registered_project_ids,
+            all_record_ids,
+            duplicate_canonical_names,
+            canonical_repo_owners,
+        )
+
+    for record in records:
+        if record.source_system is not None and record.source_system not in all_record_ids:
+            errors.append(f"Unresolved source system for planned extraction {record.id}: {record.source_system}")
+        if record.source_system is not None and record.record_type != "planned_extraction":
+            errors.append(f"Only planned extractions may declare a source system: {record.id}")
+    return errors
 
 
 def validate_project_contract_file(contract_path: Path, schema_path: Path) -> list[str]:

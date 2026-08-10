@@ -22,6 +22,8 @@ Provides the human-facing platform cockpit for discovery, launch, observe, summa
 
 Displays read-only Platform Core state and later NEOS health data. It is not the registry authority.
 
+See [Architecture Governance v1](ARCHITECTURE_GOVERNANCE_V1.md) for the detailed declared-state model, role vocabulary, lifecycle distinctions, planned extraction handling, and validation rules.
+
 ## Rule
 
 No one system should silently duplicate the authoritative data owned by another.

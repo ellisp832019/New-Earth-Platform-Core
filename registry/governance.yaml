@@ -1,0 +1,1476 @@
+governance_version: "1.0"
+ownership_model:
+  platform_core:
+    answers: What should exist and how should it connect?
+    owns:
+      - project registry
+      - project identity
+      - architecture roles
+      - canonical status
+      - lifecycle declarations
+      - ownership declarations
+      - project contracts
+      - declared dependencies
+      - compatibility rules
+      - shared schemas
+      - platform standards
+      - design-system metadata
+      - release metadata
+      - integration contracts
+      - planned extraction metadata
+    must_not_become:
+      - repository scanning engine
+      - observed source-code intelligence
+      - engineering evidence engine
+      - ai reasoning engine
+      - autonomous repository modification system
+  neos:
+    answers: What technically exists and what is true?
+    owns:
+      - observed engineering truth
+      - repository scanning
+      - architecture observation
+      - source dependencies
+      - drift detection
+      - tests
+      - firmware intelligence
+      - engineering evidence
+    must_not_become:
+      - authoritative registry writer
+      - conversational reasoning engine
+      - uncontrolled release orchestrator
+  gaia:
+    answers: What does this mean and what should we do?
+    owns:
+      - reasoning
+      - prioritisation
+      - briefings
+      - work-package preparation
+      - approvals support
+      - coordination
+      - human-facing recommendations
+    must_not_become:
+      - authoritative registry writer
+      - repository scanner
+      - uncontrolled autonomous modifier
+  command_centre:
+    answers: Thin front door.
+    owns:
+      - discover
+      - launch
+      - navigate
+      - observe
+      - summarise
+      - notify
+      - orchestrate
+    must_not_become:
+      - domain application runtime
+      - neos
+      - gaia
+  dashboard:
+    answers: Visual operations, controls, permissions, status views, adapters and bridges.
+    owns:
+      - status views
+      - permissions
+      - adapters
+      - bridges
+    must_not_become:
+      - permanent backend engine host
+      - repository scanner
+      - hidden orchestration layer
+
+systems:
+  - id: new-earth-platform-core
+    canonical_name: New Earth Platform Core
+    record_type: system
+    architecture_role: PLATFORM
+    canonical_status: canonical
+    lifecycle: active
+    maturity: foundation
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-Platform-Core
+      current_location: New-Earth-Platform-Core
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: platform_spine
+    relationships:
+      platform_core:
+        kind: authoritative
+        target: new-earth-platform-core
+        notes: Root of the authoritative platform model.
+      neos:
+        kind: consumes_declarations
+        target: neos
+        notes: NEOS reads Platform Core declarations.
+      gaia:
+        kind: consumes_declarations
+        target: gaia
+        notes: Gaia explains Platform Core declarations.
+      command_centre:
+        kind: consumes_declarations
+        target: command-centre
+        notes: Command Centre presents the registry read model.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Dashboard is a future presentation layer, not a platform-core dependency.
+    recommended_action: Maintain as the authoritative source of truth.
+    architecture_notes:
+      - Platform Core defines declared architecture only.
+      - Observed engineering truth belongs to NEOS.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: neos
+    canonical_name: NEOS
+    record_type: system
+    architecture_role: ENGINEERING_INTELLIGENCE
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-Engineering-OS-Omega
+      current_location: New-Earth-Engineering-OS-Omega
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: NEOS consumes the declarative platform registry.
+      neos:
+        kind: authoritative
+        target: neos
+        notes: NEOS owns observed engineering truth.
+      gaia:
+        kind: consumes_evidence
+        target: gaia
+        notes: Gaia consumes NEOS evidence and summaries.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre surfaces NEOS intelligence.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may later surface observed engineering state.
+    recommended_action: Keep observing and do not absorb Platform Core authority.
+    architecture_notes:
+      - NEOS reports observed truth, not declared truth.
+      - Source scanning and evidence gathering stay inside NEOS.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: gaia
+    canonical_name: GAIA
+    record_type: system
+    architecture_role: AI_SYSTEM
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-AI-Employee
+      current_location: New-Earth-AI-Employee
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Gaia consumes Platform Core declarations.
+      neos:
+        kind: consumes_evidence
+        target: neos
+        notes: Gaia consumes NEOS evidence and summaries.
+      gaia:
+        kind: authoritative
+        target: gaia
+        notes: Gaia owns AI employee reasoning and recommendations.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can host Gaia-facing operator flows.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard can surface Gaia-supported work packages.
+    recommended_action: Preserve governed recommendation, briefing, and coordination functions.
+    architecture_notes:
+      - Gaia reasons over declared state plus NEOS evidence.
+      - Gaia must not rewrite authoritative registries directly.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: command-centre
+    canonical_name: New Earth Command Centre
+    record_type: system
+    architecture_role: SHELL
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-Command-Centre
+      current_location: New-Earth-Command-Centre
+    contains_extractable_systems: true
+    release_independence: true
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Command Centre reads the registered platform model.
+      neos:
+        kind: consumes_evidence
+        target: neos
+        notes: Command Centre can display NEOS evidence and alerts.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia can be embedded as a supported workflow assistant.
+      command_centre:
+        kind: authoritative
+        target: command-centre
+        notes: Command Centre owns the human-facing front door.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard is the richer visual operations layer.
+    recommended_action: Keep the shell thin and delegate heavy ops to domain systems.
+    architecture_notes:
+      - Command Centre is the front door, not the domain runtime.
+      - Visual engines should remain external to this shell.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["new-earth-command-dashboard"]
+
+  - id: new-earth-command-dashboard
+    canonical_name: New Earth Command Dashboard
+    record_type: system
+    architecture_role: OPERATIONS_UI
+    canonical_status: canonical_specialist
+    lifecycle: active
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New_Earth_Command_Dashboard
+      current_location: New_Earth_Command_Dashboard
+    contains_extractable_systems: true
+    release_independence: true
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Dashboard design is declared in Platform Core.
+      neos:
+        kind: consumes_evidence
+        target: neos
+        notes: Dashboard is expected to surface NEOS evidence.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Dashboard can host Gaia-supported workflows.
+      command_centre:
+        kind: extracted_from
+        target: command-centre
+        notes: Dashboard is a future operational extraction from Command Centre.
+      dashboard:
+        kind: authoritative
+        target: new-earth-command-dashboard
+        notes: This record declares the future operations UI boundary.
+    recommended_action: Extract dashboard concerns out of Command Centre when the UI boundary is stable.
+    architecture_notes:
+      - The dashboard is an active canonical repository and visual operations layer.
+      - Planned internal extractions remain governed separately from the repository boundary.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["command-centre"]
+
+  - id: microgrow
+    canonical_name: MicroGrow
+    record_type: system
+    architecture_role: PRODUCT
+    canonical_status: canonical
+    lifecycle: active
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: MicroGrow-V1
+      current_location: MicroGrow-V1
+    contains_extractable_systems: true
+    release_independence: true
+    dependency_class: product
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: MicroGrow declares itself through Platform Core.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS will later observe repository and build evidence here.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia can help explain MicroGrow impact.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can surface MicroGrow operations.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard can host MicroGrow operational controls.
+    recommended_action: Keep declared product boundaries stable while extracting specialist tooling.
+    architecture_notes:
+      - MicroGrow is the product spine for related specialist systems.
+      - Extractable capability should move out into focused child systems over time.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["microgrow-control-centre", "microgrow-field-scanner"]
+
+  - id: microgrow-control-centre
+    canonical_name: MicroGrow Control Centre
+    record_type: system
+    architecture_role: OPERATIONS_UI
+    canonical_status: canonical_specialist
+    lifecycle: embedded
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: microgrow
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Control centre follows Platform Core declarations.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS will later observe repository evidence for this control surface.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia can help prepare operational briefs.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can surface the specialist control surface.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may host this control centre experience.
+    recommended_action: Keep the control surface focused on MicroGrow operations.
+    architecture_notes:
+      - Embedded specialist control surface for MicroGrow.
+      - Controls MicroGrow but does not become an independent repository yet.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["microgrow"]
+
+  - id: biocalm
+    canonical_name: BioCalm
+    record_type: system
+    architecture_role: PRODUCT
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: BioCalm
+      current_location: BioCalm
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: product
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: BioCalm is declared in Platform Core.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS can observe BioCalm engineering state.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may brief on BioCalm work.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can surface BioCalm status.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard can expose BioCalm operational views.
+    recommended_action: Keep as a product declaration; current GitHub state may remain a placeholder if needed.
+    architecture_notes:
+      - BioCalm remains an ordinary product in the estate.
+      - Placeholder handling is supported when the repository state is not yet fully canonical.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: new-earth-living
+    canonical_name: New Earth Living
+    record_type: system
+    architecture_role: PRODUCT
+    canonical_status: canonical
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-Living
+      current_location: New-Earth-Living
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: product
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: New Earth Living follows the platform declaration model.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS may observe repository state here.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may explain impacts to this product.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can surface this product.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may present operational controls for it.
+    recommended_action: Keep the product declaration stable and independently releasable.
+    architecture_notes:
+      - Product-level canonical system.
+      - No extraction currently declared.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: life-os
+    canonical_name: New Earth Life OS
+    record_type: system
+    architecture_role: PRODUCT
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: life-os
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: product
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Life OS is declared through Platform Core.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS can later observe repository evidence.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may support planning and explanation.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can surface the product.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard can expose status views.
+    recommended_action: Keep the product declaration separate from tooling or shell concerns.
+    architecture_notes:
+      - Life OS is a product identity in Platform Core, but no confirmed independent GitHub repository is declared here.
+      - It should not absorb orchestration responsibilities.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: embedded-engineering-lab
+    canonical_name: Embedded Engineering Lab
+    record_type: system
+    architecture_role: LAB
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: embedded-engineering-lab
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: lab
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Lab declarations are governed centrally.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS may later inspect lab evidence and builds.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may help package experimentation outcomes.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can surface lab state when needed.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may present lab controls and status.
+    recommended_action: Keep the lab a distinct experimental boundary.
+    architecture_notes:
+      - The lab is a specialist boundary and not a product runtime.
+      - No confirmed independent GitHub repository is declared here yet.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: microgrow-ai-lab-omega-v2
+    canonical_name: MicroGrow AI Lab Omega v2
+    record_type: system
+    architecture_role: LAB
+    canonical_status: placeholder
+    lifecycle: placeholder
+    maturity: prototype
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: microgrow
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: lab
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: The lab is declared before extraction.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: NEOS may later observe it after materialisation.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may brief on this lab when it becomes real.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre may later surface it as an experiment.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard is the future UI boundary.
+    recommended_action: Hold as a placeholder until the lab has a dedicated repository.
+    architecture_notes:
+      - Current GitHub state is intentionally representable as a placeholder.
+      - This should not be mistaken for a live canonical repo.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["microgrow"]
+
+  - id: microgrow-field-scanner
+    canonical_name: MicroGrow Field Scanner
+    record_type: system
+    architecture_role: PRODUCT
+    canonical_status: placeholder
+    lifecycle: planned
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: microgrow
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: planned_extraction
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: This product boundary is declared in Platform Core.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Observed evidence is not available until the extraction exists.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may later explain impact to this product.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre may later surface it.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard is the future control surface.
+    recommended_action: Extract from MicroGrow only after the dependency boundary is stable.
+    architecture_notes:
+      - Represented as an intentional placeholder, not a live repo.
+      - This concept remains within the MicroGrow sphere.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["microgrow"]
+
+  - id: new-earth-omega-xr-os
+    canonical_name: NEW-EARTH---OMEGA-XR-OS
+    record_type: system
+    architecture_role: PROGRAMME
+    canonical_status: placeholder
+    lifecycle: planned
+    maturity: prototype
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: New Earth estate
+    contains_extractable_systems: true
+    release_independence: false
+    dependency_class: programme
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: The programme is declared in the governance model.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: NEOS can inspect it later when a repo exists.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may coordinate the programme later.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can show programme status.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may show programme controls.
+    recommended_action: Hold as programme declaration and wait for a dedicated repo boundary.
+    architecture_notes:
+      - Programme-level architecture can be refined before implementation begins.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: new-earth-rehabilitation
+    canonical_name: New-Earth---Rehabilitation
+    record_type: system
+    architecture_role: PROGRAMME
+    canonical_status: placeholder
+    lifecycle: planned
+    maturity: prototype
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: New Earth estate
+    contains_extractable_systems: true
+    release_independence: false
+    dependency_class: programme
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: The programme is declared in Platform Core.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Observed evidence can be added when a repo exists.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may later support work packages and approvals.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can display programme status.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may surface operational views.
+    recommended_action: Keep as a programme declaration until a concrete repository boundary exists.
+    architecture_notes:
+      - Programme declarations may consolidate multiple future repos.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: new-earth-website
+    canonical_name: new_earth_website
+    record_type: system
+    architecture_role: PRODUCT
+    canonical_status: placeholder
+    lifecycle: planned
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: new_earth_website
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: product
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: The website is declared even before it is fully materialised.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Observed evidence is future work.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may later brief on website changes.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre can show launch state.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may surface operational controls.
+    recommended_action: Hold as a product placeholder until a dedicated repo is confirmed.
+    architecture_notes:
+      - This is a product declaration, not a live deployment claim.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: codex-app-todo
+    canonical_name: New Earth Planner
+    record_type: system
+    architecture_role: PRODUCT
+    canonical_status: placeholder
+    lifecycle: planned
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: Codex_App_TODO
+      current_location: Codex_App_TODO
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: product
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: The repository should be renamed to match the canonical product identity.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Observed evidence is not yet part of this declaration.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may eventually support planner workflows.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre may expose planner access.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard can provide planner status and controls.
+    recommended_action: Rename repository to the New Earth Planner canonical identity when governed.
+    architecture_notes:
+      - This record preserves the current repository state without renaming anything here.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: mark-xl
+    canonical_name: Mark-XL
+    record_type: system
+    architecture_role: LEGACY
+    canonical_status: legacy
+    lifecycle: superseded
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: Mark-XL
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: legacy
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Legacy records remain visible for governance history.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Observed evidence would be advisory only.
+      gaia:
+        kind: observed_by
+        target: gaia
+        notes: Mark-XL is a legacy predecessor to Gaia.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: No active operator surface is declared here.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: No dashboard boundary is declared.
+    recommended_action: Treat as superseded by GAIA and retain only as reference history.
+    architecture_notes:
+      - Legacy systems remain visible but not active as canonical targets.
+    supersedes: []
+    superseded_by: ["gaia"]
+    overlaps_with: ["gaia"]
+
+  - id: portable-ai-usb
+    canonical_name: Portable-AI-USB
+    record_type: system
+    architecture_role: PROTOTYPE
+    canonical_status: prototype
+    lifecycle: prototype
+    maturity: prototype
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: Portable-AI-USB
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: prototype
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Prototype records are still declared centrally.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: NEOS evidence is not yet relevant here.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Portable deployment lessons may inform GAIA distribution.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: No operator surface is declared yet.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: No dashboard boundary is declared.
+    recommended_action: Preserve as a portable deployment reference for future GAIA distribution.
+    architecture_notes:
+      - Prototype record, not a production target.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["gaia"]
+
+  - id: esp32-3248s035
+    canonical_name: esp32-3248s035
+    record_type: system
+    architecture_role: REFERENCE
+    canonical_status: vendor_reference
+    lifecycle: reference
+    maturity: development
+    ownership:
+      system_owner: External vendor / reference
+    repository:
+      canonical_repo: null
+      current_location: esp32-3248s035
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: reference
+    relationships:
+      platform_core:
+        kind: not_applicable
+        target: null
+        notes: External reference material only.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: NEOS may later use it as a reference input, not a canonical repo.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: Reference material only.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: Reference material only.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Reference material only.
+    recommended_action: Keep outside the canonical New Earth product tier.
+    architecture_notes:
+      - Vendor/reference material is intentionally non-canonical.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: esp32-3248s035c-lvgl-minesweeper
+    canonical_name: esp32-3248s035c-lvgl-minesweeper
+    record_type: system
+    architecture_role: REFERENCE
+    canonical_status: vendor_reference
+    lifecycle: reference
+    maturity: development
+    ownership:
+      system_owner: External vendor / reference
+    repository:
+      canonical_repo: null
+      current_location: esp32-3248s035c-lvgl-minesweeper
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: reference
+    relationships:
+      platform_core:
+        kind: not_applicable
+        target: null
+        notes: External example material only.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Non-canonical example material.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: Non-canonical example material.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: Non-canonical example material.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Non-canonical example material.
+    recommended_action: Keep as a non-canonical vendor/reference example.
+    architecture_notes:
+      - This is a learning or reference artefact, not a New Earth system.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: gcyd35_template
+    canonical_name: gcyd35_template
+    record_type: system
+    architecture_role: REFERENCE
+    canonical_status: learning_reference
+    lifecycle: learning_reference
+    maturity: development
+    ownership:
+      system_owner: External vendor / reference
+    repository:
+      canonical_repo: null
+      current_location: gcyd35_template
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: reference
+    relationships:
+      platform_core:
+        kind: not_applicable
+        target: null
+        notes: Reference or learning material only.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Reference or learning material only.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: Reference or learning material only.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: Reference or learning material only.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Reference or learning material only.
+    recommended_action: Keep as learning/reference material.
+    architecture_notes:
+      - Useful as reference material but not a canonical estate target.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: mcuviewer-esp32-uart-example
+    canonical_name: mcuviewer-esp32-uart-example
+    record_type: system
+    architecture_role: REFERENCE
+    canonical_status: learning_reference
+    lifecycle: learning_reference
+    maturity: development
+    ownership:
+      system_owner: External vendor / reference
+    repository:
+      canonical_repo: null
+      current_location: mcuviewer-esp32-uart-example
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: reference
+    relationships:
+      platform_core:
+        kind: not_applicable
+        target: null
+        notes: Learning/reference material only.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Learning/reference material only.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: Learning/reference material only.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: Learning/reference material only.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Learning/reference material only.
+    recommended_action: Keep as a learning/reference artefact only.
+    architecture_notes:
+      - Not a canonical New Earth system.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: esp32-wroom32-dev-board
+    canonical_name: ESP32-WROOM32-Dev-Board
+    record_type: system
+    architecture_role: REFERENCE
+    canonical_status: vendor_reference
+    lifecycle: reference
+    maturity: development
+    ownership:
+      system_owner: External vendor / reference
+    repository:
+      canonical_repo: null
+      current_location: ESP32-WROOM32-Dev-Board
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: reference
+    relationships:
+      platform_core:
+        kind: not_applicable
+        target: null
+        notes: Hardware reference only.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Hardware reference only.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: Hardware reference only.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: Hardware reference only.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Hardware reference only.
+    recommended_action: Keep outside the canonical New Earth estate.
+    architecture_notes:
+      - External hardware reference only.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: tft_e_spi
+    canonical_name: TFT_eSPI
+    record_type: system
+    architecture_role: REFERENCE
+    canonical_status: vendor_reference
+    lifecycle: reference
+    maturity: development
+    ownership:
+      system_owner: External vendor / reference
+    repository:
+      canonical_repo: null
+      current_location: TFT_eSPI
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: reference
+    relationships:
+      platform_core:
+        kind: not_applicable
+        target: null
+        notes: Library reference only.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Library reference only.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: Library reference only.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: Library reference only.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Library reference only.
+    recommended_action: Keep as reference material.
+    architecture_notes:
+      - External library reference only.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: icestudio
+    canonical_name: Icestudio
+    record_type: system
+    architecture_role: REFERENCE
+    canonical_status: vendor_reference
+    lifecycle: reference
+    maturity: development
+    ownership:
+      system_owner: External vendor / reference
+    repository:
+      canonical_repo: null
+      current_location: Icestudio
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: reference
+    relationships:
+      platform_core:
+        kind: not_applicable
+        target: null
+        notes: Reference material only.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Reference material only.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: Reference material only.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: Reference material only.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Reference material only.
+    recommended_action: Keep as a non-canonical reference.
+    architecture_notes:
+      - External reference tooling only.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: masteringmcu
+    canonical_name: MasteringMCU
+    record_type: system
+    architecture_role: REFERENCE
+    canonical_status: learning_reference
+    lifecycle: learning_reference
+    maturity: development
+    ownership:
+      system_owner: External vendor / reference
+    repository:
+      canonical_repo: null
+      current_location: MasteringMCU
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: reference
+    relationships:
+      platform_core:
+        kind: not_applicable
+        target: null
+        notes: Learning material only.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Learning material only.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: Learning material only.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: Learning material only.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: Learning material only.
+    recommended_action: Keep as learning/reference material.
+    architecture_notes:
+      - Helpful for learning, not canonical governance.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+planned_extractions:
+  - id: microgrow-hub
+    canonical_name: MicroGrow-Hub
+    record_type: planned_extraction
+    source_system: microgrow
+    architecture_role: SERVICE
+    canonical_status: planned_extraction
+    lifecycle: planned
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: microgrow
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: planned_extraction
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Planned extraction remains governed by Platform Core.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: NEOS will inspect it once it exists.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may help brief the extraction.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre may show planned extraction status.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may expose the extraction once available.
+    recommended_action: Extract MicroGrow hub responsibilities into a dedicated service when ready.
+    architecture_notes:
+      - Future system carved out of MicroGrow.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["microgrow"]
+
+  - id: microgrow-project-control-centre
+    canonical_name: MicroGrow-Project-Control-Centre
+    record_type: planned_extraction
+    source_system: microgrow
+    architecture_role: OPERATIONS_UI
+    canonical_status: planned_extraction
+    lifecycle: planned
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: microgrow
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: planned_extraction
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Planned extraction remains declared centrally.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: NEOS evidence will come later.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may support project coordination.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre may host the control surface.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard is the intended visual host.
+    recommended_action: Extract project control responsibilities when the MicroGrow split is governed.
+    architecture_notes:
+      - Planned UI/control extraction from MicroGrow.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: ["microgrow-control-centre"]
+
+  - id: new-earth-experiment-validation-engine
+    canonical_name: New-Earth-Experiment-Validation-Engine
+    record_type: planned_extraction
+    source_system: new-earth-command-dashboard
+    architecture_role: ENGINE
+    canonical_status: planned_extraction
+    lifecycle: planned
+    maturity: prototype
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: new-earth-command-dashboard
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: planned_extraction
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Engine declaration stays inside Platform Core.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Observed engineering truth is future work.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may prepare briefings around experiment validation.
+      command_centre:
+        kind: extracted_from
+        target: command-centre
+        notes: Validation engine is intended to split out of the dashboard/command-centre path.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard remains the likely operator surface.
+    recommended_action: Extract validation logic into a dedicated engine only after the dashboard boundary is stable.
+    architecture_notes:
+      - Planned validation engine; not yet an independent runtime.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: new-earth-backup-guardian
+    canonical_name: New-Earth-Backup-Guardian
+    record_type: planned_extraction
+    source_system: new-earth-command-dashboard
+    architecture_role: TOOLING
+    canonical_status: planned_extraction
+    lifecycle: planned
+    maturity: prototype
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: new-earth-command-dashboard
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: planned_extraction
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: The backup guardian is a governed future tool.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Observed engineering truth is future work.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may explain backup posture and recovery options.
+      command_centre:
+        kind: extracted_from
+        target: command-centre
+        notes: Intended to separate from the dashboard/command-centre control plane.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may host the operator interface before extraction.
+    recommended_action: Extract backup and recovery tooling into a dedicated guardrail service when required.
+    architecture_notes:
+      - Planned safeguard tooling, not a live canonical repo.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
+  - id: new-earth-knowledge-librarian
+    canonical_name: New-Earth-Knowledge-Librarian
+    record_type: planned_extraction
+    source_system: new-earth-command-dashboard
+    architecture_role: SERVICE
+    canonical_status: probable_extraction
+    lifecycle: probable
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: new-earth-command-dashboard
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: planned_extraction
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: The knowledge librarian boundary is declared before extraction.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: Observed evidence will be required after consolidation.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: Gaia may ultimately consume the librarian service.
+      command_centre:
+        kind: extracted_from
+        target: command-centre
+        notes: Consolidation is required before extraction.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may be the short-term visual host.
+    recommended_action: Consolidate the knowledge surface before any dedicated repository is created.
+    architecture_notes:
+      - Probable extraction pending consolidation.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []

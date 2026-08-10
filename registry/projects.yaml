@@ -32,6 +32,14 @@ projects:
     status: active
     contract: examples/contracts/COMMAND_CENTRE.NEW_EARTH_PROJECT.yaml
 
+  - id: new-earth-command-dashboard
+    name: New Earth Command Dashboard
+    family: core
+    type: operations-dashboard
+    repository: New_Earth_Command_Dashboard
+    status: active
+    contract: examples/contracts/COMMAND_DASHBOARD.NEW_EARTH_PROJECT.yaml
+
   - id: microgrow
     name: MicroGrow
     family: growing

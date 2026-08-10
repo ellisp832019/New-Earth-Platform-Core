@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from pathlib import Path
 from typing import Annotated
 
@@ -9,6 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .compatibility import load_rules
+from .governance import governance_index, governance_records, load_governance
 from .graph import load_dependencies, load_projects
 from .impact import declared_impact
 from .models import Interface, Service, load_yaml
@@ -63,6 +65,87 @@ def projects(json_output: JsonOption = False) -> None:
     table.add_column("Status")
     for project in rows:
         table.add_row(project.id, project.name, project.family, project.type, project.status)
+    console.print(table)
+
+
+@app.command()
+def governance(record_id: Annotated[str | None, typer.Argument()] = None, json_output: JsonOption = False) -> None:
+    """Show architecture governance records."""
+    root = repo_root()
+    catalog = load_governance(root / "registry/governance.yaml")
+    records = governance_records(root / "registry/governance.yaml")
+    if record_id is not None:
+        record = governance_index(root / "registry/governance.yaml").get(record_id)
+        if record is None:
+            console.print(f"[red]Unknown governance record:[/red] {record_id}")
+            raise typer.Exit(1)
+        if json_output:
+            console.print(json.dumps(asdict(record), indent=2, sort_keys=True))
+            return
+        table = Table(title=record.canonical_name)
+        table.add_column("Field")
+        table.add_column("Value")
+        table.add_row("id", record.id)
+        table.add_row("canonical_name", record.canonical_name)
+        table.add_row("architecture_role", record.architecture_role)
+        table.add_row("canonical_status", record.canonical_status)
+        table.add_row("lifecycle", record.lifecycle)
+        table.add_row("maturity", record.maturity)
+        table.add_row("system_owner", record.ownership.system_owner)
+        table.add_row("current_location", record.repository.current_location or "")
+        table.add_row("canonical_repo", record.repository.canonical_repo or "")
+        table.add_row("record_type", record.record_type)
+        table.add_row("dependency_class", record.dependency_class)
+        table.add_row("release_independence", str(record.release_independence).lower())
+        table.add_row("contains_extractable_systems", str(record.contains_extractable_systems).lower())
+        table.add_row("recommended_action", record.recommended_action)
+        console.print(table)
+        return
+    if json_output:
+        console.print(json.dumps([record.as_json() for record in records], indent=2, sort_keys=True))
+        return
+    table = Table(title=f"Architecture Governance v{catalog.governance_version}")
+    table.add_column("ID")
+    table.add_column("Canonical Name")
+    table.add_column("Role")
+    table.add_column("Status")
+    table.add_column("Lifecycle")
+    table.add_column("Owner")
+    for record in records:
+        table.add_row(
+            record.id,
+            record.canonical_name,
+            record.architecture_role,
+            record.canonical_status,
+            record.lifecycle,
+            record.ownership.system_owner,
+        )
+    console.print(table)
+
+
+@app.command("planned-extractions")
+def planned_extractions(json_output: JsonOption = False) -> None:
+    """Show planned extraction records."""
+    catalog = load_governance(repo_root() / "registry/governance.yaml")
+    if json_output:
+        console.print(json.dumps([record.as_json() for record in catalog.planned_extractions], indent=2, sort_keys=True))
+        return
+    table = Table(title="Planned Extractions")
+    table.add_column("ID")
+    table.add_column("Canonical Name")
+    table.add_column("Source")
+    table.add_column("Role")
+    table.add_column("Status")
+    table.add_column("Lifecycle")
+    for record in catalog.planned_extractions:
+        table.add_row(
+            record.id,
+            record.canonical_name,
+            record.source_system or "",
+            record.architecture_role,
+            record.canonical_status,
+            record.lifecycle,
+        )
     console.print(table)
 
 
@@ -211,6 +294,7 @@ def doctor(json_output: JsonOption = False) -> None:
     validation_errors = validate_repository(root)
     graph_warnings = graph_report(root)
     categories = [
+        ("GOVERNANCE", "FAIL" if validation_errors else "PASS"),
         ("PROJECT CONTRACT", "FAIL" if validation_errors else "PASS"),
         ("REGISTRIES", "FAIL" if validation_errors else "PASS"),
         ("SCHEMAS", "PASS"),
