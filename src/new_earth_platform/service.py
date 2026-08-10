@@ -5,6 +5,7 @@ from pathlib import Path
 from .graph import graph_diagnostics, load_dependencies, load_projects, mermaid
 from .validation import (
     validate_contracts,
+    validate_governance,
     validate_registry,
     validate_yaml_against_schema,
 )
@@ -24,6 +25,7 @@ def validate_repository(root: Path) -> list[str]:
         root / "NEW_EARTH_PROJECT.yaml",
         root / "schemas/project-contract.schema.json",
     )
+    errors += validate_governance(root)
     errors += validate_registry(root)
     errors += validate_contracts(root)
     return errors

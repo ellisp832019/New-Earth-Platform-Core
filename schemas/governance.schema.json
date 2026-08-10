@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/governance.schema.json",
+  "title": "New Earth Architecture Governance v1",
+  "type": "object",
+  "required": ["governance_version", "ownership_model", "systems", "planned_extractions"],
+  "properties": {
+    "governance_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "ownership_model": {
+      "type": "object",
+      "required": ["platform_core", "neos", "gaia", "command_centre", "dashboard"],
+      "properties": {
+        "platform_core": {
+          "type": "object",
+          "required": ["answers", "owns", "must_not_become"],
+          "properties": {
+            "answers": {"type": "string", "minLength": 2},
+            "owns": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "must_not_become": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+          },
+          "additionalProperties": false
+        },
+        "neos": {
+          "type": "object",
+          "required": ["answers", "owns", "must_not_become"],
+          "properties": {
+            "answers": {"type": "string", "minLength": 2},
+            "owns": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "must_not_become": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+          },
+          "additionalProperties": false
+        },
+        "gaia": {
+          "type": "object",
+          "required": ["answers", "owns", "must_not_become"],
+          "properties": {
+            "answers": {"type": "string", "minLength": 2},
+            "owns": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "must_not_become": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+          },
+          "additionalProperties": false
+        },
+        "command_centre": {
+          "type": "object",
+          "required": ["answers", "owns", "must_not_become"],
+          "properties": {
+            "answers": {"type": "string", "minLength": 2},
+            "owns": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "must_not_become": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+          },
+          "additionalProperties": false
+        },
+        "dashboard": {
+          "type": "object",
+          "required": ["answers", "owns", "must_not_become"],
+          "properties": {
+            "answers": {"type": "string", "minLength": 2},
+            "owns": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "must_not_become": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "systems": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/record"}
+    },
+    "planned_extractions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/record"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "record": {
+      "type": "object",
+      "required": [
+        "id",
+        "canonical_name",
+        "record_type",
+        "architecture_role",
+        "canonical_status",
+        "lifecycle",
+        "maturity",
+        "ownership",
+        "repository",
+        "contains_extractable_systems",
+        "release_independence",
+        "dependency_class",
+        "relationships",
+        "recommended_action",
+        "architecture_notes",
+        "supersedes",
+        "superseded_by",
+        "overlaps_with"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "canonical_name": {
+          "type": "string",
+          "minLength": 2
+        },
+        "record_type": {
+          "enum": ["system", "planned_extraction"]
+        },
+        "architecture_role": {
+          "enum": [
+            "PLATFORM",
+            "ENGINEERING_INTELLIGENCE",
+            "AI_SYSTEM",
+            "SHELL",
+            "OPERATIONS_UI",
+            "PRODUCT",
+            "LAB",
+            "PROGRAMME",
+            "ENGINE",
+            "SERVICE",
+            "TOOLING",
+            "PROTOTYPE",
+            "LEGACY",
+            "REFERENCE"
+          ]
+        },
+        "canonical_status": {
+          "enum": [
+            "canonical",
+            "canonical_specialist",
+            "canonical_programme",
+            "planned_extraction",
+            "probable_extraction",
+            "placeholder",
+            "prototype",
+            "legacy",
+            "reference",
+            "vendor_reference",
+            "learning_reference"
+          ]
+        },
+        "lifecycle": {
+          "enum": [
+            "active",
+            "developing",
+            "planned",
+            "probable",
+            "placeholder",
+            "prototype",
+            "legacy",
+            "reference",
+            "vendor_reference",
+            "learning_reference",
+            "superseded"
+          ]
+        },
+        "maturity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ownership": {
+          "type": "object",
+          "required": ["system_owner"],
+          "properties": {
+            "system_owner": {"type": "string", "minLength": 2}
+          },
+          "additionalProperties": false
+        },
+        "repository": {
+          "type": "object",
+          "required": ["current_location"],
+          "properties": {
+            "canonical_repo": {"type": ["string", "null"], "minLength": 1},
+            "current_location": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        },
+        "contains_extractable_systems": {"type": "boolean"},
+        "release_independence": {"type": "boolean"},
+        "dependency_class": {
+          "enum": [
+            "platform_spine",
+            "specialist_system",
+            "product",
+            "programme",
+            "lab",
+            "planned_extraction",
+            "legacy",
+            "prototype",
+            "reference"
+          ]
+        },
+        "relationships": {
+          "type": "object",
+          "required": ["platform_core", "neos", "gaia", "command_centre", "dashboard"],
+          "properties": {
+            "platform_core": {"$ref": "#/$defs/relationship"},
+            "neos": {"$ref": "#/$defs/relationship"},
+            "gaia": {"$ref": "#/$defs/relationship"},
+            "command_centre": {"$ref": "#/$defs/relationship"},
+            "dashboard": {"$ref": "#/$defs/relationship"}
+          },
+          "additionalProperties": false
+        },
+        "recommended_action": {
+          "type": "string",
+          "minLength": 2
+        },
+        "architecture_notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1
+        },
+        "supersedes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "superseded_by": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "overlaps_with": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "source_system": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "authoritative",
+            "registered_in",
+            "consumes_declarations",
+            "consumes_evidence",
+            "observed_by",
+            "explained_by",
+            "operated_by",
+            "bridge_target",
+            "extracted_from",
+            "superseded_by",
+            "overlaps",
+            "not_applicable"
+          ]
+        },
+        "target": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "minLength": 2
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

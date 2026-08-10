@@ -58,6 +58,8 @@ python -m pip install -U pip
 pip install -e .[dev]
 new-earth-platform validate
 new-earth-platform doctor
+new-earth-platform governance
+new-earth-platform planned-extractions
 new-earth-platform projects
 new-earth-platform dependencies
 new-earth-platform compatibility
@@ -75,6 +77,8 @@ python -m pip install -U pip
 pip install -e '.[dev]'
 new-earth-platform validate
 new-earth-platform doctor
+new-earth-platform governance
+new-earth-platform planned-extractions
 new-earth-platform projects
 new-earth-platform dependencies
 new-earth-platform compatibility
@@ -124,3 +128,7 @@ The platform must remain inspectable, deterministic, local-first, and human-gove
 ## Declared impact only
 
 `new-earth-platform impact <project-id>` calculates impact from Platform Core declarations. It does not claim observed source-code dependencies, build failures, or repository drift. Those facts belong to NEOS.
+
+## Governance view
+
+`new-earth-platform governance` shows the declared architecture governance registry, including roles, lifecycle state, ownership, planned extractions, legacy systems, and reference material.

@@ -13,6 +13,8 @@ git switch -c feature/platform-core-v0.1-foundation
 ```powershell
 new-earth-platform validate
 new-earth-platform doctor
+new-earth-platform governance
+new-earth-platform planned-extractions
 new-earth-platform impact <changed-project-id>
 pytest
 ruff check src tests
@@ -31,6 +33,7 @@ Required:
 
 - CI green;
 - schemas valid;
+- governance registry valid;
 - dependency references valid;
 - compatibility requirements parse;
 - declared impact reviewed where relevant;

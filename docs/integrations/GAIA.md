@@ -5,6 +5,7 @@ Gaia should explain Platform Core declared state together with NEOS observed and
 ## Inputs
 
 - Platform Core declared projects, contracts, dependencies, interfaces, services, releases, standards, and compatibility rules.
+- Platform Core governance registry: `registry/governance.yaml`.
 - NEOS observed repository state and derived engineering intelligence.
 
 ## Example Queries

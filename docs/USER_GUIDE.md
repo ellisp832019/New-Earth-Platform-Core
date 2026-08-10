@@ -27,6 +27,9 @@ mypy src
 new-earth-platform version
 new-earth-platform validate
 new-earth-platform validate-contract NEW_EARTH_PROJECT.yaml
+new-earth-platform governance
+new-earth-platform governance new-earth-platform-core
+new-earth-platform planned-extractions
 new-earth-platform projects
 new-earth-platform projects --json
 new-earth-platform project microgrow
@@ -57,6 +60,27 @@ Each edge must use known project IDs, must not be a self-dependency, must have a
 ## Adding Interfaces And Services
 
 Add interfaces to `registry/interfaces.yaml` and services to `registry/services.yaml`. Owners must be registered projects. Schema paths must point to tracked schema files when present.
+
+## Governance Registry
+
+The governance registry lives in `registry/governance.yaml`.
+
+It records:
+
+- canonical systems;
+- planned extractions;
+- lifecycle and canonical-state distinctions;
+- ownership declarations;
+- relationships to Platform Core, NEOS, GAIA, Command Centre, and Dashboard;
+- legacy, prototype, and reference material.
+
+Inspect it with:
+
+```powershell
+new-earth-platform governance
+new-earth-platform governance gaia
+new-earth-platform planned-extractions
+```
 
 ## Compatibility Rules
 

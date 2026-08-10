@@ -1,0 +1,64 @@
+# Architecture Governance v1
+
+Platform Core v1 governance is the declared architecture model for the New Earth ecosystem.
+
+## Locked Ownership Model
+
+- Platform Core answers what should exist and how it should connect.
+- NEOS answers what technically exists and what is true.
+- GAIA answers what it means and what should happen next.
+- Command Centre is the thin front door.
+- Command Dashboard is the visual operations layer and bridge surface.
+
+## Role Vocabulary
+
+Supported architecture roles are:
+
+- PLATFORM
+- ENGINEERING_INTELLIGENCE
+- AI_SYSTEM
+- SHELL
+- OPERATIONS_UI
+- PRODUCT
+- LAB
+- PROGRAMME
+- ENGINE
+- SERVICE
+- TOOLING
+- PROTOTYPE
+- LEGACY
+- REFERENCE
+
+## Canonical State
+
+The governance registry distinguishes canonical systems, specialist canonicals, programmes, planned extractions, probable extractions, placeholders, prototypes, legacy systems, and reference or vendor material.
+
+## Planned Extractions
+
+Planned extractions are declared separately from active systems. They point back to a source system and must not be modeled as already active canonical repositories unless a dedicated repository truly exists and is declared as such.
+
+## Validation Rules
+
+The governance validator enforces:
+
+- valid architecture roles and owners;
+- canonical registration for canonical systems;
+- controlled lifecycle and canonical-state combinations;
+- successor declarations for legacy systems where known;
+- resolved relationship targets where applicable;
+- non-canonical ownership for reference and vendor material;
+- unambiguous canonical project and repository ownership.
+
+## Operator View
+
+Use:
+
+```powershell
+new-earth-platform governance
+new-earth-platform governance <id>
+new-earth-platform planned-extractions
+new-earth-platform validate
+new-earth-platform doctor
+```
+
+`validate` checks the governance registry, existing project contracts, registries, compatibility rules, and project-level validations together. `doctor` reports a quick health summary without modifying anything.

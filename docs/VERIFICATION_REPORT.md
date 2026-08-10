@@ -6,6 +6,8 @@ This file records expected v0.1 verification lanes. Final command results are re
 
 - `new-earth-platform validate`
 - `new-earth-platform doctor`
+- `new-earth-platform governance --json`
+- `new-earth-platform planned-extractions --json`
 - `new-earth-platform projects`
 - `new-earth-platform graph --format mermaid`
 - `new-earth-platform impact <project-id>`
