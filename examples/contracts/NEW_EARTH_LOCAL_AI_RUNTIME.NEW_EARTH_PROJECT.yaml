@@ -1,0 +1,53 @@
+contract_version: "1.0"
+project:
+  id: new-earth-local-ai-runtime
+  name: New Earth Local AI Runtime
+  family: platform
+  type: runtime-service
+  owner: New Earth Platform / Local AI Runtime
+  status: active
+  maturity: foundation
+
+repository:
+  version: 0.1.0
+  versioning: semver
+  default_branch: main
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: local-runtime
+  personality: infrastructure
+  accessibility: not-applicable
+
+engineering:
+  local_first: true
+  logging: structured
+  security: enhanced
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: true
+  command_centre: true
+
+provides:
+  - local-ai-runtime-health
+  - local-ai-runtime-status
+  - local-ai-runtime-models
+  - local-ai-runtime-chat
+  - local-ai-runtime-generate
+  - local-ai-runtime-embeddings
+  - local-ai-runtime-route-explain
+  - local-ai-runtime-context-provenance
+  - local-ai-runtime-impact-advisory
+consumes:
+  - platform-registry-v1
+
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development

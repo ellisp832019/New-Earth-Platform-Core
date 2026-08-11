@@ -181,6 +181,7 @@ def dependencies(json_output: JsonOption = False) -> None:
     table.add_column("Target")
     table.add_column("Contract")
     table.add_column("Required")
+    table.add_column("Status")
     for dependency in rows:
         table.add_row(
             dependency.source,
@@ -188,6 +189,7 @@ def dependencies(json_output: JsonOption = False) -> None:
             dependency.target,
             dependency.contract,
             str(dependency.required).lower(),
+            dependency.status or "",
         )
     console.print(table)
 
@@ -241,8 +243,20 @@ def interfaces(json_output: JsonOption = False) -> None:
     table.add_column("ID")
     table.add_column("Owner")
     table.add_column("Stability")
+    table.add_column("Method")
+    table.add_column("Path")
+    table.add_column("Version")
+    table.add_column("Consumers")
     for row in rows:
-        table.add_row(row.id, row.owner, row.stability)
+        table.add_row(
+            row.id,
+            row.owner,
+            row.stability,
+            row.method or "",
+            row.path or "",
+            row.version or "",
+            ", ".join(row.consumers),
+        )
     console.print(table)
 
 
@@ -258,8 +272,10 @@ def services(json_output: JsonOption = False) -> None:
     table.add_column("Owner")
     table.add_column("Kind")
     table.add_column("Interface")
+    table.add_column("Version")
+    table.add_column("Status")
     for row in rows:
-        table.add_row(row.id, row.owner, row.kind, row.interface)
+        table.add_row(row.id, row.owner, row.kind, row.interface, row.version or "", row.status or "")
     console.print(table)
 
 

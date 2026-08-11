@@ -66,3 +66,28 @@ def test_duplicate_services_and_interfaces_are_rejected(tmp_path: Path) -> None:
     errors = validate_registry(tmp_path)
     assert "Duplicate service id: platform-registry" in errors
     assert "Duplicate interface id: platform-registry-v1" in errors
+
+
+def test_interface_versions_and_consumers_are_rejected_when_invalid(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    interfaces_path = tmp_path / "registry/interfaces.yaml"
+    interfaces = yaml.safe_load(interfaces_path.read_text(encoding="utf-8"))
+    runtime = next(item for item in interfaces["interfaces"] if item["id"] == "local-ai-runtime-chat")
+    runtime["version"] = "not-a-version"
+    runtime["consumers"] = ["missing-project"]
+    interfaces_path.write_text(yaml.safe_dump(interfaces, sort_keys=False), encoding="utf-8")
+    errors = validate_registry(tmp_path)
+    assert any("Malformed interface version for local-ai-runtime-chat" in error for error in errors)
+    assert any("Unknown interface consumer for local-ai-runtime-chat" in error for error in errors)
+
+
+def test_dependency_status_must_be_known(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    dependencies_path = tmp_path / "registry/dependencies.yaml"
+    dependencies = yaml.safe_load(dependencies_path.read_text(encoding="utf-8"))
+    dependencies["dependencies"][0]["status"] = "unknown"
+    dependencies_path.write_text(yaml.safe_dump(dependencies, sort_keys=False), encoding="utf-8")
+    errors = validate_registry(tmp_path)
+    assert any("Invalid dependency status" in error for error in errors)

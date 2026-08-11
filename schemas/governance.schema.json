@@ -186,6 +186,7 @@
         "dependency_class": {
           "enum": [
             "platform_spine",
+            "platform_service",
             "specialist_system",
             "product",
             "programme",

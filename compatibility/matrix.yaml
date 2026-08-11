@@ -14,3 +14,18 @@ rules:
     provider: microgrow
     contract: microgrow-device-api
     requirement: ">=1.0,<2.0"
+
+  - consumer: gaia
+    provider: new-earth-local-ai-runtime
+    contract: local-ai-runtime-chat
+    requirement: ">=0.1.0,<0.2.0"
+
+  - consumer: neos
+    provider: new-earth-local-ai-runtime
+    contract: local-ai-runtime-health
+    requirement: ">=0.1.0,<0.2.0"
+
+  - consumer: command-centre
+    provider: new-earth-local-ai-runtime
+    contract: local-ai-runtime-status
+    requirement: ">=0.1.0,<0.2.0"

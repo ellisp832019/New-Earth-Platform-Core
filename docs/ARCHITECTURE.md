@@ -22,6 +22,11 @@ Provides the human-facing platform cockpit for discovery, launch, observe, summa
 
 Displays read-only Platform Core state and later NEOS health data. It is not the registry authority.
 
+### Local AI Runtime
+Provides local model execution, provider abstraction, model routing, embeddings, runtime diagnostics and execution-side context handling.
+
+Consumes Platform Core declared contracts and is observed by NEOS. It is not the canonical registry authority and does not own GAIA reasoning or product control logic.
+
 See [Architecture Governance v1](ARCHITECTURE_GOVERNANCE_V1.md) for the detailed declared-state model, role vocabulary, lifecycle distinctions, planned extraction handling, and validation rules.
 
 ## Rule

@@ -30,3 +30,139 @@ interfaces:
     owner: microgrow
     type: http
     stability: external
+
+  - id: local-ai-runtime-health
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: GET
+    path: /health
+    version: 0.1.0
+    consumers:
+      - neos
+      - command-centre
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Liveness and readiness surface for the runtime host.
+
+  - id: local-ai-runtime-status
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: GET
+    path: /v1/status
+    version: 0.1.0
+    consumers:
+      - gaia
+      - neos
+      - command-centre
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Runtime capability and availability summary.
+
+  - id: local-ai-runtime-models
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: GET
+    path: /v1/models
+    version: 0.1.0
+    consumers:
+      - gaia
+      - neos
+      - command-centre
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Exposes the model registry and current routing inventory.
+
+  - id: local-ai-runtime-chat
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: POST
+    path: /v1/chat
+    version: 0.1.0
+    consumers:
+      - gaia
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Conversational execution surface for governed AI workloads.
+
+  - id: local-ai-runtime-generate
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: POST
+    path: /v1/generate
+    version: 0.1.0
+    consumers:
+      - gaia
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Deterministic text generation surface.
+
+  - id: local-ai-runtime-embeddings
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: POST
+    path: /v1/embeddings
+    version: 0.1.0
+    consumers:
+      - gaia
+      - neos
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Embeddings execution surface for semantic workflows.
+
+  - id: local-ai-runtime-route-explain
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: POST
+    path: /v1/route/explain
+    version: 0.1.0
+    consumers:
+      - gaia
+      - neos
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Explains provider routing and fallback decisions.
+
+  - id: local-ai-runtime-context-provenance
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: POST
+    path: /v1/context/provenance
+    version: 0.1.0
+    consumers:
+      - gaia
+      - neos
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Context and provenance handoff for governed AI execution.
+
+  - id: local-ai-runtime-impact-advisory
+    owner: new-earth-local-ai-runtime
+    type: http
+    protocol: http
+    method: GET
+    path: /v1/impact/advisory
+    version: 0.1.0
+    consumers:
+      - gaia
+      - neos
+      - command-centre
+    security: local-only
+    lifecycle: active
+    stability: experimental
+    notes: Cross-repository impact advisory summary surface.

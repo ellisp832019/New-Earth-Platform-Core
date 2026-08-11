@@ -37,7 +37,10 @@
             ]
           },
           "contract": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
-          "required": {"type": "boolean"}
+          "required": {"type": "boolean"},
+          "status": {
+            "enum": ["active", "planned", "optional", "future", "not_required", "deferred"]
+          }
         },
         "additionalProperties": false
       }

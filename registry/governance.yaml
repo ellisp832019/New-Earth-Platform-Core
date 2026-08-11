@@ -212,6 +212,50 @@ systems:
     superseded_by: []
     overlaps_with: []
 
+  - id: new-earth-local-ai-runtime
+    canonical_name: New Earth Local AI Runtime
+    record_type: system
+    architecture_role: SERVICE
+    canonical_status: canonical
+    lifecycle: active
+    maturity: foundation
+    ownership:
+      system_owner: New Earth Platform / Local AI Runtime
+    repository:
+      canonical_repo: New-Earth-Local-AI-Runtime
+      current_location: New-Earth-Local-AI-Runtime
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: platform_service
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Platform Core declares the runtime boundary and contracts.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS verifies the runtime implementation against declared contracts.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: GAIA should send governed AI workloads through the runtime contract.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre may surface runtime health, status, and availability.
+      dashboard:
+        kind: bridge_target
+        target: new-earth-command-dashboard
+        notes: Dashboard may surface runtime status, models, and route explanations.
+    recommended_action: Keep the runtime boundary thin, local-first, and contract-driven.
+    architecture_notes:
+      - Local AI execution infrastructure belongs in the runtime, not Platform Core.
+      - Platform Core owns the declaration; the runtime owns execution.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
   - id: command-centre
     canonical_name: New Earth Command Centre
     record_type: system
@@ -1434,16 +1478,16 @@ planned_extractions:
   - id: new-earth-knowledge-librarian
     canonical_name: New-Earth-Knowledge-Librarian
     record_type: planned_extraction
-    source_system: new-earth-command-dashboard
+    source_system: new-earth-local-ai-runtime
     architecture_role: SERVICE
     canonical_status: probable_extraction
     lifecycle: probable
     maturity: development
     ownership:
-      system_owner: New Earth Advanced Technologies Ltd
+      system_owner: New Earth Platform / Local AI Runtime
     repository:
       canonical_repo: null
-      current_location: new-earth-command-dashboard
+      current_location: new-earth-local-ai-runtime
     contains_extractable_systems: false
     release_independence: false
     dependency_class: planned_extraction
@@ -1451,26 +1495,27 @@ planned_extractions:
       platform_core:
         kind: registered_in
         target: new-earth-platform-core
-        notes: The knowledge librarian boundary is declared before extraction.
+        notes: Knowledge/Librarian remains a governed future extraction.
       neos:
         kind: not_applicable
         target: null
-        notes: Observed evidence will be required after consolidation.
+        notes: Observed verification comes later, after extraction.
       gaia:
         kind: bridge_target
         target: gaia
-        notes: Gaia may ultimately consume the librarian service.
+        notes: GAIA may help with curation workflows once the boundary exists.
       command_centre:
-        kind: extracted_from
+        kind: bridge_target
         target: command-centre
-        notes: Consolidation is required before extraction.
+        notes: Command Centre may eventually expose librarian operations.
       dashboard:
         kind: bridge_target
         target: new-earth-command-dashboard
-        notes: Dashboard may be the short-term visual host.
-    recommended_action: Consolidate the knowledge surface before any dedicated repository is created.
+        notes: Dashboard may eventually host librarian views.
+    recommended_action: Split knowledge authority out of the runtime only after the curation boundary is stable.
     architecture_notes:
-      - Probable extraction pending consolidation.
+      - Document authority and filing taxonomy should live in the future librarian.
+      - The runtime should keep embeddings and semantic execution primitives only.
     supersedes: []
     superseded_by: []
     overlaps_with: []

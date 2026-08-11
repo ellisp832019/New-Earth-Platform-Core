@@ -95,8 +95,28 @@ def test_dashboard_is_active_repo_with_internal_planned_extractions() -> None:
     } == {
         "new-earth-experiment-validation-engine",
         "new-earth-backup-guardian",
-        "new-earth-knowledge-librarian",
     }
+    assert validate_governance(root) == []
+
+
+def test_local_ai_runtime_is_registered_as_a_canonical_platform_service() -> None:
+    root = Path(__file__).resolve().parents[1]
+    catalog = load_governance(root / "registry/governance.yaml")
+    record = governance_index(root / "registry/governance.yaml")["new-earth-local-ai-runtime"]
+
+    assert record.architecture_role == "SERVICE"
+    assert record.canonical_status == "canonical"
+    assert record.lifecycle == "active"
+    assert record.dependency_class == "platform_service"
+    assert record.repository.canonical_repo == "New-Earth-Local-AI-Runtime"
+    assert record.repository.current_location == "New-Earth-Local-AI-Runtime"
+    assert record.release_independence is True
+    assert record.ownership.system_owner == "New Earth Platform / Local AI Runtime"
+    assert {
+        record.id
+        for record in catalog.planned_extractions
+        if record.source_system == "new-earth-local-ai-runtime"
+    } == {"new-earth-knowledge-librarian"}
     assert validate_governance(root) == []
 
 

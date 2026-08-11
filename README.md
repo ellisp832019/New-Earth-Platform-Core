@@ -18,7 +18,7 @@ It is intentionally not another end-user application. It defines:
 - platform standards;
 - design-system requirements;
 - release channels and maturity states;
-- integration contracts for NEOS, Gaia, and Command Centre;
+- integration contracts for NEOS, Gaia, Command Centre, and the Local AI Runtime;
 - platform validation and graph-generation tooling.
 
 ## Initial architecture
@@ -43,6 +43,11 @@ It is intentionally not another end-user application. It defines:
           │              │                  │
           └──────────────┼──────────────────┘
                          │
+                 Local AI Runtime
+           local execution / routing / embeddings
+                         │
+                         └── future consumers
+
           MicroGrow / BioCalm / Living / Life OS /
           Embedded Engineering Lab / future projects
 ```
