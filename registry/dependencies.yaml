@@ -5,51 +5,81 @@ dependencies:
     kind: consumes
     contract: platform-registry-v1
     required: true
+    status: active
 
   - source: gaia
     target: new-earth-platform-core
     kind: consumes
     contract: platform-registry-v1
     required: true
+    status: active
 
   - source: command-centre
     target: new-earth-platform-core
     kind: consumes
     contract: platform-registry-v1
     required: true
+    status: active
 
   - source: gaia
     target: neos
     kind: consumes
     contract: neos-context-api
     required: true
+    status: active
 
   - source: command-centre
     target: neos
     kind: consumes
     contract: neos-status-api
     required: true
+    status: active
 
   - source: microgrow-control-centre
     target: microgrow
     kind: controls
     contract: microgrow-device-api
     required: true
+    status: active
 
   - source: neos
     target: microgrow
     kind: observes
     contract: repository-intelligence
     required: false
+    status: optional
 
   - source: neos
     target: biocalm
     kind: observes
     contract: repository-intelligence
     required: false
+    status: optional
 
   - source: neos
     target: embedded-engineering-lab
     kind: observes
     contract: repository-intelligence
     required: false
+    status: optional
+
+  - source: gaia
+    target: new-earth-local-ai-runtime
+    kind: consumes
+    contract: local-ai-runtime-chat
+    required: true
+    status: active
+
+  - source: neos
+    target: new-earth-local-ai-runtime
+    kind: observes
+    contract: local-ai-runtime-health
+    required: false
+    status: active
+
+  - source: command-centre
+    target: new-earth-local-ai-runtime
+    kind: consumes
+    contract: local-ai-runtime-status
+    required: false
+    status: active

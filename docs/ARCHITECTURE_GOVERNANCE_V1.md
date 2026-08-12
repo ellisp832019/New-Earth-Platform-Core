@@ -31,9 +31,11 @@ Supported architecture roles are:
 
 ## Canonical State
 
-The governance registry distinguishes canonical systems, specialist canonicals, programmes, embedded systems, planned extractions, probable extractions, placeholders, prototypes, legacy systems, and reference or vendor material.
+The governance registry distinguishes canonical systems, canonical platform services, specialist canonicals, programmes, embedded systems, planned extractions, probable extractions, placeholders, prototypes, legacy systems, and reference or vendor material.
 
 The registry also distinguishes repository identity from system identity so that an embedded or conceptual project can remain known to Platform Core without claiming a confirmed independent GitHub repository.
+
+Local AI Runtime is modeled as a canonical platform service with a declared repository, public runtime interfaces, and consumer compatibility rules.
 
 ## Planned Extractions
 

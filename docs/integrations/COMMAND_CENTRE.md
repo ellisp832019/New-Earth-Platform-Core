@@ -12,6 +12,7 @@ Command Centre should consume Platform Core as a read-only declared-state model.
 - compatibility rules and policies
 - release registry status
 - standards and design-system metadata
+- Local AI Runtime health, status, selected model summaries, and impact advisories
 
 ## Later NEOS Data
 
@@ -19,4 +20,4 @@ Command Centre should use NEOS for observed repository health, build health, tes
 
 ## Boundary
 
-Command Centre can present warnings and request governed actions. It must not directly rewrite Platform Core registries without an explicit reviewed workflow. The Command Dashboard is the visual operations layer for richer views and controls.
+Command Centre can present warnings and request governed actions. It must not directly rewrite Platform Core registries without an explicit reviewed workflow. The Command Dashboard is the visual operations layer for richer views and controls. Local AI Runtime stays the execution service boundary, not a Command Centre responsibility.

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -44,6 +44,7 @@ class Dependency:
     kind: str
     contract: str
     required: bool
+    status: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Dependency:
@@ -53,6 +54,7 @@ class Dependency:
             kind=str(data["kind"]),
             contract=str(data["contract"]),
             required=bool(data["required"]),
+            status=str(data["status"]) if "status" in data else None,
         )
 
 
@@ -85,6 +87,14 @@ class Interface:
     schema: str | None
     type: str | None
     endpoint: str | None
+    method: str | None = None
+    path: str | None = None
+    protocol: str | None = None
+    version: str | None = None
+    consumers: list[str] = field(default_factory=list)
+    security: str | None = None
+    lifecycle: str | None = None
+    notes: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Interface:
@@ -95,4 +105,12 @@ class Interface:
             schema=str(data["schema"]) if "schema" in data else None,
             type=str(data["type"]) if "type" in data else None,
             endpoint=str(data["endpoint"]) if "endpoint" in data else None,
+            method=str(data["method"]) if "method" in data else None,
+            path=str(data["path"]) if "path" in data else None,
+            protocol=str(data["protocol"]) if "protocol" in data else None,
+            version=str(data["version"]) if "version" in data else None,
+            consumers=[str(item) for item in data.get("consumers", [])],
+            security=str(data["security"]) if "security" in data else None,
+            lifecycle=str(data["lifecycle"]) if "lifecycle" in data else None,
+            notes=str(data["notes"]) if "notes" in data else None,
         )

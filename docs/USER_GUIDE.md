@@ -55,7 +55,7 @@ new-earth-platform doctor --json
 
 Add declared edges to `registry/dependencies.yaml`. Supported relationship kinds are `consumes`, `provides`, `controls`, `observes`, `depends_on`, `publishes`, `subscribes`, and `compatible_with`.
 
-Each edge must use known project IDs, must not be a self-dependency, must have a boolean `required` flag, and must reference a declared interface, service, or contract.
+Each edge must use known project IDs, must not be a self-dependency, must have a boolean `required` flag, may include a relationship `status` such as active, planned, optional, future, not_required, or deferred, and must reference a declared interface, service, or contract.
 
 ## Adding Interfaces And Services
 
@@ -74,7 +74,16 @@ It records:
 - relationships to Platform Core, NEOS, GAIA, Command Centre, and Dashboard;
 - legacy, prototype, and reference material.
 
-Inspect it with:
+The Local AI Runtime is declared there as a canonical platform service with its public runtime interfaces, consumers, and compatibility expectations. Inspect it with:
+
+```powershell
+new-earth-platform governance new-earth-local-ai-runtime
+new-earth-platform interfaces
+new-earth-platform services
+new-earth-platform compatibility
+```
+
+For the broader governance view, inspect:
 
 ```powershell
 new-earth-platform governance

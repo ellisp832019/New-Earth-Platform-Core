@@ -116,6 +116,19 @@ GOV_CANONICAL_STATUSES = {"canonical", "canonical_specialist", "canonical_progra
 GOV_EXTRACTED_STATUSES = {"planned_extraction", "probable_extraction"}
 GOV_REFERENCE_STATUSES = {"reference", "vendor_reference", "learning_reference"}
 GOV_PLANNED_LIFECYCLE = {"planned", "probable", "placeholder"}
+GOV_DEPENDENCY_CLASS_SET = {
+    "platform_spine",
+    "platform_service",
+    "specialist_system",
+    "product",
+    "programme",
+    "lab",
+    "planned_extraction",
+    "legacy",
+    "prototype",
+    "reference",
+}
+GOV_DEPENDENCY_STATUS_SET = {"active", "planned", "optional", "future", "not_required", "deferred"}
 GOV_STATUS_LIFECYCLE: dict[str, set[str]] = {
     "canonical": {"active", "developing"},
     "canonical_specialist": {"active", "developing", "embedded"},
@@ -193,6 +206,8 @@ def _validate_governance_record(
         errors.append(
             f"Contradictory lifecycle for {record.id}: {record.canonical_status} cannot be {record.lifecycle}"
         )
+    if record.dependency_class not in GOV_DEPENDENCY_CLASS_SET:
+        errors.append(f"Invalid dependency class for {record.id}: {record.dependency_class}")
     if not record.ownership.system_owner.strip():
         errors.append(f"Missing owner for {record.id}")
     if record.record_type == "planned_extraction":
@@ -209,6 +224,21 @@ def _validate_governance_record(
             errors.append(f"Embedded system should not be release independent: {record.id}")
     if record.canonical_status in GOV_REFERENCE_STATUSES and record.ownership.system_owner == GOV_INTERNAL_OWNER:
         errors.append(f"Reference or vendor record cannot use the internal owner for {record.id}")
+    if record.id == "new-earth-local-ai-runtime":
+        if record.architecture_role != "SERVICE":
+            errors.append(f"Local AI Runtime must use SERVICE role: {record.id}")
+        if record.canonical_status != "canonical":
+            errors.append(f"Local AI Runtime must be canonical: {record.id}")
+        if record.lifecycle != "active":
+            errors.append(f"Local AI Runtime must be active: {record.id}")
+        if record.dependency_class != "platform_service":
+            errors.append(f"Local AI Runtime must be a platform service: {record.id}")
+        if record.repository.canonical_repo != "New-Earth-Local-AI-Runtime":
+            errors.append(f"Local AI Runtime must declare its canonical repository: {record.id}")
+        if record.relationships.get("neos", None) and record.relationships["neos"].kind == "authoritative":
+            errors.append("Local AI Runtime must not claim NEOS engineering authority")
+        if record.relationships.get("gaia", None) and record.relationships["gaia"].kind == "authoritative":
+            errors.append("Local AI Runtime must not claim GAIA employee authority")
     if record.canonical_status in GOV_CANONICAL_STATUSES and record.id not in registered_project_ids:
         errors.append(f"Canonical system must be registered in Platform Core: {record.id}")
     if (
@@ -379,6 +409,9 @@ def validate_registry(root: Path) -> list[str]:
             errors.append(f"Invalid dependency kind for {source}->{target}: {kind}")
         if not isinstance(edge.get("required"), bool):
             errors.append(f"Invalid required flag for dependency {source}->{target}: {edge.get('required')}")
+        status = edge.get("status")
+        if status is not None and str(status) not in GOV_DEPENDENCY_STATUS_SET:
+            errors.append(f"Invalid dependency status for {source}->{target}: {status}")
         if key in edge_keys:
             errors.append(f"Duplicate dependency edge: {source}->{target} {kind} {contract}")
         edge_keys.add(key)
@@ -402,6 +435,15 @@ def validate_registry(root: Path) -> list[str]:
         schema = interface.get("schema")
         if schema is not None and not (root / str(schema)).exists():
             errors.append(f"Missing interface schema for {iid}: {schema}")
+        version = interface.get("version")
+        if version is not None and not validate_semver(str(version)):
+            errors.append(f"Malformed interface version for {iid}: {version}")
+        consumers = interface.get("consumers", [])
+        if consumers is not None:
+            for consumer in consumers:
+                consumer_id = str(consumer)
+                if consumer_id not in project_ids:
+                    errors.append(f"Unknown interface consumer for {iid}: {consumer_id}")
 
     platform = releases.get("platform", {})
     current = str(platform.get("current", ""))

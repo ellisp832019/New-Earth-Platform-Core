@@ -23,3 +23,10 @@ services:
     kind: ai-service
     interface: local
     status: external
+
+  - id: local-ai-runtime
+    owner: new-earth-local-ai-runtime
+    kind: platform-service
+    interface: local-http
+    version: 0.1.0
+    status: active

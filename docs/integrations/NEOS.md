@@ -17,6 +17,7 @@ NEOS may consume these read-only inputs:
 - `compatibility/policies.yaml`
 - `standards/**`
 - project contracts referenced by `registry/projects.yaml`
+- Local AI Runtime interface and service declarations from `registry/interfaces.yaml` and `registry/services.yaml`
 
 ## Responsibility Split
 
@@ -30,6 +31,7 @@ NEOS should inspect repositories, git state, builds, tests, docs, source code, s
 2. NEOS reads the validated Platform Core model.
 3. NEOS discovers repositories and records observed SHA, branch, build, test, documentation, and contract state.
 4. NEOS reports drift and release readiness without mutating Platform Core.
-5. Governed humans decide whether Platform Core declarations or repository implementations must change.
+5. NEOS verifies runtime implementation against Platform Core-declared Local AI Runtime contracts without becoming the execution host.
+6. Governed humans decide whether Platform Core declarations or repository implementations must change.
 
 NEOS must not silently mutate authoritative registries.

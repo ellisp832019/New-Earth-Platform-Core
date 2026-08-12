@@ -18,3 +18,12 @@ def test_compatibility_rule_lookup_and_evaluation() -> None:
     assert rule.requirement == ">=1.0,<2.0"
     assert is_compatible(root, "microgrow-control-centre", "microgrow", "1.5.0") is True
     assert is_compatible(root, "microgrow-control-centre", "microgrow", "2.0.0") is False
+
+
+def test_local_ai_runtime_compatibility_rules_exist() -> None:
+    root = Path(__file__).resolve().parents[1]
+    rule = find_rule(root, "gaia", "new-earth-local-ai-runtime", "local-ai-runtime-chat")
+    assert rule is not None
+    assert rule.requirement == ">=0.1.0,<0.2.0"
+    assert is_compatible(root, "gaia", "new-earth-local-ai-runtime", "0.1.0", "local-ai-runtime-chat") is True
+    assert is_compatible(root, "gaia", "new-earth-local-ai-runtime", "0.2.0", "local-ai-runtime-chat") is False
