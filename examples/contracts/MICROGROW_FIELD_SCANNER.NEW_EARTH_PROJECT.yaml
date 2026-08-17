@@ -1,0 +1,48 @@
+﻿contract_version: "1.0"
+
+project:
+  id: microgrow-field-scanner
+  name: MicroGrow Field Scanner
+  family: growing
+  type: diagnostic-application
+  owner: New Earth Advanced Technologies Ltd
+  status: active
+  maturity: development
+
+repository:
+  version: 0.1.0
+  versioning: semver
+  default_branch: master
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: embedded-portable
+  personality: microgrow
+  accessibility: required
+
+engineering:
+  local_first: true
+  logging: standard
+  security: baseline
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: false
+  command_centre: true
+
+provides:
+  - microgrow-field-diagnostics
+  - microgrow-device-maintenance
+
+consumes:
+  - microgrow-device-api
+
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development
