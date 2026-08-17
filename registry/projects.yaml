@@ -95,3 +95,39 @@ projects:
     repository: Embedded-Engineering-Lab
     status: developing
     contract: examples/contracts/EMBEDDED_LAB.NEW_EARTH_PROJECT.yaml
+
+  - id: microgrow-field-scanner
+    name: MicroGrow Field Scanner
+    family: growing
+    type: diagnostic-application
+    repository: microgrow-field-scanner
+    status: active
+    contract: examples/contracts/MICROGROW_FIELD_SCANNER.NEW_EARTH_PROJECT.yaml
+  - id: microgrow-ai-lab
+    name: MicroGrow AI Lab
+    family: growing
+    type: ai-research-lab
+    repository: MicroGrow-AI-Lab-Omega-v2
+    status: active
+    contract: examples/contracts/MICROGROW_AI_LAB.NEW_EARTH_PROJECT.yaml
+  - id: rehabilitation
+    name: New Earth Rehabilitation
+    family: wellbeing
+    type: rehabilitation-application
+    repository: New-Earth---Rehabilitation
+    status: active
+    contract: examples/contracts/REHABILITATION.NEW_EARTH_PROJECT.yaml
+  - id: omega-xr-os
+    name: New Earth Omega XR OS
+    family: xr
+    type: xr-platform
+    repository: NEW-EARTH---OMEGA-XR-OS
+    status: active
+    contract: examples/contracts/OMEGA_XR_OS.NEW_EARTH_PROJECT.yaml
+  - id: new-earth-website
+    name: New Earth Website
+    family: public
+    type: public-surface
+    repository: new_earth_website
+    status: active
+    contract: examples/contracts/WEBSITE.NEW_EARTH_PROJECT.yaml

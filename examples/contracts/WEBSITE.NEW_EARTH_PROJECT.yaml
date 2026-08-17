@@ -1,0 +1,45 @@
+﻿contract_version: "1.0"
+
+project:
+  id: new-earth-website
+  name: New Earth Website
+  family: public
+  type: public-surface
+  owner: New Earth Advanced Technologies Ltd
+  status: active
+  maturity: development
+
+repository:
+  version: 0.1.0
+  versioning: semver
+  default_branch: main
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: web-standard
+  personality: public
+  accessibility: required
+
+engineering:
+  local_first: false
+  logging: standard
+  security: baseline
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: false
+  command_centre: false
+
+provides:
+  - public-publishing
+
+consumes: []
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development

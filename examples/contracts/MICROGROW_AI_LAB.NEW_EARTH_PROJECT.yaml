@@ -1,0 +1,48 @@
+﻿contract_version: "1.0"
+
+project:
+  id: microgrow-ai-lab
+  name: MicroGrow AI Lab
+  family: growing
+  type: ai-research-lab
+  owner: New Earth Advanced Technologies Ltd
+  status: active
+  maturity: development
+
+repository:
+  version: 2.0.0
+  versioning: semver
+  default_branch: experiment/mg-ai-lab-esp32s3-ai4b-qualification
+  release_channel: development
+
+design:
+  system: NEDS
+  version: "0.1"
+  shell: research-standard
+  personality: research
+  accessibility: required
+
+engineering:
+  local_first: true
+  logging: standard
+  security: baseline
+  ci: required
+  testing: required
+  documentation: required
+
+integrations:
+  neos: true
+  gaia: true
+  command_centre: true
+
+provides:
+  - microgrow-ai-experimentation
+  - microgrow-domain-intelligence
+
+consumes:
+  - local-ai-runtime
+
+governance:
+  owner_review: required
+  architecture_review: required
+  release_status: in-development

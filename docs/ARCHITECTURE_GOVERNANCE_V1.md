@@ -68,3 +68,45 @@ new-earth-platform doctor
 ```
 
 `validate` checks the governance registry, existing project contracts, registries, compatibility rules, and project-level validations together. `doctor` reports a quick health summary without modifying anything.
+
+## EAD-050 Propagation Rules
+
+The approved EAD-050 baseline adds the following governance constraints.
+
+### Authority Boundaries
+
+- Platform Core is the authoritative source for declared ecosystem identity, project and service registration, contracts, declared dependencies, interfaces and architecture topology.
+- NEOS may observe, infer and report engineering state but must not replace declared Platform Core authority.
+- GAIA may interpret Platform Core and NEOS evidence but must not become the canonical architecture registry or observed engineering evidence store.
+- Local AI Runtime executes model workloads but does not own architectural policy, GAIA reasoning authority or product control.
+- Command Centre is a thin navigation and orchestration surface.
+- Command Dashboard is an operational workspace and must not duplicate Platform Core, NEOS or GAIA authority.
+
+### Planned Shared Boundaries
+
+- CKCC / Librarian remains a planned capability until its durable knowledge boundary is implemented and registered.
+- MCP / Tool Control remains a planned capability until governed execution, approval and audit contracts are implemented and registered.
+- Planned capabilities must not be represented as active canonical repositories before a real implementation boundary exists.
+
+### Control Infrastructure
+
+Project Coherence Standard and Omega Mission Generator are ecosystem control infrastructure. They participate in governance and work preparation but are not product-domain authorities.
+
+### Protection Boundary
+
+Backup Guardian owns backup verification, protection and recovery evidence. Backup state is not a substitute for architecture state, repository state or release state.
+
+### Propagation Sequence
+
+EAD-050 is propagated in this order:
+
+1. Platform Core declared architecture.
+2. Canonical repository reconciliation.
+3. NEOS ecosystem validation.
+4. GAIA integration.
+5. MCP / Tool Control implementation.
+6. CKCC / Librarian maturation.
+7. Controlled simplification and extraction.
+8. Omega OS v2 migration after architecture propagation is stable and protected.
+
+Repository changes must preserve evidence, use controlled branches, pass validation and avoid destructive consolidation without explicit review.
