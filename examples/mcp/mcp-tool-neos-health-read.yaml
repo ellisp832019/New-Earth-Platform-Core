@@ -1,0 +1,18 @@
+id: neos.health.read
+name: NEOS Health Read
+version: 1.0.0
+description: Read the declared NEOS health summary.
+owner_system_id: neos
+server_id: neos-engineering-read-server
+capability_id: neos.engineering.read
+operation: health.read
+read_only: true
+side_effects: false
+input_schema_ref: schemas/mcp/empty-input.schema.json
+output_schema_ref: schemas/mcp/neos-health-read.output.schema.json
+status: declared
+timeout_class: short
+tags:
+  - neos
+  - health
+  - read-only

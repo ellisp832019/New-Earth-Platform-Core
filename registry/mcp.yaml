@@ -1,0 +1,55 @@
+registry_version: "1.0"
+capabilities:
+  - id: neos.engineering.read
+    name: NEOS Engineering Read
+    version: 1.0.0
+    description: Read-only engineering capability for NEOS.
+    owner_system_id: neos
+    server_id: neos-engineering-read-server
+    mode: read_only
+    status: declared
+    read_only: true
+    tool_ids:
+      - neos.health.read
+      - neos.project.summary.read
+    tags:
+      - neos
+      - engineering
+      - read-only
+tools:
+  - id: neos.health.read
+    name: NEOS Health Read
+    version: 1.0.0
+    description: Read the declared NEOS health summary.
+    owner_system_id: neos
+    server_id: neos-engineering-read-server
+    capability_id: neos.engineering.read
+    operation: health.read
+    read_only: true
+    side_effects: false
+    input_schema_ref: schemas/mcp/empty-input.schema.json
+    output_schema_ref: schemas/mcp/neos-health-read.output.schema.json
+    status: declared
+    timeout_class: short
+    tags:
+      - neos
+      - health
+      - read-only
+  - id: neos.project.summary.read
+    name: NEOS Project Summary Read
+    version: 1.0.0
+    description: Read the declared NEOS project summary.
+    owner_system_id: neos
+    server_id: neos-engineering-read-server
+    capability_id: neos.engineering.read
+    operation: project.read
+    read_only: true
+    side_effects: false
+    input_schema_ref: schemas/mcp/empty-input.schema.json
+    output_schema_ref: schemas/mcp/neos-project-summary-read.output.schema.json
+    status: declared
+    timeout_class: medium
+    tags:
+      - neos
+      - project
+      - read-only

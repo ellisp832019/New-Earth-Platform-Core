@@ -1,6 +1,6 @@
 import shutil
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import yaml
 
@@ -18,15 +18,15 @@ def _copy_repo_data(root: Path, target: Path) -> None:
             shutil.copy2(source, destination)
 
 
-def _system(data: dict[str, object], system_id: str) -> dict[str, object]:
-    for record in cast(list[dict[str, object]], data["systems"]):
+def _system(data: dict[str, Any], system_id: str) -> dict[str, Any]:
+    for record in cast(list[dict[str, Any]], data["systems"]):
         if record["id"] == system_id:
             return record
     raise AssertionError(system_id)
 
 
-def _planned(data: dict[str, object], system_id: str) -> dict[str, object]:
-    for record in cast(list[dict[str, object]], data["planned_extractions"]):
+def _planned(data: dict[str, Any], system_id: str) -> dict[str, Any]:
+    for record in cast(list[dict[str, Any]], data["planned_extractions"]):
         if record["id"] == system_id:
             return record
     raise AssertionError(system_id)
@@ -41,7 +41,7 @@ def test_invalid_architecture_role_is_rejected(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
     path = tmp_path / "registry/governance.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = cast(dict[str, Any], yaml.safe_load(path.read_text(encoding="utf-8")))
     _system(data, "new-earth-platform-core")["architecture_role"] = "BROKEN"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     assert any("Invalid architecture role" in error for error in validate_governance(tmp_path))
@@ -51,7 +51,7 @@ def test_missing_owner_is_rejected(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
     path = tmp_path / "registry/governance.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = cast(dict[str, Any], yaml.safe_load(path.read_text(encoding="utf-8")))
     _system(data, "neos")["ownership"]["system_owner"] = ""
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     assert any("Missing owner" in error for error in validate_governance(tmp_path))
@@ -61,7 +61,7 @@ def test_contradictory_lifecycle_state_is_rejected(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
     path = tmp_path / "registry/governance.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = cast(dict[str, Any], yaml.safe_load(path.read_text(encoding="utf-8")))
     _system(data, "new-earth-platform-core")["lifecycle"] = "planned"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     assert any("Contradictory lifecycle" in error for error in validate_governance(tmp_path))
@@ -71,7 +71,7 @@ def test_planned_extractions_are_represented_separately(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
     path = tmp_path / "registry/governance.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = cast(dict[str, Any], yaml.safe_load(path.read_text(encoding="utf-8")))
     _planned(data, "microgrow-hub")["repository"]["canonical_repo"] = "MicroGrow-Hub"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     assert any("Planned extraction must not declare canonical_repo" in error for error in validate_governance(tmp_path))
@@ -151,7 +151,7 @@ def test_legacy_system_requires_successor(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
     path = tmp_path / "registry/governance.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = cast(dict[str, Any], yaml.safe_load(path.read_text(encoding="utf-8")))
     _system(data, "mark-xl")["superseded_by"] = []
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     assert any("Superseded system should declare a successor" in error for error in validate_governance(tmp_path))
@@ -161,7 +161,7 @@ def test_reference_vendor_classification_is_rejected_for_internal_owner(tmp_path
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
     path = tmp_path / "registry/governance.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = cast(dict[str, Any], yaml.safe_load(path.read_text(encoding="utf-8")))
     _system(data, "esp32-3248s035")["ownership"]["system_owner"] = "New Earth Advanced Technologies Ltd"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     assert any("Reference or vendor record cannot use the internal owner" in error for error in validate_governance(tmp_path))
@@ -171,7 +171,7 @@ def test_relationship_targets_must_resolve(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
     path = tmp_path / "registry/governance.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = cast(dict[str, Any], yaml.safe_load(path.read_text(encoding="utf-8")))
     _system(data, "new-earth-platform-core")["relationships"]["gaia"]["target"] = "missing-system"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     assert any("Unresolved relationship target" in error for error in validate_governance(tmp_path))
