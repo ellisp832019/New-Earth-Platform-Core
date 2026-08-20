@@ -346,8 +346,11 @@ def validate_project_contract_file(contract_path: Path, schema_path: Path) -> li
 
 
 MCP_NAMESPACED_IDENTIFIER_RE = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$")
-MCP_RESOURCE_IDENTIFIER_RE = re.compile(r"^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$")
-MCP_SCHEMA_REF_RE = re.compile(r"^schemas/mcp/[a-z0-9][a-z0-9._/-]*\.schema\.json$")
+MCP_RESOURCE_URI_RE = re.compile(r"^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$")
+MCP_RESOURCE_IDENTIFIER_RE = re.compile(
+    r"^(?:[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+|mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+)$"
+)
+MCP_SCHEMA_REF_RE = re.compile(r"^schemas/[a-z0-9][a-z0-9._/-]*\.schema\.json$")
 MCP_STATUS_SET = {"planned", "declared", "active", "deprecated"}
 MCP_MODE_SET = {"read_only"}
 MCP_TIMEOUT_CLASS_SET = {"short", "medium", "long"}
@@ -367,6 +370,36 @@ MCP_OPERATION_CLASS_SET = {
     "report.read",
     "search.read",
 }
+MCP_RESOURCE_TYPE_SET = {
+    "health",
+    "status",
+    "project",
+    "repository",
+    "engineering",
+    "dependency",
+    "decision",
+    "architecture",
+    "evidence",
+    "knowledge",
+    "diagnostic",
+    "report",
+    "registry",
+}
+MCP_QUERY_OPERATION_SET = {
+    "get",
+    "list",
+    "search",
+    "lookup",
+    "summary",
+    "status",
+    "health",
+    "dependencies",
+    "decisions",
+    "evidence",
+    "diagnostics",
+}
+MCP_FILTER_OPERATOR_SET = {"eq", "neq", "contains", "prefix", "in"}
+MCP_SORT_DIRECTION_SET = {"asc", "desc"}
 
 
 def _validate_semver_fields(contract_path: Path, data: dict[str, Any], fields: list[str]) -> list[str]:
@@ -452,6 +485,77 @@ def _validate_mcp_tool_data(root: Path, tool: dict[str, Any], source: str) -> li
     return errors
 
 
+def _validate_mcp_resource_data(root: Path, resource: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-resource.schema.json"
+    errors = validate_instance_against_schema(resource, schema_path, source)
+    if errors:
+        return errors
+    errors = []
+    errors += _validate_mcp_schema_ref(root, resource.get("schema_ref"), source, "schema_ref")
+    return errors
+
+
+def _validate_mcp_query_data(root: Path, query: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-query.schema.json"
+    errors = validate_instance_against_schema(query, schema_path, source)
+    if errors:
+        return errors
+    errors = []
+    errors += _validate_mcp_schema_ref(root, query.get("parameter_schema_ref"), source, "parameter_schema_ref")
+    errors += _validate_mcp_schema_ref(root, query.get("result_schema_ref"), source, "result_schema_ref")
+    operation = str(query["operation"])
+    if operation not in MCP_QUERY_OPERATION_SET:
+        errors.append(f"{source}: unsupported MCP query operation: {operation}")
+
+    pagination = query.get("pagination")
+    if pagination is not None:
+        if not isinstance(pagination, dict):
+            errors.append(f"{source}: pagination must be an object")
+        else:
+            enabled = pagination.get("enabled")
+            default_page_size = pagination.get("default_page_size")
+            max_page_size = pagination.get("max_page_size")
+            if not isinstance(enabled, bool):
+                errors.append(f"{source}: pagination.enabled must be a boolean")
+            if not isinstance(default_page_size, int) or default_page_size < 1:
+                errors.append(f"{source}: pagination.default_page_size must be a positive integer")
+            if not isinstance(max_page_size, int) or max_page_size < 1:
+                errors.append(f"{source}: pagination.max_page_size must be a positive integer")
+            if isinstance(default_page_size, int) and isinstance(max_page_size, int) and max_page_size < default_page_size:
+                errors.append(f"{source}: pagination.max_page_size must be greater than or equal to default_page_size")
+
+    filtering = query.get("filtering")
+    if filtering is not None:
+        if not isinstance(filtering, dict):
+            errors.append(f"{source}: filtering must be an object")
+        else:
+            operators = filtering.get("operators")
+            if not isinstance(operators, list) or not operators:
+                errors.append(f"{source}: filtering.operators must be a non-empty list")
+            else:
+                for operator in operators:
+                    if not isinstance(operator, str):
+                        errors.append(f"{source}: filtering.operators must contain strings")
+                    elif operator not in MCP_FILTER_OPERATOR_SET:
+                        errors.append(f"{source}: unsupported MCP filter operator: {operator}")
+
+    sorting = query.get("sorting")
+    if sorting is not None:
+        if not isinstance(sorting, dict):
+            errors.append(f"{source}: sorting must be an object")
+        else:
+            directions = sorting.get("directions")
+            if not isinstance(directions, list) or not directions:
+                errors.append(f"{source}: sorting.directions must be a non-empty list")
+            else:
+                for direction in directions:
+                    if not isinstance(direction, str):
+                        errors.append(f"{source}: sorting.directions must contain strings")
+                    elif direction not in MCP_SORT_DIRECTION_SET:
+                        errors.append(f"{source}: unsupported MCP sort direction: {direction}")
+    return errors
+
+
 def validate_mcp_capability_contract_file(contract_path: Path, schema_path: Path, _root: Path) -> list[str]:
     return validate_yaml_against_schema(contract_path, schema_path)
 
@@ -466,6 +570,28 @@ def validate_mcp_tool_contract_file(contract_path: Path, schema_path: Path, root
     operation = str(data["operation"])
     if operation not in MCP_OPERATION_CLASS_SET:
         errors.append(f"{contract_path}: unsupported MCP operation class: {operation}")
+    return errors
+
+
+def validate_mcp_resource_contract_file(contract_path: Path, schema_path: Path, root: Path) -> list[str]:
+    errors = validate_yaml_against_schema(contract_path, schema_path)
+    if errors:
+        return errors
+    data = load_yaml(contract_path)
+    errors += _validate_mcp_schema_ref(root, data.get("schema_ref"), str(contract_path), "schema_ref")
+    return errors
+
+
+def validate_mcp_query_contract_file(contract_path: Path, schema_path: Path, root: Path) -> list[str]:
+    errors = validate_yaml_against_schema(contract_path, schema_path)
+    if errors:
+        return errors
+    data = load_yaml(contract_path)
+    errors += _validate_mcp_schema_ref(root, data.get("parameter_schema_ref"), str(contract_path), "parameter_schema_ref")
+    errors += _validate_mcp_schema_ref(root, data.get("result_schema_ref"), str(contract_path), "result_schema_ref")
+    operation = str(data["operation"])
+    if operation not in MCP_QUERY_OPERATION_SET:
+        errors.append(f"{contract_path}: unsupported MCP query operation: {operation}")
     return errors
 
 
@@ -492,19 +618,45 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         return [f"Missing MCP registry: {registry_path}"]
 
     data = load_yaml(registry_path)
+    servers = data.get("servers")
     capabilities = data.get("capabilities")
+    resources = data.get("resources")
+    queries = data.get("queries")
     tools = data.get("tools")
     errors: list[str] = []
 
+    if not isinstance(servers, list):
+        errors.append(f"{registry_path}: servers must be a list")
+        servers = []
     if not isinstance(capabilities, list):
         errors.append(f"{registry_path}: capabilities must be a list")
         capabilities = []
+    if not isinstance(resources, list):
+        errors.append(f"{registry_path}: resources must be a list")
+        resources = []
+    if not isinstance(queries, list):
+        errors.append(f"{registry_path}: queries must be a list")
+        queries = []
     if not isinstance(tools, list):
         errors.append(f"{registry_path}: tools must be a list")
         tools = []
 
+    server_map: dict[str, dict[str, Any]] = {}
     capability_map: dict[str, dict[str, Any]] = {}
+    resource_map: dict[str, dict[str, Any]] = {}
+    query_map: dict[str, dict[str, Any]] = {}
     tool_map: dict[str, dict[str, Any]] = {}
+
+    for index, server in enumerate(servers):
+        if not isinstance(server, dict):
+            errors.append(f"{registry_path}: servers[{index}] must be an object")
+            continue
+        server_id = str(server.get("server_id", ""))
+        if server_id in server_map:
+            errors.append(f"Duplicate server id: {server_id}")
+        else:
+            server_map[server_id] = server
+        errors += validate_instance_against_schema(server, root / "schemas/mcp-server-identity.schema.json", f"{registry_path}: servers[{index}]")
 
     for index, capability in enumerate(capabilities):
         if not isinstance(capability, dict):
@@ -517,6 +669,28 @@ def validate_mcp_contracts(root: Path) -> list[str]:
             capability_map[cap_id] = capability
         errors += _validate_mcp_capability_data(root, capability, f"{registry_path}: capabilities[{index}]")
 
+    for index, resource in enumerate(resources):
+        if not isinstance(resource, dict):
+            errors.append(f"{registry_path}: resources[{index}] must be an object")
+            continue
+        resource_id = str(resource.get("id", ""))
+        if resource_id in resource_map:
+            errors.append(f"Duplicate resource id: {resource_id}")
+        else:
+            resource_map[resource_id] = resource
+        errors += _validate_mcp_resource_data(root, resource, f"{registry_path}: resources[{index}]")
+
+    for index, query in enumerate(queries):
+        if not isinstance(query, dict):
+            errors.append(f"{registry_path}: queries[{index}] must be an object")
+            continue
+        query_id = str(query.get("id", ""))
+        if query_id in query_map:
+            errors.append(f"Duplicate query id: {query_id}")
+        else:
+            query_map[query_id] = query
+        errors += _validate_mcp_query_data(root, query, f"{registry_path}: queries[{index}]")
+
     for index, tool in enumerate(tools):
         if not isinstance(tool, dict):
             errors.append(f"{registry_path}: tools[{index}] must be an object")
@@ -527,6 +701,32 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         else:
             tool_map[tool_id] = tool
         errors += _validate_mcp_tool_data(root, tool, f"{registry_path}: tools[{index}]")
+
+    for server_id, server in server_map.items():
+        declared_tool_ids = [str(tool_id) for tool_id in server.get("declared_tools", [])]
+        declared_resource_ids = [str(resource_id) for resource_id in server.get("declared_resources", [])]
+        for tool_id in declared_tool_ids:
+            if tool_id not in tool_map:
+                errors.append(f"Orphan server tool reference: {server_id} -> {tool_id}")
+                continue
+            tool = tool_map[tool_id]
+            if str(tool.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for tool {tool_id}: {tool.get('server_id')} != {server_id}")
+            if str(tool.get("owner_system_id", "")) != str(server.get("owner_system_id", "")):
+                errors.append(
+                    f"Owner mismatch for tool {tool_id}: {tool.get('owner_system_id')} != {server.get('owner_system_id')}"
+                )
+        for resource_id in declared_resource_ids:
+            if resource_id not in resource_map:
+                errors.append(f"Orphan server resource reference: {server_id} -> {resource_id}")
+                continue
+            resource = resource_map[resource_id]
+            if str(resource.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for resource {resource_id}: {resource.get('server_id')} != {server_id}")
+            if str(resource.get("owner_system_id", "")) != str(server.get("owner_system_id", "")):
+                errors.append(
+                    f"Owner mismatch for resource {resource_id}: {resource.get('owner_system_id')} != {server.get('owner_system_id')}"
+                )
 
     declared_tool_references: Counter[str] = Counter()
     for capability in capability_map.values():
@@ -552,6 +752,72 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         if count > 1:
             errors.append(f"Tool referenced by multiple capabilities: {tool_id}")
 
+    for resource_id, resource in resource_map.items():
+        capability_id = str(resource.get("capability_id", ""))
+        server_id = str(resource.get("server_id", ""))
+        if capability_id not in capability_map:
+            errors.append(f"Orphan resource reference: {resource_id} -> {capability_id}")
+            continue
+        capability = capability_map[capability_id]
+        if server_id not in server_map:
+            errors.append(f"Orphan resource server reference: {resource_id} -> {server_id}")
+            continue
+        server = server_map[server_id]
+        if str(resource.get("owner_system_id", "")) != str(capability.get("owner_system_id", "")):
+            errors.append(
+                f"Owner mismatch for resource {resource_id}: {resource.get('owner_system_id')} != {capability.get('owner_system_id')}"
+            )
+        if str(resource.get("owner_system_id", "")) != str(server.get("owner_system_id", "")):
+            errors.append(
+                f"Owner mismatch for resource {resource_id}: {resource.get('owner_system_id')} != {server.get('owner_system_id')}"
+            )
+        if str(resource.get("server_id", "")) != str(capability.get("server_id", "")):
+            errors.append(
+                f"Server mismatch for resource {resource_id}: {resource.get('server_id')} != {capability.get('server_id')}"
+            )
+        for query_id in [str(query_id) for query_id in resource.get("query_ids", [])]:
+            if query_id not in query_map:
+                errors.append(f"Orphan resource query reference: {resource_id} -> {query_id}")
+
+    for query_id, query in query_map.items():
+        resource_id = str(query.get("resource_id", ""))
+        capability_id = str(query.get("capability_id", ""))
+        server_id = str(query.get("server_id", ""))
+        if resource_id not in resource_map:
+            errors.append(f"Orphan query resource reference: {query_id} -> {resource_id}")
+            continue
+        resource = resource_map[resource_id]
+        if capability_id not in capability_map:
+            errors.append(f"Orphan query capability reference: {query_id} -> {capability_id}")
+            continue
+        capability = capability_map[capability_id]
+        if server_id not in server_map:
+            errors.append(f"Orphan query server reference: {query_id} -> {server_id}")
+            continue
+        server = server_map[server_id]
+        if str(query.get("owner_system_id", "")) != str(resource.get("owner_system_id", "")):
+            errors.append(
+                f"Owner mismatch for query {query_id}: {query.get('owner_system_id')} != {resource.get('owner_system_id')}"
+            )
+        if str(query.get("owner_system_id", "")) != str(capability.get("owner_system_id", "")):
+            errors.append(
+                f"Owner mismatch for query {query_id}: {query.get('owner_system_id')} != {capability.get('owner_system_id')}"
+            )
+        if str(query.get("owner_system_id", "")) != str(server.get("owner_system_id", "")):
+            errors.append(
+                f"Owner mismatch for query {query_id}: {query.get('owner_system_id')} != {server.get('owner_system_id')}"
+            )
+        if str(query.get("server_id", "")) != str(resource.get("server_id", "")):
+            errors.append(
+                f"Server mismatch for query {query_id}: {query.get('server_id')} != {resource.get('server_id')}"
+            )
+        if str(query.get("capability_id", "")) != str(resource.get("capability_id", "")):
+            errors.append(
+                f"Capability mismatch for query {query_id}: {query.get('capability_id')} != {resource.get('capability_id')}"
+            )
+        if query_id not in resource.get("query_ids", []):
+            errors.append(f"Resource query_ids missing reverse reference: {resource_id} -> {query_id}")
+
     for tool_id, tool in tool_map.items():
         capability_id = str(tool.get("capability_id", ""))
         if capability_id not in capability_map:
@@ -566,6 +832,21 @@ def validate_mcp_contracts(root: Path) -> list[str]:
             )
         if tool_id not in capability.get("tool_ids", []):
             errors.append(f"Capability tool_ids missing reverse reference: {capability_id} -> {tool_id}")
+        for query_id in [str(query_id) for query_id in tool.get("query_ids", [])]:
+            if query_id not in query_map:
+                errors.append(f"Orphan tool query reference: {tool_id} -> {query_id}")
+                continue
+            query = query_map[query_id]
+            if str(query.get("server_id", "")) != str(tool.get("server_id", "")):
+                errors.append(f"Server mismatch for query {query_id}: {query.get('server_id')} != {tool.get('server_id')}")
+            if str(query.get("owner_system_id", "")) != str(tool.get("owner_system_id", "")):
+                errors.append(
+                    f"Owner mismatch for query {query_id}: {query.get('owner_system_id')} != {tool.get('owner_system_id')}"
+                )
+            if str(query.get("capability_id", "")) != capability_id:
+                errors.append(
+                    f"Capability mismatch for query {query_id}: {query.get('capability_id')} != {capability_id}"
+                )
 
     return errors
 

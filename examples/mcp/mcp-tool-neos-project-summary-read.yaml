@@ -10,6 +10,8 @@ read_only: true
 side_effects: false
 input_schema_ref: schemas/mcp/empty-input.schema.json
 output_schema_ref: schemas/mcp/neos-project-summary-read.output.schema.json
+query_ids:
+  - neos.project.summary.query
 status: declared
 timeout_class: medium
 tags:
