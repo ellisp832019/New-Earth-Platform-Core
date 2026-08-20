@@ -1,0 +1,17 @@
+id: neos.health
+name: NEOS Health Resource
+version: 1.0.0
+description: Read-only NEOS health resource.
+owner_system_id: neos
+server_id: neos-engineering-read-server
+capability_id: neos.engineering.read
+resource_type: health
+schema_ref: schemas/mcp/neos-health-resource.schema.json
+read_only: true
+status: declared
+query_ids:
+  - neos.health.query
+tags:
+  - neos
+  - health
+  - read-only

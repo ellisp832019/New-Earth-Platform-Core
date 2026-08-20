@@ -1,0 +1,17 @@
+id: neos.project.summary
+name: NEOS Project Summary Resource
+version: 1.0.0
+description: Read-only NEOS project summary resource.
+owner_system_id: neos
+server_id: neos-engineering-read-server
+capability_id: neos.engineering.read
+resource_type: project
+schema_ref: schemas/mcp/neos-project-summary-resource.schema.json
+read_only: true
+status: declared
+query_ids:
+  - neos.project.summary.query
+tags:
+  - neos
+  - project
+  - read-only

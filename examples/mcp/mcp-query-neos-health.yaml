@@ -1,0 +1,19 @@
+id: neos.health.query
+name: NEOS Health Query
+version: 1.0.0
+description: Query the NEOS health resource.
+owner_system_id: neos
+server_id: neos-engineering-read-server
+capability_id: neos.engineering.read
+resource_id: neos.health
+operation: health
+read_only: true
+side_effects: false
+parameter_schema_ref: schemas/mcp/empty-input.schema.json
+result_schema_ref: schemas/mcp/neos-health-resource.schema.json
+status: declared
+timeout_class: short
+tags:
+  - neos
+  - health
+  - read-only

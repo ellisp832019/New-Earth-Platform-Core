@@ -10,6 +10,8 @@ read_only: true
 side_effects: false
 input_schema_ref: schemas/mcp/empty-input.schema.json
 output_schema_ref: schemas/mcp/neos-health-read.output.schema.json
+query_ids:
+  - neos.health.query
 status: declared
 timeout_class: short
 tags:

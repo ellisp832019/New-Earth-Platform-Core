@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-query.schema.json",
+  "title": "New Earth MCP Query",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "version",
+    "description",
+    "owner_system_id",
+    "server_id",
+    "capability_id",
+    "resource_id",
+    "operation",
+    "read_only",
+    "side_effects",
+    "parameter_schema_ref",
+    "result_schema_ref",
+    "status",
+    "timeout_class"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 2
+    },
+    "owner_system_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "server_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "capability_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
+    },
+    "resource_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
+    },
+    "operation": {
+      "enum": [
+        "health",
+        "status",
+        "get",
+        "list",
+        "search",
+        "lookup",
+        "summary",
+        "dependencies",
+        "decisions",
+        "evidence",
+        "diagnostics"
+      ]
+    },
+    "read_only": {
+      "const": true
+    },
+    "side_effects": {
+      "const": false
+    },
+    "parameter_schema_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "result_schema_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": ["planned", "declared", "active", "deprecated"]
+    },
+    "timeout_class": {
+      "enum": ["short", "medium", "long"]
+    },
+    "pagination": {
+      "type": "object",
+      "required": ["enabled", "default_page_size", "max_page_size"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "default_page_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_page_size": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "filtering": {
+      "type": "object",
+      "required": ["operators"],
+      "properties": {
+        "operators": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["eq", "neq", "contains", "prefix", "in"]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "sorting": {
+      "type": "object",
+      "required": ["directions"],
+      "properties": {
+        "directions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["asc", "desc"]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": false
+}

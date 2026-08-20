@@ -10,6 +10,8 @@ from new_earth_platform.validation import (
     validate_mcp_capability_contract_file,
     validate_mcp_client_identity_contract_file,
     validate_mcp_contracts,
+    validate_mcp_query_contract_file,
+    validate_mcp_resource_contract_file,
     validate_mcp_server_identity_contract_file,
     validate_mcp_tool_contract_file,
 )
@@ -58,6 +60,30 @@ def test_mcp_capability_and_tool_examples_validate() -> None:
     assert validate_mcp_tool_contract_file(
         root / "examples/mcp/mcp-tool-neos-project-summary-read.yaml",
         root / "schemas/mcp-tool.schema.json",
+        root,
+    ) == []
+
+
+def test_mcp_resource_and_query_examples_validate() -> None:
+    root = Path(__file__).resolve().parents[1]
+    assert validate_mcp_resource_contract_file(
+        root / "examples/mcp/mcp-resource-neos-health.yaml",
+        root / "schemas/mcp-resource.schema.json",
+        root,
+    ) == []
+    assert validate_mcp_resource_contract_file(
+        root / "examples/mcp/mcp-resource-neos-project-summary.yaml",
+        root / "schemas/mcp-resource.schema.json",
+        root,
+    ) == []
+    assert validate_mcp_query_contract_file(
+        root / "examples/mcp/mcp-query-neos-health.yaml",
+        root / "schemas/mcp-query.schema.json",
+        root,
+    ) == []
+    assert validate_mcp_query_contract_file(
+        root / "examples/mcp/mcp-query-neos-project-summary.yaml",
+        root / "schemas/mcp-query.schema.json",
         root,
     ) == []
 
@@ -117,6 +143,33 @@ def test_missing_required_identity_fields_fail(tmp_path: Path) -> None:
     assert any("server_id" in error and "required" in error for error in server_errors)
 
 
+def test_missing_required_resource_and_query_fields_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+
+    resource_path = tmp_path / "examples/mcp/mcp-resource-neos-health.yaml"
+    resource = _load_yaml(resource_path)
+    del resource["id"]
+    resource_path.write_text(yaml.safe_dump(resource, sort_keys=False), encoding="utf-8")
+    resource_errors = validate_mcp_resource_contract_file(
+        resource_path,
+        tmp_path / "schemas/mcp-resource.schema.json",
+        tmp_path,
+    )
+    assert any("id" in error and "required" in error for error in resource_errors)
+
+    query_path = tmp_path / "examples/mcp/mcp-query-neos-health.yaml"
+    query = _load_yaml(query_path)
+    del query["resource_id"]
+    query_path.write_text(yaml.safe_dump(query, sort_keys=False), encoding="utf-8")
+    query_errors = validate_mcp_query_contract_file(
+        query_path,
+        tmp_path / "schemas/mcp-query.schema.json",
+        tmp_path,
+    )
+    assert any("resource_id" in error and "required" in error for error in query_errors)
+
+
 def test_invalid_transport_and_bind_scope_fail(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
@@ -131,6 +184,39 @@ def test_invalid_transport_and_bind_scope_fail(tmp_path: Path) -> None:
     )
     assert any("transport" in error for error in errors)
     assert any("bind_scope" in error for error in errors)
+
+
+def test_invalid_resource_and_query_shapes_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+
+    resource_path = tmp_path / "examples/mcp/mcp-resource-neos-project-summary.yaml"
+    resource = _load_yaml(resource_path)
+    resource["read_only"] = False
+    resource_path.write_text(yaml.safe_dump(resource, sort_keys=False), encoding="utf-8")
+    resource_errors = validate_mcp_resource_contract_file(
+        resource_path,
+        tmp_path / "schemas/mcp-resource.schema.json",
+        tmp_path,
+    )
+    assert any("read_only" in error for error in resource_errors)
+
+    query_path = tmp_path / "examples/mcp/mcp-query-neos-project-summary.yaml"
+    query = _load_yaml(query_path)
+    query["side_effects"] = True
+    query["pagination"] = "invalid"
+    query["filtering"] = {"operators": ["eq", "unsupported"]}
+    query["sorting"] = {"directions": ["asc", "sideways"]}
+    query_path.write_text(yaml.safe_dump(query, sort_keys=False), encoding="utf-8")
+    query_errors = validate_mcp_query_contract_file(
+        query_path,
+        tmp_path / "schemas/mcp-query.schema.json",
+        tmp_path,
+    )
+    assert any("side_effects" in error for error in query_errors)
+    assert any("pagination" in error for error in query_errors)
+    assert any("filter" in error.lower() for error in query_errors)
+    assert any("sorting" in error.lower() for error in query_errors)
 
 
 def test_invalid_lifecycle_status_rejected(tmp_path: Path) -> None:
@@ -242,6 +328,44 @@ def test_duplicate_and_orphan_relationships_are_rejected(tmp_path: Path) -> None
     assert any("Orphan tool reference" in error for error in orphan_tool_errors)
 
 
+def test_duplicate_resource_and_query_relationships_are_rejected(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+
+    duplicate_resource = dict(registry["resources"][0])
+    duplicate_resource["description"] = "Duplicate resource"
+    registry["resources"].append(duplicate_resource)
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    duplicate_resource_errors = validate_mcp_contracts(tmp_path)
+    assert any("Duplicate resource id" in error for error in duplicate_resource_errors)
+
+    registry = _load_yaml(registry_path)
+    registry["resources"] = registry["resources"][:2]
+    duplicate_query = dict(registry["queries"][0])
+    duplicate_query["description"] = "Duplicate query"
+    registry["queries"].append(duplicate_query)
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    duplicate_query_errors = validate_mcp_contracts(tmp_path)
+    assert any("Duplicate query id" in error for error in duplicate_query_errors)
+
+
+def test_query_resource_and_tool_relationships_are_rejected(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["resources"][0]["query_ids"] = ["missing.query"]
+    registry["queries"][0]["resource_id"] = "missing.resource"
+    registry["tools"][0]["query_ids"] = ["missing.query"]
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Orphan resource query reference" in error for error in errors)
+    assert any("Orphan query resource reference" in error for error in errors)
+    assert any("Orphan tool query reference" in error for error in errors)
+
+
 def test_server_and_owner_mismatch_are_rejected(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     _copy_repo_data(root, tmp_path)
@@ -253,6 +377,34 @@ def test_server_and_owner_mismatch_are_rejected(tmp_path: Path) -> None:
     errors = validate_mcp_contracts(tmp_path)
     assert any("Server mismatch" in error for error in errors)
     assert any("Owner mismatch" in error for error in errors)
+
+
+def test_query_operation_and_pagination_rules_are_rejected(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["queries"][1]["operation"] = "write.execute"
+    registry["queries"][1]["filtering"]["operators"] = ["eq", "unsupported"]
+    registry["queries"][1]["sorting"]["directions"] = ["asc", "invalid"]
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("unsupported MCP query operation" in error or "operation" in error for error in errors)
+    assert any("filter" in error.lower() for error in errors)
+    assert any("sorting" in error.lower() for error in errors)
+
+
+def test_query_pagination_bounds_are_rejected(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["queries"][1]["operation"] = "summary"
+    registry["queries"][1]["pagination"]["max_page_size"] = 5
+    registry["queries"][1]["pagination"]["default_page_size"] = 10
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("max_page_size" in error for error in errors)
 
 
 def test_missing_registry_entry_is_rejected(tmp_path: Path) -> None:

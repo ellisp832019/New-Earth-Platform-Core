@@ -1,4 +1,20 @@
 registry_version: "1.0"
+servers:
+  - server_id: neos-engineering-read-server
+    server_name: NEOS Engineering Read Server
+    server_version: 1.0.0
+    owner_system_id: neos
+    bind_scope: local-only
+    transport: stdio
+    capability_version: 1.0.0
+    schema_version: 1.0.0
+    declared_tools:
+      - neos.health.read
+      - neos.project.summary.read
+    declared_resources:
+      - neos.health
+      - neos.project.summary
+    enabled: true
 capabilities:
   - id: neos.engineering.read
     name: NEOS Engineering Read
@@ -16,6 +32,93 @@ capabilities:
       - neos
       - engineering
       - read-only
+resources:
+  - id: neos.health
+    name: NEOS Health Resource
+    version: 1.0.0
+    description: Read-only NEOS health resource.
+    owner_system_id: neos
+    server_id: neos-engineering-read-server
+    capability_id: neos.engineering.read
+    resource_type: health
+    schema_ref: schemas/mcp/neos-health-resource.schema.json
+    read_only: true
+    status: declared
+    query_ids:
+      - neos.health.query
+    tags:
+      - neos
+      - health
+      - read-only
+  - id: neos.project.summary
+    name: NEOS Project Summary Resource
+    version: 1.0.0
+    description: Read-only NEOS project summary resource.
+    owner_system_id: neos
+    server_id: neos-engineering-read-server
+    capability_id: neos.engineering.read
+    resource_type: project
+    schema_ref: schemas/mcp/neos-project-summary-resource.schema.json
+    read_only: true
+    status: declared
+    query_ids:
+      - neos.project.summary.query
+    tags:
+      - neos
+      - project
+      - read-only
+queries:
+  - id: neos.health.query
+    name: NEOS Health Query
+    version: 1.0.0
+    description: Query the NEOS health resource.
+    owner_system_id: neos
+    server_id: neos-engineering-read-server
+    capability_id: neos.engineering.read
+    resource_id: neos.health
+    operation: health
+    read_only: true
+    side_effects: false
+    parameter_schema_ref: schemas/mcp/empty-input.schema.json
+    result_schema_ref: schemas/mcp/neos-health-resource.schema.json
+    status: declared
+    timeout_class: short
+    tags:
+      - neos
+      - health
+      - read-only
+  - id: neos.project.summary.query
+    name: NEOS Project Summary Query
+    version: 1.0.0
+    description: Query the NEOS project summary resource.
+    owner_system_id: neos
+    server_id: neos-engineering-read-server
+    capability_id: neos.engineering.read
+    resource_id: neos.project.summary
+    operation: summary
+    read_only: true
+    side_effects: false
+    parameter_schema_ref: schemas/mcp/neos-project-summary-query-parameters.schema.json
+    result_schema_ref: schemas/mcp/neos-project-summary-resource.schema.json
+    status: declared
+    timeout_class: medium
+    pagination:
+      enabled: true
+      default_page_size: 10
+      max_page_size: 100
+    filtering:
+      operators:
+        - eq
+        - contains
+        - in
+    sorting:
+      directions:
+        - asc
+        - desc
+    tags:
+      - neos
+      - project
+      - read-only
 tools:
   - id: neos.health.read
     name: NEOS Health Read
@@ -29,6 +132,8 @@ tools:
     side_effects: false
     input_schema_ref: schemas/mcp/empty-input.schema.json
     output_schema_ref: schemas/mcp/neos-health-read.output.schema.json
+    query_ids:
+      - neos.health.query
     status: declared
     timeout_class: short
     tags:
@@ -47,6 +152,8 @@ tools:
     side_effects: false
     input_schema_ref: schemas/mcp/empty-input.schema.json
     output_schema_ref: schemas/mcp/neos-project-summary-read.output.schema.json
+    query_ids:
+      - neos.project.summary.query
     status: declared
     timeout_class: medium
     tags:

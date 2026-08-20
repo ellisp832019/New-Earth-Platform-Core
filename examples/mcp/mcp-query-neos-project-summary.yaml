@@ -1,0 +1,32 @@
+id: neos.project.summary.query
+name: NEOS Project Summary Query
+version: 1.0.0
+description: Query the NEOS project summary resource.
+owner_system_id: neos
+server_id: neos-engineering-read-server
+capability_id: neos.engineering.read
+resource_id: neos.project.summary
+operation: summary
+read_only: true
+side_effects: false
+parameter_schema_ref: schemas/mcp/neos-project-summary-query-parameters.schema.json
+result_schema_ref: schemas/mcp/neos-project-summary-resource.schema.json
+status: declared
+timeout_class: medium
+pagination:
+  enabled: true
+  default_page_size: 10
+  max_page_size: 100
+filtering:
+  operators:
+    - eq
+    - contains
+    - in
+sorting:
+  directions:
+    - asc
+    - desc
+tags:
+  - neos
+  - project
+  - read-only

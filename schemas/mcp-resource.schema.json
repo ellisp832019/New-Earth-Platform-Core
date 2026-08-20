@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://new-earth.local/schemas/mcp-tool.schema.json",
-  "title": "New Earth MCP Tool",
+  "$id": "https://new-earth.local/schemas/mcp-resource.schema.json",
+  "title": "New Earth MCP Resource",
   "type": "object",
   "required": [
     "id",
@@ -11,13 +11,10 @@
     "owner_system_id",
     "server_id",
     "capability_id",
-    "operation",
+    "resource_type",
+    "schema_ref",
     "read_only",
-    "side_effects",
-    "input_schema_ref",
-    "output_schema_ref",
-    "status",
-    "timeout_class"
+    "status"
   ],
   "properties": {
     "id": {
@@ -48,37 +45,32 @@
       "type": "string",
       "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
     },
-    "operation": {
+    "resource_type": {
       "enum": [
-        "health.read",
-        "status.read",
-        "registry.read",
-        "project.read",
-        "repository.read",
-        "engineering.read",
-        "dependency.read",
-        "decision.read",
-        "architecture.read",
-        "evidence.read",
-        "knowledge.read",
-        "diagnostic.read",
-        "report.read",
-        "search.read"
+        "health",
+        "status",
+        "project",
+        "repository",
+        "engineering",
+        "dependency",
+        "decision",
+        "architecture",
+        "evidence",
+        "knowledge",
+        "diagnostic",
+        "report",
+        "registry"
       ]
+    },
+    "schema_ref": {
+      "type": "string",
+      "minLength": 1
     },
     "read_only": {
       "const": true
     },
-    "side_effects": {
-      "const": false
-    },
-    "input_schema_ref": {
-      "type": "string",
-      "minLength": 1
-    },
-    "output_schema_ref": {
-      "type": "string",
-      "minLength": 1
+    "status": {
+      "enum": ["planned", "declared", "active", "deprecated"]
     },
     "query_ids": {
       "type": "array",
@@ -87,12 +79,6 @@
         "type": "string",
         "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
       }
-    },
-    "status": {
-      "enum": ["planned", "declared", "active", "deprecated"]
-    },
-    "timeout_class": {
-      "enum": ["short", "medium", "long"]
     },
     "tags": {
       "type": "array",

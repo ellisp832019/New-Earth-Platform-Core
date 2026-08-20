@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp/neos-health-resource.schema.json",
+  "title": "NEOS Health Resource Payload",
+  "type": "object",
+  "required": ["status", "summary", "observed_at"],
+  "properties": {
+    "status": {
+      "enum": ["healthy", "degraded", "down"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}
