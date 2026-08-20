@@ -338,6 +338,68 @@ def validate_project_contract_file(contract_path: Path, schema_path: Path) -> li
     return errors
 
 
+MCP_NAMESPACED_IDENTIFIER_RE = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$")
+MCP_RESOURCE_IDENTIFIER_RE = re.compile(r"^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$")
+
+
+def _validate_semver_fields(contract_path: Path, data: dict[str, Any], fields: list[str]) -> list[str]:
+    errors: list[str] = []
+    for field in fields:
+        value = str(data[field])
+        if not validate_semver(value):
+            errors.append(f"{contract_path}: {field} is not valid SemVer: {value}")
+    return errors
+
+
+def validate_mcp_client_identity_contract_file(contract_path: Path, schema_path: Path) -> list[str]:
+    errors = validate_yaml_against_schema(contract_path, schema_path)
+    if errors:
+        return errors
+    data = load_yaml(contract_path)
+    return errors + _validate_semver_fields(contract_path, data, ["client_version"])
+
+
+def validate_mcp_server_identity_contract_file(contract_path: Path, schema_path: Path) -> list[str]:
+    errors = validate_yaml_against_schema(contract_path, schema_path)
+    if errors:
+        return errors
+    data = load_yaml(contract_path)
+    return errors + _validate_semver_fields(
+        contract_path,
+        data,
+        ["server_version", "capability_version", "schema_version"],
+    )
+
+
+def validate_mcp_tool_identifier(value: str) -> bool:
+    return bool(MCP_NAMESPACED_IDENTIFIER_RE.fullmatch(value))
+
+
+def validate_mcp_permission_identifier(value: str) -> bool:
+    return bool(MCP_NAMESPACED_IDENTIFIER_RE.fullmatch(value))
+
+
+def validate_mcp_resource_identifier(value: str) -> bool:
+    return bool(MCP_RESOURCE_IDENTIFIER_RE.fullmatch(value))
+
+
+def validate_mcp_identity_contracts(root: Path) -> list[str]:
+    errors: list[str] = []
+    client_contract = root / "examples/mcp/mcp-client-identity.yaml"
+    server_contract = root / "examples/mcp/mcp-server-identity.yaml"
+    client_schema = root / "schemas/mcp-client-identity.schema.json"
+    server_schema = root / "schemas/mcp-server-identity.schema.json"
+    if client_contract.exists():
+        errors += validate_mcp_client_identity_contract_file(client_contract, client_schema)
+    else:
+        errors.append(f"Missing MCP client identity contract: {client_contract}")
+    if server_contract.exists():
+        errors += validate_mcp_server_identity_contract_file(server_contract, server_schema)
+    else:
+        errors.append(f"Missing MCP server identity contract: {server_contract}")
+    return errors
+
+
 def validate_contracts(root: Path) -> list[str]:
     projects = load_yaml(root / "registry/projects.yaml").get("projects", [])
     errors: list[str] = []

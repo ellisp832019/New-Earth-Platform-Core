@@ -1,0 +1,18 @@
+client_id: new-earth-platform-core-mcp-client
+client_name: New Earth Platform Core MCP Client
+client_version: 1.0.0
+owner_system_id: new-earth-platform-core
+process_identity:
+  type: process
+  value: platform-core-validator
+  pid: 0
+machine_scope:
+  scope_type: local
+  scope_id: local-machine
+declared_capabilities:
+  - platform.read_registry
+  - platform.read_schemas
+requested_scope:
+  - platform.registry_read
+  - platform.schema_read
+enabled: true

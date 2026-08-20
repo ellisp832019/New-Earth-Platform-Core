@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-client-identity.schema.json",
+  "title": "New Earth MCP Client Identity",
+  "type": "object",
+  "required": [
+    "client_id",
+    "client_name",
+    "client_version",
+    "owner_system_id",
+    "process_identity",
+    "machine_scope",
+    "declared_capabilities",
+    "requested_scope",
+    "enabled"
+  ],
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "client_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "client_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"
+    },
+    "owner_system_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "process_identity": {
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "process",
+            "service",
+            "task"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pid": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "machine_scope": {
+      "type": "object",
+      "required": [
+        "scope_type",
+        "scope_id"
+      ],
+      "properties": {
+        "scope_type": {
+          "enum": [
+            "local",
+            "workspace",
+            "host"
+          ]
+        },
+        "scope_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "declared_capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/mcpCapabilityIdentifier"
+      }
+    },
+    "requested_scope": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/mcpPermissionIdentifier"
+      }
+    },
+    "enabled": {
+      "type": "boolean"
+    }
+  },
+  "$defs": {
+    "mcpCapabilityIdentifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
+    },
+    "mcpPermissionIdentifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
+    }
+  },
+  "additionalProperties": false
+}

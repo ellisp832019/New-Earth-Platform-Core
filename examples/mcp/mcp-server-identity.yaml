@@ -1,0 +1,16 @@
+server_id: new-earth-platform-core-mcp-server
+server_name: New Earth Platform Core MCP Server
+server_version: 1.0.0
+owner_system_id: new-earth-platform-core
+bind_scope: local-only
+transport: stdio
+capability_version: 1.0.0
+schema_version: 1.0.0
+declared_tools:
+  - neos.get_system_health
+  - ckcc.get_record
+  - librarian.search_knowledge
+declared_resources:
+  - mcp://new-earth/registry-model
+  - mcp://new-earth/schema-catalog
+enabled: true
