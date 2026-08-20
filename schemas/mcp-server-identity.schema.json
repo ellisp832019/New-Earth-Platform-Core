@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-server-identity.schema.json",
+  "title": "New Earth MCP Server Identity",
+  "type": "object",
+  "required": [
+    "server_id",
+    "server_name",
+    "server_version",
+    "owner_system_id",
+    "bind_scope",
+    "transport",
+    "capability_version",
+    "schema_version",
+    "declared_tools",
+    "declared_resources",
+    "enabled"
+  ],
+  "properties": {
+    "server_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "server_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "server_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"
+    },
+    "owner_system_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "bind_scope": {
+      "enum": [
+        "local-only",
+        "workspace",
+        "host"
+      ]
+    },
+    "transport": {
+      "enum": [
+        "stdio",
+        "local-http",
+        "local-file"
+      ]
+    },
+    "capability_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"
+    },
+    "declared_tools": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/mcpToolIdentifier"
+      }
+    },
+    "declared_resources": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/mcpResourceIdentifier"
+      }
+    },
+    "enabled": {
+      "type": "boolean"
+    }
+  },
+  "$defs": {
+    "mcpToolIdentifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
+    },
+    "mcpResourceIdentifier": {
+      "type": "string",
+      "pattern": "^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$"
+    }
+  },
+  "additionalProperties": false
+}

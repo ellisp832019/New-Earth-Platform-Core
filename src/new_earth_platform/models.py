@@ -114,3 +114,61 @@ class Interface:
             lifecycle=str(data["lifecycle"]) if "lifecycle" in data else None,
             notes=str(data["notes"]) if "notes" in data else None,
         )
+
+
+@dataclass(frozen=True)
+class MCPClientIdentity:
+    client_id: str
+    client_name: str
+    client_version: str
+    owner_system_id: str
+    process_identity: dict[str, Any]
+    machine_scope: dict[str, Any]
+    declared_capabilities: list[str]
+    requested_scope: list[str]
+    enabled: bool
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> MCPClientIdentity:
+        return cls(
+            client_id=str(data["client_id"]),
+            client_name=str(data["client_name"]),
+            client_version=str(data["client_version"]),
+            owner_system_id=str(data["owner_system_id"]),
+            process_identity=dict(data["process_identity"]),
+            machine_scope=dict(data["machine_scope"]),
+            declared_capabilities=[str(item) for item in data["declared_capabilities"]],
+            requested_scope=[str(item) for item in data["requested_scope"]],
+            enabled=bool(data["enabled"]),
+        )
+
+
+@dataclass(frozen=True)
+class MCPServerIdentity:
+    server_id: str
+    server_name: str
+    server_version: str
+    owner_system_id: str
+    bind_scope: str
+    transport: str
+    capability_version: str
+    schema_version: str
+    declared_tools: list[str]
+    declared_resources: list[str]
+    enabled: bool
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> MCPServerIdentity:
+        return cls(
+            server_id=str(data["server_id"]),
+            server_name=str(data["server_name"]),
+            server_version=str(data["server_version"]),
+            owner_system_id=str(data["owner_system_id"]),
+            bind_scope=str(data["bind_scope"]),
+            transport=str(data["transport"]),
+            capability_version=str(data["capability_version"]),
+            schema_version=str(data["schema_version"]),
+            declared_tools=[str(item) for item in data["declared_tools"]],
+            declared_resources=[str(item) for item in data["declared_resources"]],
+            enabled=bool(data["enabled"]),
+        )
