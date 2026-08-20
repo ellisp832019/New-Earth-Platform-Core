@@ -1,0 +1,16 @@
+id: neos.engineering.read
+name: NEOS Engineering Read
+version: 1.0.0
+description: Read-only engineering capability for NEOS.
+owner_system_id: neos
+server_id: neos-engineering-read-server
+mode: read_only
+status: declared
+read_only: true
+tool_ids:
+  - neos.health.read
+  - neos.project.summary.read
+tags:
+  - neos
+  - engineering
+  - read-only

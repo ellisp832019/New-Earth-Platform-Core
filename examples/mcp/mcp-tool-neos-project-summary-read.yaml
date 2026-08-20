@@ -1,0 +1,18 @@
+id: neos.project.summary.read
+name: NEOS Project Summary Read
+version: 1.0.0
+description: Read the declared NEOS project summary.
+owner_system_id: neos
+server_id: neos-engineering-read-server
+capability_id: neos.engineering.read
+operation: project.read
+read_only: true
+side_effects: false
+input_schema_ref: schemas/mcp/empty-input.schema.json
+output_schema_ref: schemas/mcp/neos-project-summary-read.output.schema.json
+status: declared
+timeout_class: medium
+tags:
+  - neos
+  - project
+  - read-only

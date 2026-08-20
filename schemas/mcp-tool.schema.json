@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-tool.schema.json",
+  "title": "New Earth MCP Tool",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "version",
+    "description",
+    "owner_system_id",
+    "server_id",
+    "capability_id",
+    "operation",
+    "read_only",
+    "side_effects",
+    "input_schema_ref",
+    "output_schema_ref",
+    "status",
+    "timeout_class"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 2
+    },
+    "owner_system_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "server_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "capability_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"
+    },
+    "operation": {
+      "enum": [
+        "health.read",
+        "status.read",
+        "registry.read",
+        "project.read",
+        "repository.read",
+        "engineering.read",
+        "dependency.read",
+        "decision.read",
+        "architecture.read",
+        "evidence.read",
+        "knowledge.read",
+        "diagnostic.read",
+        "report.read",
+        "search.read"
+      ]
+    },
+    "read_only": {
+      "const": true
+    },
+    "side_effects": {
+      "const": false
+    },
+    "input_schema_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "output_schema_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": ["planned", "declared", "active", "deprecated"]
+    },
+    "timeout_class": {
+      "enum": ["short", "medium", "long"]
+    },
+    "tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -25,16 +25,23 @@ def _load_json(path: Path) -> dict[str, Any]:
     return data
 
 
-def validate_yaml_against_schema(yaml_path: Path, schema_path: Path) -> list[str]:
-    instance = load_yaml(yaml_path)
+def _render_schema_errors(source: Any, errors: list[Any]) -> list[str]:
+    rendered: list[str] = []
+    for error in sorted(errors, key=lambda e: list(e.absolute_path)):
+        location = ".".join(str(p) for p in error.absolute_path) or "<root>"
+        rendered.append(f"{source}: {location}: {error.message}")
+    return rendered
+
+
+def validate_instance_against_schema(instance: Any, schema_path: Path, source: Any) -> list[str]:
     schema = _load_json(schema_path)
     validator = Draft202012Validator(schema)
-    errors = sorted(validator.iter_errors(instance), key=lambda e: list(e.absolute_path))
-    rendered: list[str] = []
-    for error in errors:
-        location = ".".join(str(p) for p in error.absolute_path) or "<root>"
-        rendered.append(f"{yaml_path}: {location}: {error.message}")
-    return rendered
+    return _render_schema_errors(source, list(validator.iter_errors(instance)))
+
+
+def validate_yaml_against_schema(yaml_path: Path, schema_path: Path) -> list[str]:
+    instance = load_yaml(yaml_path)
+    return validate_instance_against_schema(instance, schema_path, yaml_path)
 
 
 def validate_project_ids(projects_path: Path, dependencies_path: Path) -> list[str]:
@@ -340,6 +347,26 @@ def validate_project_contract_file(contract_path: Path, schema_path: Path) -> li
 
 MCP_NAMESPACED_IDENTIFIER_RE = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$")
 MCP_RESOURCE_IDENTIFIER_RE = re.compile(r"^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$")
+MCP_SCHEMA_REF_RE = re.compile(r"^schemas/mcp/[a-z0-9][a-z0-9._/-]*\.schema\.json$")
+MCP_STATUS_SET = {"planned", "declared", "active", "deprecated"}
+MCP_MODE_SET = {"read_only"}
+MCP_TIMEOUT_CLASS_SET = {"short", "medium", "long"}
+MCP_OPERATION_CLASS_SET = {
+    "health.read",
+    "status.read",
+    "registry.read",
+    "project.read",
+    "repository.read",
+    "engineering.read",
+    "dependency.read",
+    "decision.read",
+    "architecture.read",
+    "evidence.read",
+    "knowledge.read",
+    "diagnostic.read",
+    "report.read",
+    "search.read",
+}
 
 
 def _validate_semver_fields(contract_path: Path, data: dict[str, Any], fields: list[str]) -> list[str]:
@@ -383,6 +410,65 @@ def validate_mcp_resource_identifier(value: str) -> bool:
     return bool(MCP_RESOURCE_IDENTIFIER_RE.fullmatch(value))
 
 
+def _validate_mcp_schema_ref(root: Path, ref: Any, source: str, field: str) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(ref, str) or not ref.strip():
+        errors.append(f"{source}: {field} must be a non-empty schema reference")
+        return errors
+    if not MCP_SCHEMA_REF_RE.fullmatch(ref):
+        errors.append(f"{source}: {field} is not a supported MCP schema reference: {ref}")
+        return errors
+    schema_path = (root / ref).resolve()
+    if root.resolve() not in schema_path.parents and schema_path != root.resolve():
+        errors.append(f"{source}: {field} escapes repository root: {ref}")
+        return errors
+    if not schema_path.exists():
+        errors.append(f"{source}: missing schema reference for {field}: {ref}")
+        return errors
+    try:
+        _load_json(schema_path)
+    except (json.JSONDecodeError, TypeError) as exc:
+        errors.append(f"{source}: invalid JSON schema for {field}: {ref} ({exc})")
+    return errors
+
+
+def _validate_mcp_capability_data(root: Path, capability: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-capability.schema.json"
+    errors = validate_instance_against_schema(capability, schema_path, source)
+    return errors
+
+
+def _validate_mcp_tool_data(root: Path, tool: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-tool.schema.json"
+    errors = validate_instance_against_schema(tool, schema_path, source)
+    if errors:
+        return errors
+    errors = []
+    errors += _validate_mcp_schema_ref(root, tool.get("input_schema_ref"), source, "input_schema_ref")
+    errors += _validate_mcp_schema_ref(root, tool.get("output_schema_ref"), source, "output_schema_ref")
+    operation = str(tool["operation"])
+    if operation not in MCP_OPERATION_CLASS_SET:
+        errors.append(f"{source}: unsupported MCP operation class: {operation}")
+    return errors
+
+
+def validate_mcp_capability_contract_file(contract_path: Path, schema_path: Path, _root: Path) -> list[str]:
+    return validate_yaml_against_schema(contract_path, schema_path)
+
+
+def validate_mcp_tool_contract_file(contract_path: Path, schema_path: Path, root: Path) -> list[str]:
+    errors = validate_yaml_against_schema(contract_path, schema_path)
+    if errors:
+        return errors
+    data = load_yaml(contract_path)
+    errors += _validate_mcp_schema_ref(root, data.get("input_schema_ref"), str(contract_path), "input_schema_ref")
+    errors += _validate_mcp_schema_ref(root, data.get("output_schema_ref"), str(contract_path), "output_schema_ref")
+    operation = str(data["operation"])
+    if operation not in MCP_OPERATION_CLASS_SET:
+        errors.append(f"{contract_path}: unsupported MCP operation class: {operation}")
+    return errors
+
+
 def validate_mcp_identity_contracts(root: Path) -> list[str]:
     errors: list[str] = []
     client_contract = root / "examples/mcp/mcp-client-identity.yaml"
@@ -397,6 +483,90 @@ def validate_mcp_identity_contracts(root: Path) -> list[str]:
         errors += validate_mcp_server_identity_contract_file(server_contract, server_schema)
     else:
         errors.append(f"Missing MCP server identity contract: {server_contract}")
+    return errors
+
+
+def validate_mcp_contracts(root: Path) -> list[str]:
+    registry_path = root / "registry/mcp.yaml"
+    if not registry_path.exists():
+        return [f"Missing MCP registry: {registry_path}"]
+
+    data = load_yaml(registry_path)
+    capabilities = data.get("capabilities")
+    tools = data.get("tools")
+    errors: list[str] = []
+
+    if not isinstance(capabilities, list):
+        errors.append(f"{registry_path}: capabilities must be a list")
+        capabilities = []
+    if not isinstance(tools, list):
+        errors.append(f"{registry_path}: tools must be a list")
+        tools = []
+
+    capability_map: dict[str, dict[str, Any]] = {}
+    tool_map: dict[str, dict[str, Any]] = {}
+
+    for index, capability in enumerate(capabilities):
+        if not isinstance(capability, dict):
+            errors.append(f"{registry_path}: capabilities[{index}] must be an object")
+            continue
+        cap_id = str(capability.get("id", ""))
+        if cap_id in capability_map:
+            errors.append(f"Duplicate capability id: {cap_id}")
+        else:
+            capability_map[cap_id] = capability
+        errors += _validate_mcp_capability_data(root, capability, f"{registry_path}: capabilities[{index}]")
+
+    for index, tool in enumerate(tools):
+        if not isinstance(tool, dict):
+            errors.append(f"{registry_path}: tools[{index}] must be an object")
+            continue
+        tool_id = str(tool.get("id", ""))
+        if tool_id in tool_map:
+            errors.append(f"Duplicate tool id: {tool_id}")
+        else:
+            tool_map[tool_id] = tool
+        errors += _validate_mcp_tool_data(root, tool, f"{registry_path}: tools[{index}]")
+
+    declared_tool_references: Counter[str] = Counter()
+    for capability in capability_map.values():
+        cap_id = str(capability["id"])
+        tool_id_values = [str(tool_id) for tool_id in capability.get("tool_ids", [])]
+        for tool_id in tool_id_values:
+            declared_tool_references[tool_id] += 1
+            if tool_id not in tool_map:
+                errors.append(f"Orphan capability reference: {cap_id} -> {tool_id}")
+                continue
+            tool = tool_map[tool_id]
+            tool_capability_id = str(tool.get("capability_id", ""))
+            if tool_capability_id != cap_id:
+                errors.append(f"Tool capability mismatch: {tool_id} -> {tool_capability_id} (expected {cap_id})")
+            if str(tool.get("server_id", "")) != str(capability.get("server_id", "")):
+                errors.append(f"Server mismatch for tool {tool_id}: {tool.get('server_id')} != {capability.get('server_id')}")
+            if str(tool.get("owner_system_id", "")) != str(capability.get("owner_system_id", "")):
+                errors.append(
+                    f"Owner mismatch for tool {tool_id}: {tool.get('owner_system_id')} != {capability.get('owner_system_id')}"
+                )
+
+    for tool_id, count in declared_tool_references.items():
+        if count > 1:
+            errors.append(f"Tool referenced by multiple capabilities: {tool_id}")
+
+    for tool_id, tool in tool_map.items():
+        capability_id = str(tool.get("capability_id", ""))
+        if capability_id not in capability_map:
+            errors.append(f"Orphan tool reference: {tool_id} -> {capability_id}")
+            continue
+        capability = capability_map[capability_id]
+        if str(tool.get("server_id", "")) != str(capability.get("server_id", "")):
+            errors.append(f"Server mismatch for tool {tool_id}: {tool.get('server_id')} != {capability.get('server_id')}")
+        if str(tool.get("owner_system_id", "")) != str(capability.get("owner_system_id", "")):
+            errors.append(
+                f"Owner mismatch for tool {tool_id}: {tool.get('owner_system_id')} != {capability.get('owner_system_id')}"
+            )
+        if tool_id not in capability.get("tool_ids", []):
+            errors.append(f"Capability tool_ids missing reverse reference: {capability_id} -> {tool_id}")
+
     return errors
 
 

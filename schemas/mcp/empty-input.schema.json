@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp/empty-input.schema.json",
+  "title": "New Earth MCP Empty Input",
+  "type": "object",
+  "maxProperties": 0,
+  "additionalProperties": false
+}
