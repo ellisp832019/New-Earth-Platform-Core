@@ -13,6 +13,7 @@ from new_earth_platform.validation import (
     validate_mcp_query_contract_file,
     validate_mcp_resource_contract_file,
     validate_mcp_server_identity_contract_file,
+    validate_mcp_server_manifest_contract_file,
     validate_mcp_tool_contract_file,
 )
 
@@ -116,6 +117,137 @@ def test_existing_platform_core_owner_conventions_are_accepted(tmp_path: Path) -
 def test_mcp_registry_validates() -> None:
     root = Path(__file__).resolve().parents[1]
     assert validate_mcp_contracts(root) == []
+
+
+def test_mcp_server_manifest_example_validates() -> None:
+    root = Path(__file__).resolve().parents[1]
+    assert validate_mcp_server_manifest_contract_file(
+        root / "examples/mcp/mcp-server-manifest-neos-read.yaml",
+        root / "schemas/mcp-server-manifest.schema.json",
+    ) == []
+
+
+def test_manifest_required_fields_and_version_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    manifest_path = tmp_path / "examples/mcp/mcp-server-manifest-neos-read.yaml"
+    manifest = _load_yaml(manifest_path)
+    del manifest["server_id"]
+    manifest["version"] = "not-semver"
+    manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_server_manifest_contract_file(manifest_path, tmp_path / "schemas/mcp-server-manifest.schema.json")
+    assert any("server_id" in error and "required" in error for error in errors)
+
+
+def test_manifest_server_and_owner_mismatch_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["manifests"][0]["server_id"] = "missing-server"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("manifest server reference" in error for error in errors)
+
+    registry["manifests"][0]["server_id"] = "neos-engineering-read-server"
+    registry["manifests"][0]["owner_system_id"] = "gaia"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Owner mismatch for manifest" in error for error in errors)
+
+
+def test_manifest_duplicate_id_and_references_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    manifest = registry["manifests"][0]
+    duplicate = dict(manifest)
+    registry["manifests"].append(duplicate)
+    manifest["capability_ids"].append(manifest["capability_ids"][0])
+    manifest["tool_ids"].append(manifest["tool_ids"][0])
+    manifest["resource_ids"].append(manifest["resource_ids"][0])
+    manifest["query_ids"].append(manifest["query_ids"][0])
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Duplicate manifest id" in error for error in errors)
+    assert any("capability_ids" in error for error in errors)
+    assert any("tool_ids" in error for error in errors)
+    assert any("resource_ids" in error for error in errors)
+    assert any("query_ids" in error for error in errors)
+
+
+def test_manifest_cross_server_objects_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["manifests"][0]["capability_ids"] = ["neos.engineering.read"]
+    registry["manifests"][0]["tool_ids"] = ["neos.health.read"]
+    registry["manifests"][0]["resource_ids"] = ["neos.health"]
+    registry["manifests"][0]["query_ids"] = ["neos.health.query"]
+    registry["capabilities"][0]["server_id"] = "other-server"
+    registry["tools"][0]["server_id"] = "other-server"
+    registry["resources"][0]["server_id"] = "other-server"
+    registry["queries"][0]["server_id"] = "other-server"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("manifest capability" in error and "Server mismatch" in error for error in errors)
+    assert any("manifest tool" in error and "Server mismatch" in error for error in errors)
+    assert any("manifest resource" in error and "Server mismatch" in error for error in errors)
+    assert any("manifest query" in error and "Server mismatch" in error for error in errors)
+
+
+def test_manifest_exposure_completeness_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    manifest = registry["manifests"][0]
+    manifest["capability_ids"] = []
+    manifest["resource_ids"] = []
+    manifest["query_ids"] = ["neos.health.query"]
+    manifest["tool_ids"] = ["neos.health.read"]
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Tool exposed without capability" in error for error in errors)
+    assert any("Query exposed without resource" in error for error in errors)
+    assert any("Query exposed without capability" in error for error in errors)
+
+
+def test_manifest_unsafe_objects_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["tools"][0]["read_only"] = False
+    registry["resources"][0]["read_only"] = False
+    registry["queries"][0]["side_effects"] = True
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unsafe tool exposure" in error for error in errors)
+    assert any("Unsafe resource exposure" in error for error in errors)
+    assert any("Unsafe query exposure" in error for error in errors)
+
+
+def test_manifest_transport_bind_scope_and_subset_rules(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    manifest = registry["manifests"][0]
+    manifest["tool_ids"] = ["neos.health.read"]
+    manifest["resource_ids"] = []
+    manifest["query_ids"] = []
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    assert validate_mcp_contracts(tmp_path) == []
+
+    manifest["transport"] = "grpc"
+    manifest["bind_scope"] = "global"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("transport" in error for error in errors)
+    assert any("bind_scope" in error for error in errors)
 
 
 def test_missing_required_identity_fields_fail(tmp_path: Path) -> None:
