@@ -8,7 +8,7 @@ effect: deny
 priority: 100
 subject:
   type: client
-  id: new-earth-platform-core-mcp-client
+  id: gaia-mcp-client
 server_ids:
   - neos-engineering-read-server
 capability_ids: []

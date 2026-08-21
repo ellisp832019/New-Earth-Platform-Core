@@ -743,6 +743,7 @@ def validate_mcp_query_contract_file(contract_path: Path, schema_path: Path, roo
 def validate_mcp_identity_contracts(root: Path) -> list[str]:
     errors: list[str] = []
     client_contract = root / "examples/mcp/mcp-client-identity.yaml"
+    gaia_client_contract = root / "examples/mcp/mcp-client-identity-gaia.yaml"
     server_contract = root / "examples/mcp/mcp-server-identity.yaml"
     client_schema = root / "schemas/mcp-client-identity.schema.json"
     server_schema = root / "schemas/mcp-server-identity.schema.json"
@@ -750,6 +751,10 @@ def validate_mcp_identity_contracts(root: Path) -> list[str]:
         errors += validate_mcp_client_identity_contract_file(client_contract, client_schema)
     else:
         errors.append(f"Missing MCP client identity contract: {client_contract}")
+    if gaia_client_contract.exists():
+        errors += validate_mcp_client_identity_contract_file(gaia_client_contract, client_schema)
+    else:
+        errors.append(f"Missing MCP GAIA client identity contract: {gaia_client_contract}")
     if server_contract.exists():
         errors += validate_mcp_server_identity_contract_file(server_contract, server_schema)
     else:
@@ -764,6 +769,7 @@ def validate_mcp_contracts(root: Path) -> list[str]:
 
     data = load_yaml(registry_path)
     client_identity_path = root / "examples/mcp/mcp-client-identity.yaml"
+    clients = data.get("clients")
     servers = data.get("servers")
     manifests = data.get("manifests")
     consumptions = data.get("consumptions")
@@ -779,6 +785,9 @@ def validate_mcp_contracts(root: Path) -> list[str]:
     if not isinstance(servers, list):
         errors.append(f"{registry_path}: servers must be a list")
         servers = []
+    if not isinstance(clients, list):
+        errors.append(f"{registry_path}: clients must be a list")
+        clients = []
     if not isinstance(manifests, list):
         errors.append(f"{registry_path}: manifests must be a list")
         manifests = []
@@ -821,10 +830,37 @@ def validate_mcp_contracts(root: Path) -> list[str]:
     tool_map: dict[str, dict[str, Any]] = {}
 
     client_map: dict[str, dict[str, Any]] = {}
-    if client_identity_path.exists():
-        client_data = load_yaml(client_identity_path)
-        if isinstance(client_data, dict) and isinstance(client_data.get("client_id"), str):
-            client_map[str(client_data["client_id"])] = client_data
+    for index, client in enumerate(clients):
+        if not isinstance(client, dict):
+            errors.append(f"{registry_path}: clients[{index}] must be an object")
+            continue
+        client_id = str(client.get("client_id", ""))
+        if client_id in client_map:
+            errors.append(f"Duplicate client id: {client_id}")
+            continue
+        identity_ref = client.get("identity_ref")
+        if not isinstance(identity_ref, str):
+            errors.append(f"Missing client identity_ref: {client_id}")
+            continue
+        identity_path = (root / identity_ref).resolve()
+        if root.resolve() not in identity_path.parents:
+            errors.append(f"Client identity path escapes repository: {identity_ref}")
+            continue
+        if not identity_path.exists():
+            errors.append(f"Missing client identity for {client_id}: {identity_ref}")
+            continue
+        errors += validate_mcp_client_identity_contract_file(identity_path, root / "schemas/mcp-client-identity.schema.json")
+        client_data = load_yaml(identity_path)
+        if not isinstance(client_data, dict):
+            errors.append(f"Client identity must be an object: {identity_ref}")
+            continue
+        if str(client_data.get("client_id", "")) != client_id:
+            errors.append(f"Client identity mismatch: {client_id} != {client_data.get('client_id')}")
+        if str(client_data.get("owner_system_id", "")) != str(client.get("owner_system_id", "")):
+            errors.append(f"Client owner mismatch: {client_id}")
+        client_map[client_id] = client_data
+    if client_identity_path.exists() and "new-earth-platform-core-mcp-client" not in client_map:
+        errors.append("Platform Core client identity is not registered")
     system_ids = {str(item["id"]) for item in load_yaml(root / "registry/projects.yaml").get("projects", [])}
 
     for index, server in enumerate(servers):
@@ -837,6 +873,25 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         else:
             server_map[server_id] = server
         errors += validate_instance_against_schema(server, root / "schemas/mcp-server-identity.schema.json", f"{registry_path}: servers[{index}]")
+
+    canonical_server_identity_path = root / "examples/mcp/mcp-server-identity.yaml"
+    if canonical_server_identity_path.exists():
+        canonical_server = load_yaml(canonical_server_identity_path)
+        if isinstance(canonical_server, dict):
+            canonical_server_id = str(canonical_server.get("server_id", ""))
+            registered_server = server_map.get(canonical_server_id)
+            if registered_server is None:
+                errors.append(f"Disconnected canonical server identity: {canonical_server_id}")
+            else:
+                for field in ["owner_system_id", "transport", "bind_scope"]:
+                    if str(canonical_server.get(field, "")) != str(registered_server.get(field, "")):
+                        errors.append(f"Canonical server identity mismatch for {field}: {canonical_server_id}")
+                if {str(value) for value in canonical_server.get("declared_tools", [])} != {str(value) for value in registered_server.get("declared_tools", [])}:
+                    errors.append(f"Canonical server identity tool declarations mismatch: {canonical_server_id}")
+                if {str(value) for value in canonical_server.get("declared_resources", [])} != {str(value) for value in registered_server.get("declared_resources", [])}:
+                    errors.append(f"Canonical server identity resource declarations mismatch: {canonical_server_id}")
+    else:
+        errors.append(f"Missing canonical server identity: {canonical_server_identity_path}")
 
     for index, manifest in enumerate(manifests):
         if not isinstance(manifest, dict):

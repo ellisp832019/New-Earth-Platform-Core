@@ -1,8 +1,8 @@
 id: gaia.neos.engineering.read
 version: 1.0.0
-client_id: new-earth-platform-core-mcp-client
+client_id: gaia-mcp-client
 server_id: neos-engineering-read-server
-owner_system_id: new-earth-platform-core
+owner_system_id: gaia
 status: planned
 required: false
 expected_manifest_id: neos.engineering.read.manifest

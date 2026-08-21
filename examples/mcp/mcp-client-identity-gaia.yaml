@@ -1,0 +1,15 @@
+client_id: gaia-mcp-client
+client_name: GAIA MCP Client
+client_version: 1.0.0
+owner_system_id: gaia
+process_identity:
+  type: task
+  value: gaia-mcp-consumer
+machine_scope:
+  scope_type: local
+  scope_id: local-machine
+declared_capabilities:
+  - gaia.mcp.read_consumer
+requested_scope:
+  - mcp.read_only_consumption
+enabled: false
