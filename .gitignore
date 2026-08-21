@@ -17,3 +17,5 @@ artifacts/generated/
 .idea/
 .DS_Store
 Thumbs.db
+.pytest_tmp/
+.test-tmp/
