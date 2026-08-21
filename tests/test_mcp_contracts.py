@@ -864,3 +864,164 @@ def test_audit_and_expiry_declarations_validate(tmp_path: Path) -> None:
     registry["approval_policies"][0]["expiry"] = {"mode": "single_use"}
     registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
     assert validate_mcp_contracts(tmp_path) == []
+
+
+def test_invocation_and_decision_examples_validate() -> None:
+    root = Path(__file__).resolve().parents[1]
+    assert validate_yaml_against_schema(
+        root / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml",
+        root / "schemas/mcp-invocation-record.schema.json",
+    ) == []
+    assert validate_yaml_against_schema(
+        root / "examples/mcp/mcp-authorization-decision-record-gaia-neos-health-read.yaml",
+        root / "schemas/mcp-authorization-decision-record.schema.json",
+    ) == []
+    assert validate_mcp_contracts(root) == []
+
+
+def test_invocation_missing_identity_and_unknown_targets_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    invocation_path = tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml"
+    invocation = _load_yaml(invocation_path)
+    del invocation["requester"]
+    invocation["server_id"] = "missing-server"
+    invocation["tool_id"] = "missing.tool"
+    invocation["resource_id"] = "missing.resource"
+    invocation["query_id"] = "missing.query"
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("requester" in error for error in errors)
+    assert any("Unknown invocation server" in error for error in errors)
+    assert any("Unknown invocation tool target" in error for error in errors)
+    assert any("Unknown invocation resource target" in error for error in errors)
+    assert any("Unknown invocation query target" in error for error in errors)
+
+
+def test_invocation_server_target_safety_and_exposure_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    invocation_path = tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml"
+    invocation = _load_yaml(invocation_path)
+    registry["tools"][0]["server_id"] = "other-server"
+    registry["tools"][0]["side_effects"] = True
+    registry["manifests"][0]["tool_ids"] = []
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Server/target mismatch for tool" in error for error in errors)
+    assert any("Unsafe invocation tool reference" in error for error in errors)
+    assert any("Unexposed invocation target" in error for error in errors)
+
+    registry = _load_yaml(registry_path)
+    registry["tools"][0]["server_id"] = "neos-engineering-read-server"
+    registry["tools"][0]["side_effects"] = False
+    invocation["server_id"] = "other-server"
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Invocation manifest/server mismatch" in error for error in errors)
+
+
+def test_invocation_unsafe_resource_and_query_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    invocation_path = tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml"
+    invocation = _load_yaml(invocation_path)
+    del invocation["tool_id"]
+    invocation["invocation_type"] = "resource_read"
+    invocation["resource_id"] = "neos.health"
+    registry["resources"][0]["read_only"] = False
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unsafe invocation resource reference" in error for error in errors)
+
+    registry = _load_yaml(registry_path)
+    registry["resources"][0]["read_only"] = True
+    registry["queries"][0]["side_effects"] = True
+    invocation["invocation_type"] = "query"
+    del invocation["resource_id"]
+    invocation["query_id"] = "neos.health.query"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unsafe invocation query reference" in error for error in errors)
+
+
+def test_record_policy_approval_discovery_and_consumption_linkage_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    invocation_path = tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml"
+    invocation = _load_yaml(invocation_path)
+    invocation["authorization_policy_id"] = "missing.policy"
+    invocation["approval_policy_id"] = "missing.approval"
+    invocation["discovery_id"] = "missing.discovery"
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unknown invocation authorization policy" in error for error in errors)
+    assert any("Unknown invocation approval policy" in error for error in errors)
+    assert any("Unknown invocation discovery" in error for error in errors)
+
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["consumptions"][0]["expected_tool_ids"] = []
+    invocation["authorization_policy_id"] = "gaia.neos.engineering.read.allow"
+    invocation["approval_policy_id"] = None
+    invocation["discovery_id"] = "neos.engineering.read.local"
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Invocation target outside client consumption" in error for error in errors)
+
+
+def test_record_decision_values_and_timestamp_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    decision_path = tmp_path / "examples/mcp/mcp-authorization-decision-record-gaia-neos-health-read.yaml"
+    decision = _load_yaml(decision_path)
+    decision["decision"] = "grant"
+    decision["evaluated_at"] = "not-a-timestamp"
+    decision_path.write_text(yaml.safe_dump(decision, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("decision" in error for error in errors)
+    assert any("evaluated_at" in error for error in errors)
+
+    invocation_path = tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml"
+    invocation = _load_yaml(invocation_path)
+    invocation["requested_at"] = "not-a-timestamp"
+    invocation["status"] = "succeeded"
+    invocation["result_class"] = "denied"
+    invocation["failure_class"] = "execution_error"
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("requested_at" in error for error in errors)
+    assert any("succeeded records" in error for error in errors)
+
+
+def test_invocation_correlation_partial_stale_and_state_contradictions_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    invocation_path = tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml"
+    invocation = _load_yaml(invocation_path)
+    invocation["partial"] = True
+    invocation["stale"] = True
+    invocation["completed_at"] = "2029-01-01T10:00:00Z"
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("completed_at must not precede" in error for error in errors)
+
+    del invocation["correlation_id"]
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("correlation_id" in error for error in errors)
+
+
+def test_record_examples_do_not_contain_sensitive_fields() -> None:
+    root = Path(__file__).resolve().parents[1]
+    forbidden = {"token", "password", "api_key", "secret", "credential"}
+    for path in (root / "examples/mcp").glob("mcp-*record-*.yaml"):
+        data = _load_yaml(path)
+        assert not forbidden.intersection(str(key).lower() for key in data)

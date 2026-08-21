@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-invocation-record.schema.json",
+  "title": "New Earth Declarative MCP Invocation Record",
+  "type": "object",
+  "required": ["id", "version", "correlation_id", "requester", "client_id", "server_id", "authorization_policy_id", "requested_at", "status", "result_class", "failure_class", "read_only", "side_effects", "source", "authority", "partial", "stale", "audit_required", "metadata"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+    "correlation_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "requester": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {"type": {"const": "client"}, "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}},
+      "additionalProperties": false
+    },
+    "client_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "server_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "capability_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "tool_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "resource_id": {"type": "string", "anyOf": [{"pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}, {"pattern": "^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$"}]},
+    "query_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "invocation_type": {"enum": ["tool", "query", "resource_read", "health_read", "status_read"]},
+    "authorization_policy_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "approval_policy_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "approval_reference": {
+      "type": "object",
+      "required": ["approval_id", "approval_policy_id", "status"],
+      "properties": {
+        "approval_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "approval_policy_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+        "status": {"enum": ["not_required", "pending", "approved", "denied", "expired"]}
+      },
+      "additionalProperties": false
+    },
+    "discovery_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "requested_at": {"type": "string", "format": "date-time"},
+    "completed_at": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["requested", "authorized", "approval_pending", "denied", "started", "succeeded", "failed", "cancelled"]},
+    "result_class": {"enum": ["success", "partial", "no_data", "not_available", "denied", "approval_required", "failure"]},
+    "failure_class": {"enum": ["none", "validation_error", "authorization_denied", "approval_missing", "server_unavailable", "timeout", "transport_error", "contract_mismatch", "execution_error"]},
+    "read_only": {"const": true},
+    "side_effects": {"const": false},
+    "source": {"type": "string", "minLength": 1},
+    "authority": {"type": "string", "minLength": 1},
+    "contract_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+    "manifest_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "partial": {"type": "boolean"},
+    "stale": {"type": "boolean"},
+    "audit_required": {"type": "boolean"},
+    "metadata": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}}
+  },
+  "allOf": [
+    {"if": {"properties": {"invocation_type": {"const": "tool"}}}, "then": {"required": ["tool_id"]}},
+    {"if": {"properties": {"invocation_type": {"const": "query"}}}, "then": {"required": ["query_id"]}},
+    {"if": {"properties": {"invocation_type": {"const": "resource_read"}}}, "then": {"required": ["resource_id"]}}
+  ],
+  "additionalProperties": false
+}

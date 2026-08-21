@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -657,6 +658,49 @@ def _validate_mcp_approval_policy_data(root: Path, policy: dict[str, Any], sourc
     return errors
 
 
+def _parse_mcp_timestamp(value: Any) -> datetime | None:
+    if not isinstance(value, str):
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def _validate_mcp_invocation_record_data(root: Path, record: dict[str, Any], source: str) -> list[str]:
+    errors = validate_instance_against_schema(record, root / "schemas/mcp-invocation-record.schema.json", source)
+    if "version" in record and isinstance(record["version"], str):
+        errors += _validate_semver_fields(Path(source), record, ["version"])
+    requested_at = _parse_mcp_timestamp(record.get("requested_at"))
+    completed_at = _parse_mcp_timestamp(record.get("completed_at"))
+    if "requested_at" in record and requested_at is None:
+        errors.append(f"{source}: requested_at is not a valid ISO 8601 date-time")
+    if record.get("completed_at") is not None and completed_at is None:
+        errors.append(f"{source}: completed_at is not a valid ISO 8601 date-time")
+    if requested_at is not None and completed_at is not None and completed_at < requested_at:
+        errors.append(f"{source}: completed_at must not precede requested_at")
+    if record.get("status") == "succeeded" and record.get("failure_class") != "none":
+        errors.append(f"{source}: succeeded records must use failure_class none")
+    if record.get("status") == "succeeded" and record.get("result_class") in {"denied", "approval_required", "failure"}:
+        errors.append(f"{source}: succeeded records cannot use result_class {record['result_class']}")
+    if record.get("status") == "denied" and record.get("result_class") == "success":
+        errors.append(f"{source}: denied records cannot use result_class success")
+    return errors
+
+
+def _validate_mcp_authorization_decision_record_data(root: Path, record: dict[str, Any], source: str) -> list[str]:
+    errors = validate_instance_against_schema(record, root / "schemas/mcp-authorization-decision-record.schema.json", source)
+    if "version" in record and isinstance(record["version"], str):
+        errors += _validate_semver_fields(Path(source), record, ["version"])
+    if "evaluated_at" in record and _parse_mcp_timestamp(record.get("evaluated_at")) is None:
+        errors.append(f"{source}: evaluated_at is not a valid ISO 8601 date-time")
+    if record.get("decision") == "approval_required" and record.get("approval_required") is False:
+        errors.append(f"{source}: approval_required decision must set approval_required true")
+    if record.get("decision") in {"allow", "deny"} and record.get("approval_required") is True:
+        errors.append(f"{source}: only approval_required decision may set approval_required true")
+    return errors
+
+
 def validate_mcp_capability_contract_file(contract_path: Path, schema_path: Path, _root: Path) -> list[str]:
     return validate_yaml_against_schema(contract_path, schema_path)
 
@@ -769,6 +813,8 @@ def validate_mcp_contracts(root: Path) -> list[str]:
     discovery_map: dict[str, dict[str, Any]] = {}
     authorization_policy_map: dict[str, dict[str, Any]] = {}
     approval_policy_map: dict[str, dict[str, Any]] = {}
+    invocation_record_map: dict[str, dict[str, Any]] = {}
+    decision_record_map: dict[str, dict[str, Any]] = {}
     capability_map: dict[str, dict[str, Any]] = {}
     resource_map: dict[str, dict[str, Any]] = {}
     query_map: dict[str, dict[str, Any]] = {}
@@ -850,6 +896,32 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         else:
             approval_policy_map[policy_id] = policy
         errors += _validate_mcp_approval_policy_data(root, policy, f"{registry_path}: approval_policies[{index}]")
+
+    invocation_paths = sorted((root / "examples/mcp").glob("mcp-invocation-record-*.yaml"))
+    for record_path in invocation_paths:
+        record = load_yaml(record_path)
+        if not isinstance(record, dict):
+            errors.append(f"{record_path} must be an object")
+            continue
+        record_id = str(record.get("id", ""))
+        if record_id in invocation_record_map:
+            errors.append(f"Duplicate invocation record id: {record_id}")
+        else:
+            invocation_record_map[record_id] = record
+        errors += _validate_mcp_invocation_record_data(root, record, str(record_path))
+
+    decision_paths = sorted((root / "examples/mcp").glob("mcp-authorization-decision-record-*.yaml"))
+    for record_path in decision_paths:
+        record = load_yaml(record_path)
+        if not isinstance(record, dict):
+            errors.append(f"{record_path} must be an object")
+            continue
+        record_id = str(record.get("id", ""))
+        if record_id in decision_record_map:
+            errors.append(f"Duplicate authorization decision record id: {record_id}")
+        else:
+            decision_record_map[record_id] = record
+        errors += _validate_mcp_authorization_decision_record_data(root, record, str(record_path))
 
     for index, capability in enumerate(capabilities):
         if not isinstance(capability, dict):
@@ -1371,6 +1443,126 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         approver = str(approval_policy.get("approver_system_id", ""))
         if subject_id == approver or (subject_client and str(subject_client.get("owner_system_id", "")) == approver):
             errors.append(f"Self-approval is not allowed: {policy_id}")
+
+    def _validate_record_targets(record: dict[str, Any], source: str) -> set[tuple[str, str]]:
+        target_fields = [
+            ("capability", "capability_id", capability_map),
+            ("tool", "tool_id", tool_map),
+            ("resource", "resource_id", resource_map),
+            ("query", "query_id", query_map),
+        ]
+        target_keys: set[tuple[str, str]] = set()
+        server_id = str(record.get("server_id", ""))
+        for kind, field, target_map in target_fields:
+            target_id = record.get(field)
+            if target_id is None:
+                continue
+            target_value = str(target_id)
+            target_keys.add((kind, target_value))
+            target = target_map.get(target_value)
+            if target is None:
+                errors.append(f"Unknown invocation {kind} target: {target_value}")
+                continue
+            if str(target.get("server_id", "")) != server_id:
+                errors.append(f"Server/target mismatch for {kind} {target_value}")
+            if kind == "tool" and (target.get("read_only") is not True or target.get("side_effects") is not False):
+                errors.append(f"Unsafe invocation tool reference: {target_value}")
+            if kind == "resource" and target.get("read_only") is not True:
+                errors.append(f"Unsafe invocation resource reference: {target_value}")
+            if kind == "query" and (target.get("read_only") is not True or target.get("side_effects") is not False):
+                errors.append(f"Unsafe invocation query reference: {target_value}")
+        if not target_keys:
+            errors.append(f"{source}: invocation record must identify a target")
+        capability_id = record.get("capability_id")
+        if capability_id is not None:
+            capability = capability_map.get(str(capability_id))
+            if capability is None:
+                errors.append(f"Unknown invocation capability target: {capability_id}")
+            elif str(capability.get("server_id", "")) != server_id:
+                errors.append(f"Server/target mismatch for capability {capability_id}")
+            target_keys.add(("capability", str(capability_id)))
+        return target_keys
+
+    for record_id, record in invocation_record_map.items():
+        source = f"examples/mcp invocation {record_id}"
+        requester = record.get("requester")
+        requester_id = str(requester.get("id", "")) if isinstance(requester, dict) else ""
+        client_id = str(record.get("client_id", ""))
+        if requester_id not in client_map:
+            errors.append(f"Unknown invocation requester: {requester_id}")
+        if client_id not in client_map:
+            errors.append(f"Unknown invocation client: {client_id}")
+        if requester_id != client_id:
+            errors.append(f"Requester/client mismatch for invocation {record_id}")
+        server_id = str(record.get("server_id", ""))
+        if server_id not in server_map:
+            errors.append(f"Unknown invocation server: {server_id}")
+        target_keys = _validate_record_targets(record, source)
+        policy_id = str(record.get("authorization_policy_id", ""))
+        policy = authorization_policy_map.get(policy_id)
+        if policy is None:
+            errors.append(f"Unknown invocation authorization policy: {policy_id}")
+        else:
+            policy_subject = policy.get("subject", {})
+            if str(policy_subject.get("id", "")) != client_id:
+                errors.append(f"Invocation policy subject mismatch: {record_id}")
+            if not target_keys.issubset(_policy_targets(policy)):
+                errors.append(f"Invocation target outside authorization policy scope: {record_id}")
+        record_manifest_ref = record.get("manifest_id")
+        if record_manifest_ref is not None:
+            manifest = manifest_map.get(str(record_manifest_ref))
+            if manifest is None:
+                errors.append(f"Unknown invocation manifest: {record_manifest_ref}")
+            else:
+                if str(manifest.get("server_id", "")) != server_id:
+                    errors.append(f"Invocation manifest/server mismatch: {record_id}")
+                for kind, target_id in target_keys:
+                    field = f"{kind}_ids"
+                    if target_id not in _reference_set(manifest.get(field)):
+                        errors.append(f"Unexposed invocation target: {target_id}")
+        record_discovery_ref = record.get("discovery_id")
+        if record_discovery_ref is not None:
+            discovery = discovery_map.get(str(record_discovery_ref))
+            if discovery is None:
+                errors.append(f"Unknown invocation discovery: {record_discovery_ref}")
+            elif str(discovery.get("server_id", "")) != server_id:
+                errors.append(f"Invocation discovery/server mismatch: {record_id}")
+        approval_policy_id = record.get("approval_policy_id")
+        if approval_policy_id is not None and str(approval_policy_id) not in approval_policy_map:
+            errors.append(f"Unknown invocation approval policy: {approval_policy_id}")
+        approval_reference = record.get("approval_reference")
+        if isinstance(approval_reference, dict):
+            if str(approval_reference.get("approval_policy_id", "")) not in approval_policy_map:
+                errors.append(f"Unknown invocation approval reference policy: {record_id}")
+            if approval_policy_id is not None and str(approval_reference.get("approval_policy_id")) != str(approval_policy_id):
+                errors.append(f"Invocation approval policy mismatch: {record_id}")
+        matching_consumptions = [
+            consumption for consumption in consumption_map.values()
+            if str(consumption.get("client_id", "")) == client_id and str(consumption.get("server_id", "")) == server_id
+        ]
+        for consumption in matching_consumptions:
+            for kind, target_id in target_keys:
+                field = f"expected_{kind}_ids"
+                if target_id not in _reference_set(consumption.get(field)):
+                    errors.append(f"Invocation target outside client consumption: {record_id} -> {target_id}")
+
+    for record_id, record in decision_record_map.items():
+        subject_id = str(record.get("subject_id", ""))
+        if subject_id not in client_map:
+            errors.append(f"Unknown decision subject: {subject_id}")
+        policy_id = str(record.get("authorization_policy_id", ""))
+        policy = authorization_policy_map.get(policy_id)
+        if policy is None:
+            errors.append(f"Unknown decision authorization policy: {policy_id}")
+            continue
+        if str(policy.get("subject", {}).get("id", "")) != subject_id:
+            errors.append(f"Decision policy subject mismatch: {record_id}")
+        target_keys = _validate_record_targets(record, f"examples/mcp decision {record_id}")
+        if not target_keys.issubset(_policy_targets(policy)):
+            errors.append(f"Decision target outside authorization policy scope: {record_id}")
+        decision_approval_policy_id = record.get("approval_policy_id")
+        if decision_approval_policy_id is not None and str(decision_approval_policy_id) not in approval_policy_map:
+            errors.append(f"Unknown decision approval policy: {decision_approval_policy_id}")
 
     return errors
 

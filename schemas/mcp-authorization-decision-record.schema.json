@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-authorization-decision-record.schema.json",
+  "title": "New Earth Declarative MCP Authorization Decision Record",
+  "type": "object",
+  "required": ["id", "version", "correlation_id", "subject_id", "authorization_policy_id", "decision", "reason_code", "evaluated_at", "approval_required", "audit_required", "metadata"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+    "correlation_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "subject_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "server_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "capability_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "tool_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "resource_id": {"type": "string", "anyOf": [{"pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}, {"pattern": "^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$"}]},
+    "query_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "authorization_policy_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "decision": {"enum": ["allow", "deny", "approval_required"]},
+    "reason_code": {"enum": ["policy_allow", "policy_deny", "approval_required", "no_matching_policy", "validation_error"]},
+    "evaluated_at": {"type": "string", "format": "date-time"},
+    "approval_required": {"type": "boolean"},
+    "approval_policy_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "audit_required": {"type": "boolean"},
+    "metadata": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}}
+  },
+  "additionalProperties": false
+}

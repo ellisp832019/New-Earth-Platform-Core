@@ -1,0 +1,30 @@
+id: gaia.neos.health.read.invocation.example
+version: 1.0.0
+correlation_id: gaia-neos-health-read-example-001
+requester:
+  type: client
+  id: new-earth-platform-core-mcp-client
+client_id: new-earth-platform-core-mcp-client
+server_id: neos-engineering-read-server
+capability_id: neos.engineering.read
+tool_id: neos.health.read
+invocation_type: tool
+authorization_policy_id: gaia.neos.engineering.read.allow
+discovery_id: neos.engineering.read.local
+requested_at: "2030-01-01T10:00:00Z"
+completed_at: "2030-01-01T10:00:01Z"
+status: succeeded
+result_class: success
+failure_class: none
+read_only: true
+side_effects: false
+source: declarative-example
+authority: new-earth-platform-core
+contract_version: 1.0.0
+manifest_id: neos.engineering.read.manifest
+partial: false
+stale: false
+audit_required: false
+metadata:
+  hypothetical: true
+  runtime: not-executed
