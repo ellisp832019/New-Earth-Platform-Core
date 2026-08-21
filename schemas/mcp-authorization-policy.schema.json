@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-authorization-policy.schema.json",
+  "title": "New Earth Declarative MCP Authorization Policy",
+  "type": "object",
+  "required": ["id", "version", "name", "description", "owner_system_id", "status", "effect", "priority", "subject", "server_ids", "capability_ids", "tool_ids", "resource_ids", "query_ids", "audit_required", "metadata"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+    "name": {"type": "string", "minLength": 2},
+    "description": {"type": "string", "minLength": 2},
+    "owner_system_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "status": {"enum": ["planned", "declared", "active", "deprecated"]},
+    "effect": {"enum": ["allow", "deny", "approval_required"]},
+    "priority": {"type": "integer", "minimum": 0},
+    "subject": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {"const": "client"},
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}
+      },
+      "additionalProperties": false
+    },
+    "server_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}},
+    "capability_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}},
+    "tool_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}},
+    "resource_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "anyOf": [{"pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}, {"pattern": "^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$"}]}},
+    "query_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}},
+    "approval_policy_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "audit_required": {"type": "boolean"},
+    "metadata": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}}
+  },
+  "additionalProperties": false
+}

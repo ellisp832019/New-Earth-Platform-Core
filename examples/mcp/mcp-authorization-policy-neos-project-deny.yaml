@@ -1,0 +1,22 @@
+id: gaia.neos.project.summary.deny
+version: 1.0.0
+name: GAIA NEOS Project Summary Explicit Deny
+description: Explicit declarative deny for one future read target.
+owner_system_id: new-earth-platform-core
+status: planned
+effect: deny
+priority: 100
+subject:
+  type: client
+  id: new-earth-platform-core-mcp-client
+server_ids:
+  - neos-engineering-read-server
+capability_ids: []
+tool_ids: []
+resource_ids: []
+query_ids:
+  - neos.project.summary.query
+audit_required: true
+metadata:
+  reason: explicit-policy-example
+  runtime: declarative-only

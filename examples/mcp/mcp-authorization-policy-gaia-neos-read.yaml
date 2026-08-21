@@ -1,0 +1,28 @@
+id: gaia.neos.engineering.read.allow
+version: 1.0.0
+name: GAIA NEOS Engineering Read Allow
+description: Declarative allowance for future GAIA consumption of NEOS read surfaces.
+owner_system_id: new-earth-platform-core
+status: planned
+effect: allow
+priority: 200
+subject:
+  type: client
+  id: new-earth-platform-core-mcp-client
+server_ids:
+  - neos-engineering-read-server
+capability_ids:
+  - neos.engineering.read
+tool_ids:
+  - neos.health.read
+  - neos.project.summary.read
+resource_ids:
+  - neos.health
+  - neos.project.summary
+query_ids:
+  - neos.health.query
+  - neos.project.summary.query
+audit_required: false
+metadata:
+  intended_consumer: gaia
+  runtime: declarative-only
