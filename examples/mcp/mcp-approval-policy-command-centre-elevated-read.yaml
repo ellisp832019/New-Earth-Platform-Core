@@ -1,0 +1,23 @@
+id: command-centre.elevated.read.approval
+version: 1.0.0
+name: Command Centre Elevated Read Approval
+description: Declarative approval requirement for elevated read access.
+owner_system_id: new-earth-platform-core
+status: planned
+approval_class: elevated_approval
+approver_system_id: command-centre
+scope:
+  server_ids:
+    - neos-engineering-read-server
+  capability_ids:
+    - neos.engineering.read
+  tool_ids: []
+  resource_ids: []
+  query_ids:
+    - neos.project.summary.query
+expiry:
+  mode: duration
+  duration_seconds: 3600
+audit_required: true
+metadata:
+  runtime: declarative-only

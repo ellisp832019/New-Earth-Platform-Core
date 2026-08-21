@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-approval-policy.schema.json",
+  "title": "New Earth Declarative MCP Approval Policy",
+  "type": "object",
+  "required": ["id", "version", "name", "description", "owner_system_id", "status", "approval_class", "approver_system_id", "scope", "expiry", "audit_required", "metadata"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+    "name": {"type": "string", "minLength": 2},
+    "description": {"type": "string", "minLength": 2},
+    "owner_system_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "status": {"enum": ["planned", "declared", "active", "deprecated"]},
+    "approval_class": {"enum": ["none", "single_approval", "elevated_approval", "explicit_founder_approval"]},
+    "approver_system_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "scope": {
+      "type": "object",
+      "required": ["server_ids", "capability_ids", "tool_ids", "resource_ids", "query_ids"],
+      "properties": {
+        "server_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}},
+        "capability_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}},
+        "tool_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}},
+        "resource_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "anyOf": [{"pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}, {"pattern": "^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$"}]}},
+        "query_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}}
+      },
+      "additionalProperties": false
+    },
+    "expiry": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {"enum": ["single_use", "session", "duration"]},
+        "duration_seconds": {"type": "integer", "minimum": 1, "maximum": 86400}
+      },
+      "additionalProperties": false
+    },
+    "audit_required": {"type": "boolean"},
+    "metadata": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}}
+  },
+  "additionalProperties": false
+}

@@ -1,4 +1,102 @@
 registry_version: "1.0"
+authorization_policies:
+  - id: gaia.neos.engineering.read.allow
+    version: 1.0.0
+    name: GAIA NEOS Engineering Read Allow
+    description: Declarative allowance for future GAIA consumption of NEOS read surfaces.
+    owner_system_id: new-earth-platform-core
+    status: planned
+    effect: allow
+    priority: 200
+    subject:
+      type: client
+      id: new-earth-platform-core-mcp-client
+    server_ids:
+      - neos-engineering-read-server
+    capability_ids:
+      - neos.engineering.read
+    tool_ids:
+      - neos.health.read
+      - neos.project.summary.read
+    resource_ids:
+      - neos.health
+      - neos.project.summary
+    query_ids:
+      - neos.health.query
+      - neos.project.summary.query
+    audit_required: false
+    metadata:
+      intended_consumer: gaia
+      runtime: declarative-only
+  - id: gaia.neos.project.summary.deny
+    version: 1.0.0
+    name: GAIA NEOS Project Summary Explicit Deny
+    description: Explicit declarative deny for one future read target.
+    owner_system_id: new-earth-platform-core
+    status: planned
+    effect: deny
+    priority: 100
+    subject:
+      type: client
+      id: new-earth-platform-core-mcp-client
+    server_ids:
+      - neos-engineering-read-server
+    capability_ids: []
+    tool_ids: []
+    resource_ids: []
+    query_ids:
+      - neos.project.summary.query
+    audit_required: true
+    metadata:
+      reason: explicit-policy-example
+      runtime: declarative-only
+  - id: gaia.neos.project.summary.approval
+    version: 1.0.0
+    name: GAIA NEOS Project Summary Approval Required
+    description: Declarative approval requirement for future project summary access.
+    owner_system_id: new-earth-platform-core
+    status: planned
+    effect: approval_required
+    priority: 150
+    subject:
+      type: client
+      id: new-earth-platform-core-mcp-client
+    server_ids:
+      - neos-engineering-read-server
+    capability_ids:
+      - neos.engineering.read
+    tool_ids: []
+    resource_ids: []
+    query_ids:
+      - neos.project.summary.query
+    approval_policy_id: command-centre.elevated.read.approval
+    audit_required: true
+    metadata:
+      runtime: declarative-only
+approval_policies:
+  - id: command-centre.elevated.read.approval
+    version: 1.0.0
+    name: Command Centre Elevated Read Approval
+    description: Declarative approval requirement for elevated read access.
+    owner_system_id: new-earth-platform-core
+    status: planned
+    approval_class: elevated_approval
+    approver_system_id: command-centre
+    scope:
+      server_ids:
+        - neos-engineering-read-server
+      capability_ids:
+        - neos.engineering.read
+      tool_ids: []
+      resource_ids: []
+      query_ids:
+        - neos.project.summary.query
+    expiry:
+      mode: duration
+      duration_seconds: 3600
+    audit_required: true
+    metadata:
+      runtime: declarative-only
 consumptions:
   - id: gaia.neos.engineering.read
     version: 1.0.0

@@ -1,0 +1,23 @@
+id: gaia.neos.project.summary.approval
+version: 1.0.0
+name: GAIA NEOS Project Summary Approval Required
+description: Declarative approval requirement for future project summary access.
+owner_system_id: new-earth-platform-core
+status: planned
+effect: approval_required
+priority: 150
+subject:
+  type: client
+  id: new-earth-platform-core-mcp-client
+server_ids:
+  - neos-engineering-read-server
+capability_ids:
+  - neos.engineering.read
+tool_ids: []
+resource_ids: []
+query_ids:
+  - neos.project.summary.query
+approval_policy_id: command-centre.elevated.read.approval
+audit_required: true
+metadata:
+  runtime: declarative-only

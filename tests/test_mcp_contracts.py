@@ -722,3 +722,145 @@ def test_discovery_duplicate_id_and_consumption_compatibility_fail(tmp_path: Pat
     errors = validate_mcp_contracts(tmp_path)
     assert any("Duplicate discovery id" in error for error in errors)
     assert any("Incompatible server version" in error for error in errors)
+
+
+def test_authorization_and_approval_examples_validate() -> None:
+    root = Path(__file__).resolve().parents[1]
+    assert validate_yaml_against_schema(
+        root / "examples/mcp/mcp-authorization-policy-gaia-neos-read.yaml",
+        root / "schemas/mcp-authorization-policy.schema.json",
+    ) == []
+    assert validate_yaml_against_schema(
+        root / "examples/mcp/mcp-authorization-policy-neos-project-deny.yaml",
+        root / "schemas/mcp-authorization-policy.schema.json",
+    ) == []
+    assert validate_yaml_against_schema(
+        root / "examples/mcp/mcp-approval-policy-command-centre-elevated-read.yaml",
+        root / "schemas/mcp-approval-policy.schema.json",
+    ) == []
+    assert validate_mcp_contracts(root) == []
+
+
+def test_policy_required_subject_and_targets_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    policy = registry["authorization_policies"][0]
+    del policy["subject"]
+    policy["server_ids"] = ["missing-server"]
+    policy["capability_ids"] = ["missing.capability"]
+    policy["tool_ids"] = ["missing.tool"]
+    policy["resource_ids"] = ["missing.resource"]
+    policy["query_ids"] = ["missing.query"]
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("subject" in error for error in errors)
+    assert any("Unknown policy server target" in error for error in errors)
+    assert any("Unknown policy capability target" in error for error in errors)
+    assert any("Unknown policy tool target" in error for error in errors)
+    assert any("Unknown policy resource target" in error for error in errors)
+    assert any("Unknown policy query target" in error for error in errors)
+
+
+def test_duplicate_policy_and_approval_ids_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["authorization_policies"].append(dict(registry["authorization_policies"][0]))
+    registry["approval_policies"].append(dict(registry["approval_policies"][0]))
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Duplicate authorization policy id" in error for error in errors)
+    assert any("Duplicate approval policy id" in error for error in errors)
+
+
+def test_invalid_policy_effect_and_priority_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["authorization_policies"][0]["effect"] = "grant"
+    registry["authorization_policies"][0]["priority"] = -1
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("effect" in error for error in errors)
+    assert any("priority" in error for error in errors)
+
+
+def test_approval_required_linkage_and_approval_class_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    policy = registry["authorization_policies"][2]
+    del policy["approval_policy_id"]
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("missing approval policy" in error for error in errors)
+
+    policy["approval_policy_id"] = "missing.approval"
+    registry["approval_policies"][0]["approval_class"] = "runtime_approval"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unknown approval policy" in error for error in errors)
+    assert any("approval_class" in error for error in errors)
+
+
+def test_approver_authority_and_self_approval_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["approval_policies"][0]["approver_system_id"] = "missing-system"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unknown approver authority" in error for error in errors)
+
+    registry["approval_policies"][0]["approver_system_id"] = "new-earth-platform-core"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Self-approval is not allowed" in error for error in errors)
+
+
+def test_unsafe_policy_targets_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    policy = registry["authorization_policies"][0]
+    registry["tools"][0]["side_effects"] = True
+    registry["resources"][0]["read_only"] = False
+    registry["queries"][0]["read_only"] = False
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unsafe policy tool target" in error for error in errors)
+    assert any("Unsafe policy resource target" in error for error in errors)
+    assert any("Unsafe policy query target" in error for error in errors)
+    assert policy["effect"] == "allow"
+
+
+def test_same_priority_policy_conflict_is_rejected(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    conflict = dict(registry["authorization_policies"][0])
+    conflict["id"] = "gaia.neos.engineering.read.deny.same-priority"
+    conflict["effect"] = "deny"
+    registry["authorization_policies"].append(conflict)
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Conflicting same-priority policies" in error for error in errors)
+
+
+def test_audit_and_expiry_declarations_validate(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["authorization_policies"][0]["audit_required"] = True
+    registry["approval_policies"][0]["expiry"] = {"mode": "single_use"}
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    assert validate_mcp_contracts(tmp_path) == []

@@ -403,6 +403,9 @@ MCP_SORT_DIRECTION_SET = {"asc", "desc"}
 MCP_MANIFEST_EXPOSURE_MODE_SET = {"declared", "disabled", "planned"}
 MCP_DISCOVERY_MODE_SET = {"static", "local_registry", "stdio_command", "localhost_endpoint"}
 MCP_LOCAL_ENDPOINT_RE = re.compile(r"^https?://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/.*)?$")
+MCP_POLICY_EFFECT_SET = {"allow", "deny", "approval_required"}
+MCP_APPROVAL_CLASS_SET = {"none", "single_approval", "elevated_approval", "explicit_founder_approval"}
+MCP_EXPIRY_MODE_SET = {"single_use", "session", "duration"}
 
 
 def _validate_semver_fields(contract_path: Path, data: dict[str, Any], fields: list[str]) -> list[str]:
@@ -624,6 +627,36 @@ def _validate_mcp_consumption_data(root: Path, consumption: dict[str, Any], sour
     return errors
 
 
+def _validate_mcp_authorization_policy_data(root: Path, policy: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-authorization-policy.schema.json"
+    errors = validate_instance_against_schema(policy, schema_path, source)
+    if errors:
+        return errors
+    errors = _validate_semver_fields(Path(source), policy, ["version"])
+    if str(policy["effect"]) not in MCP_POLICY_EFFECT_SET:
+        errors.append(f"{source}: unsupported MCP policy effect: {policy['effect']}")
+    target_count = sum(len(policy[field]) for field in ["server_ids", "capability_ids", "tool_ids", "resource_ids", "query_ids"])
+    if target_count == 0:
+        errors.append(f"{source}: authorization policy must declare at least one target")
+    return errors
+
+
+def _validate_mcp_approval_policy_data(root: Path, policy: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-approval-policy.schema.json"
+    errors = validate_instance_against_schema(policy, schema_path, source)
+    if errors:
+        return errors
+    errors = _validate_semver_fields(Path(source), policy, ["version"])
+    if str(policy["approval_class"]) not in MCP_APPROVAL_CLASS_SET:
+        errors.append(f"{source}: unsupported MCP approval class: {policy['approval_class']}")
+    expiry = policy["expiry"]
+    if str(expiry["mode"]) not in MCP_EXPIRY_MODE_SET:
+        errors.append(f"{source}: unsupported MCP expiry mode: {expiry['mode']}")
+    if expiry["mode"] == "duration" and "duration_seconds" not in expiry:
+        errors.append(f"{source}: duration expiry requires duration_seconds")
+    return errors
+
+
 def validate_mcp_capability_contract_file(contract_path: Path, schema_path: Path, _root: Path) -> list[str]:
     return validate_yaml_against_schema(contract_path, schema_path)
 
@@ -691,6 +724,8 @@ def validate_mcp_contracts(root: Path) -> list[str]:
     manifests = data.get("manifests")
     consumptions = data.get("consumptions")
     discoveries = data.get("discoveries")
+    authorization_policies = data.get("authorization_policies")
+    approval_policies = data.get("approval_policies")
     capabilities = data.get("capabilities")
     resources = data.get("resources")
     queries = data.get("queries")
@@ -709,6 +744,12 @@ def validate_mcp_contracts(root: Path) -> list[str]:
     if not isinstance(discoveries, list):
         errors.append(f"{registry_path}: discoveries must be a list")
         discoveries = []
+    if not isinstance(authorization_policies, list):
+        errors.append(f"{registry_path}: authorization_policies must be a list")
+        authorization_policies = []
+    if not isinstance(approval_policies, list):
+        errors.append(f"{registry_path}: approval_policies must be a list")
+        approval_policies = []
     if not isinstance(capabilities, list):
         errors.append(f"{registry_path}: capabilities must be a list")
         capabilities = []
@@ -726,6 +767,8 @@ def validate_mcp_contracts(root: Path) -> list[str]:
     manifest_map: dict[str, dict[str, Any]] = {}
     consumption_map: dict[str, dict[str, Any]] = {}
     discovery_map: dict[str, dict[str, Any]] = {}
+    authorization_policy_map: dict[str, dict[str, Any]] = {}
+    approval_policy_map: dict[str, dict[str, Any]] = {}
     capability_map: dict[str, dict[str, Any]] = {}
     resource_map: dict[str, dict[str, Any]] = {}
     query_map: dict[str, dict[str, Any]] = {}
@@ -736,6 +779,7 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         client_data = load_yaml(client_identity_path)
         if isinstance(client_data, dict) and isinstance(client_data.get("client_id"), str):
             client_map[str(client_data["client_id"])] = client_data
+    system_ids = {str(item["id"]) for item in load_yaml(root / "registry/projects.yaml").get("projects", [])}
 
     for index, server in enumerate(servers):
         if not isinstance(server, dict):
@@ -784,6 +828,28 @@ def validate_mcp_contracts(root: Path) -> list[str]:
             consumption,
             f"{registry_path}: consumptions[{index}]",
         )
+
+    for index, policy in enumerate(authorization_policies):
+        if not isinstance(policy, dict):
+            errors.append(f"{registry_path}: authorization_policies[{index}] must be an object")
+            continue
+        policy_id = str(policy.get("id", ""))
+        if policy_id in authorization_policy_map:
+            errors.append(f"Duplicate authorization policy id: {policy_id}")
+        else:
+            authorization_policy_map[policy_id] = policy
+        errors += _validate_mcp_authorization_policy_data(root, policy, f"{registry_path}: authorization_policies[{index}]")
+
+    for index, policy in enumerate(approval_policies):
+        if not isinstance(policy, dict):
+            errors.append(f"{registry_path}: approval_policies[{index}] must be an object")
+            continue
+        policy_id = str(policy.get("id", ""))
+        if policy_id in approval_policy_map:
+            errors.append(f"Duplicate approval policy id: {policy_id}")
+        else:
+            approval_policy_map[policy_id] = policy
+        errors += _validate_mcp_approval_policy_data(root, policy, f"{registry_path}: approval_policies[{index}]")
 
     for index, capability in enumerate(capabilities):
         if not isinstance(capability, dict):
@@ -1195,6 +1261,116 @@ def validate_mcp_contracts(root: Path) -> list[str]:
                         and Version(actual_version) < Version(str(required_version))
                     ):
                         errors.append(f"Incompatible capability version for consumption {consumption_id}: {capability_id}")
+
+    def _policy_targets(scope: dict[str, Any]) -> set[tuple[str, str]]:
+        return {
+            (kind, value)
+            for kind, field in [
+                ("server", "server_ids"),
+                ("capability", "capability_ids"),
+                ("tool", "tool_ids"),
+                ("resource", "resource_ids"),
+                ("query", "query_ids"),
+            ]
+            for value in _reference_set(scope.get(field))
+        }
+
+    def _validate_policy_targets(policy: dict[str, Any], source: str, scope: dict[str, Any]) -> set[tuple[str, str]]:
+        target_keys = _policy_targets(scope)
+        server_ids = _reference_set(scope.get("server_ids"))
+        for server_id in server_ids:
+            if server_id not in server_map:
+                errors.append(f"Unknown policy server target: {server_id}")
+        for capability_id in _reference_set(scope.get("capability_ids")):
+            capability = capability_map.get(capability_id)
+            if capability is None:
+                errors.append(f"Unknown policy capability target: {capability_id}")
+                continue
+            if server_ids and str(capability.get("server_id", "")) not in server_ids:
+                errors.append(f"Policy capability crosses server scope: {capability_id}")
+            if capability.get("read_only") is not True or capability.get("mode") != "read_only":
+                errors.append(f"Unsafe policy capability target: {capability_id}")
+        for tool_id in _reference_set(scope.get("tool_ids")):
+            tool = tool_map.get(tool_id)
+            if tool is None:
+                errors.append(f"Unknown policy tool target: {tool_id}")
+                continue
+            if server_ids and str(tool.get("server_id", "")) not in server_ids:
+                errors.append(f"Policy tool crosses server scope: {tool_id}")
+            if tool.get("read_only") is not True or tool.get("side_effects") is not False:
+                errors.append(f"Unsafe policy tool target: {tool_id}")
+        for resource_id in _reference_set(scope.get("resource_ids")):
+            resource = resource_map.get(resource_id)
+            if resource is None:
+                errors.append(f"Unknown policy resource target: {resource_id}")
+                continue
+            if server_ids and str(resource.get("server_id", "")) not in server_ids:
+                errors.append(f"Policy resource crosses server scope: {resource_id}")
+            if resource.get("read_only") is not True:
+                errors.append(f"Unsafe policy resource target: {resource_id}")
+        for query_id in _reference_set(scope.get("query_ids")):
+            query = query_map.get(query_id)
+            if query is None:
+                errors.append(f"Unknown policy query target: {query_id}")
+                continue
+            if server_ids and str(query.get("server_id", "")) not in server_ids:
+                errors.append(f"Policy query crosses server scope: {query_id}")
+            if query.get("read_only") is not True or query.get("side_effects") is not False:
+                errors.append(f"Unsafe policy query target: {query_id}")
+        return target_keys
+
+    policy_conflicts: dict[tuple[str, tuple[str, str], int], tuple[str, str]] = {}
+    for policy_id, policy in authorization_policy_map.items():
+        source = f"{registry_path}: authorization_policies.{policy_id}"
+        if str(policy.get("owner_system_id", "")) not in system_ids:
+            errors.append(f"Unknown authorization policy owner: {policy.get('owner_system_id')}")
+        subject = policy.get("subject")
+        subject_id = str(subject.get("id", "")) if isinstance(subject, dict) else ""
+        if subject_id not in client_map:
+            errors.append(f"Unknown policy subject client: {subject_id}")
+        targets = _validate_policy_targets(policy, source, policy)
+        approval_policy_id = policy.get("approval_policy_id")
+        if policy.get("effect") == "approval_required":
+            if not isinstance(approval_policy_id, str):
+                errors.append(f"Approval-required policy missing approval policy: {policy_id}")
+            elif approval_policy_id not in approval_policy_map:
+                errors.append(f"Unknown approval policy: {approval_policy_id}")
+        elif approval_policy_id is not None:
+            errors.append(f"Only approval-required policies may reference approval policy: {policy_id}")
+        for target in targets:
+            conflict_key = (subject_id, target, int(policy.get("priority", 0)))
+            effect = str(policy.get("effect", ""))
+            previous = policy_conflicts.get(conflict_key)
+            if previous is not None and previous[1] != effect:
+                errors.append(f"Conflicting same-priority policies: {previous[0]} and {policy_id}")
+            else:
+                policy_conflicts[conflict_key] = (policy_id, effect)
+
+    for policy_id, policy in approval_policy_map.items():
+        if str(policy.get("owner_system_id", "")) not in system_ids:
+            errors.append(f"Unknown approval policy owner: {policy.get('owner_system_id')}")
+        approver_system_id = str(policy.get("approver_system_id", ""))
+        if approver_system_id not in system_ids:
+            errors.append(f"Unknown approver authority: {approver_system_id}")
+        _validate_policy_targets(policy, f"{registry_path}: approval_policies.{policy_id}", policy.get("scope", {}))
+
+    for policy_id, policy in authorization_policy_map.items():
+        approval_policy_id = policy.get("approval_policy_id")
+        if policy.get("effect") != "approval_required" or not isinstance(approval_policy_id, str):
+            continue
+        approval_policy = approval_policy_map.get(approval_policy_id)
+        if approval_policy is None:
+            continue
+        policy_targets = _policy_targets(policy)
+        approval_targets = _policy_targets(approval_policy.get("scope", {}))
+        if not policy_targets.issubset(approval_targets):
+            errors.append(f"Approval scope does not cover authorization policy: {policy_id}")
+        subject = policy.get("subject")
+        subject_id = str(subject.get("id", "")) if isinstance(subject, dict) else ""
+        subject_client = client_map.get(subject_id)
+        approver = str(approval_policy.get("approver_system_id", ""))
+        if subject_id == approver or (subject_client and str(subject_client.get("owner_system_id", "")) == approver):
+            errors.append(f"Self-approval is not allowed: {policy_id}")
 
     return errors
 
