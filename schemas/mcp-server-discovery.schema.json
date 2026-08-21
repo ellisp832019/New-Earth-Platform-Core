@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-server-discovery.schema.json",
+  "title": "New Earth Declarative MCP Server Discovery",
+  "type": "object",
+  "required": ["id", "version", "server_id", "owner_system_id", "discovery_mode", "transport", "bind_scope", "status", "priority", "metadata"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+    "server_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "owner_system_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "discovery_mode": {"enum": ["static", "local_registry", "stdio_command", "localhost_endpoint"]},
+    "transport": {"enum": ["stdio", "local-http", "local-file"]},
+    "bind_scope": {"enum": ["local-only", "workspace", "host"]},
+    "endpoint_hint": {"type": "string", "minLength": 1},
+    "command_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "status": {"enum": ["planned", "declared", "active", "deprecated"]},
+    "priority": {"type": "integer", "minimum": 0},
+    "metadata": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}}
+  },
+  "allOf": [
+    {"if": {"properties": {"discovery_mode": {"const": "localhost_endpoint"}}}, "then": {"required": ["endpoint_hint"]}},
+    {"if": {"properties": {"discovery_mode": {"const": "stdio_command"}}}, "then": {"required": ["command_id"]}}
+  ],
+  "additionalProperties": false
+}

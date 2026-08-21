@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/mcp-client-consumption.schema.json",
+  "title": "New Earth Declarative MCP Client Consumption",
+  "type": "object",
+  "required": ["id", "version", "client_id", "server_id", "owner_system_id", "status", "required", "expected_manifest_id", "expected_capability_ids", "expected_tool_ids", "expected_resource_ids", "expected_query_ids", "compatibility", "discovery_id", "metadata"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+    "client_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "server_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "owner_system_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "status": {"enum": ["planned", "declared", "active", "deprecated"]},
+    "required": {"type": "boolean"},
+    "expected_manifest_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "expected_capability_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}},
+    "expected_tool_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}},
+    "expected_resource_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "anyOf": [{"pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}, {"pattern": "^mcp://[a-z][a-z0-9-]*(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)+$"}]}},
+    "expected_query_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"}},
+    "compatibility": {
+      "type": "object",
+      "required": ["minimum_server_version", "manifest_version", "capability_versions"],
+      "properties": {
+        "minimum_server_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+        "manifest_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
+        "capability_versions": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"}}
+      },
+      "additionalProperties": false
+    },
+    "discovery_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
+    "metadata": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}}
+  },
+  "additionalProperties": false
+}

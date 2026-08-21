@@ -1,0 +1,12 @@
+id: neos.engineering.read.local
+version: 1.0.0
+server_id: neos-engineering-read-server
+owner_system_id: neos
+discovery_mode: local_registry
+transport: stdio
+bind_scope: local-only
+status: declared
+priority: 10
+metadata:
+  purpose: local-first-neos-discovery
+  runtime: declarative-only

@@ -12,9 +12,11 @@ from new_earth_platform.validation import (
     validate_mcp_contracts,
     validate_mcp_query_contract_file,
     validate_mcp_resource_contract_file,
+    validate_mcp_server_discovery_contract_file,
     validate_mcp_server_identity_contract_file,
     validate_mcp_server_manifest_contract_file,
     validate_mcp_tool_contract_file,
+    validate_yaml_against_schema,
 )
 
 
@@ -239,6 +241,10 @@ def test_manifest_transport_bind_scope_and_subset_rules(tmp_path: Path) -> None:
     manifest["tool_ids"] = ["neos.health.read"]
     manifest["resource_ids"] = []
     manifest["query_ids"] = []
+    consumption = registry["consumptions"][0]
+    consumption["expected_tool_ids"] = ["neos.health.read"]
+    consumption["expected_resource_ids"] = []
+    consumption["expected_query_ids"] = []
     registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
     assert validate_mcp_contracts(tmp_path) == []
 
@@ -548,3 +554,171 @@ def test_missing_registry_entry_is_rejected(tmp_path: Path) -> None:
     registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
     errors = validate_mcp_contracts(tmp_path)
     assert any("Orphan capability reference" in error for error in errors)
+
+
+def test_mcp_consumption_and_discovery_examples_validate() -> None:
+    root = Path(__file__).resolve().parents[1]
+    assert validate_mcp_server_discovery_contract_file(
+        root / "examples/mcp/mcp-server-discovery-neos-local.yaml",
+        root / "schemas/mcp-server-discovery.schema.json",
+    ) == []
+    assert validate_yaml_against_schema(
+        root / "examples/mcp/mcp-client-consumption-gaia-neos-read.yaml",
+        root / "schemas/mcp-client-consumption.schema.json",
+    ) == []
+    assert validate_mcp_contracts(root) == []
+
+
+def test_consumption_missing_client_server_and_manifest_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    consumption = registry["consumptions"][0]
+
+    consumption["client_id"] = "missing-client"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("consumption client reference" in error for error in errors)
+
+    consumption["client_id"] = "new-earth-platform-core-mcp-client"
+    consumption["server_id"] = "missing-server"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("consumption server reference" in error for error in errors)
+
+    consumption["server_id"] = "neos-engineering-read-server"
+    consumption["expected_manifest_id"] = "missing.manifest"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("consumption manifest reference" in error for error in errors)
+
+
+def test_consumption_manifest_server_and_owner_mismatch_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["consumptions"][0]["server_id"] = "other-server"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("consumption server reference" in error for error in errors)
+
+    registry["consumptions"][0]["server_id"] = "neos-engineering-read-server"
+    registry["consumptions"][0]["owner_system_id"] = "gaia"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Owner mismatch for consumption" in error for error in errors)
+
+
+def test_duplicate_consumption_and_expected_references_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    consumption = registry["consumptions"][0]
+    registry["consumptions"].append(dict(consumption))
+    consumption["expected_capability_ids"].append(consumption["expected_capability_ids"][0])
+    consumption["expected_tool_ids"].append(consumption["expected_tool_ids"][0])
+    consumption["expected_resource_ids"].append(consumption["expected_resource_ids"][0])
+    consumption["expected_query_ids"].append(consumption["expected_query_ids"][0])
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Duplicate consumption id" in error for error in errors)
+    assert any("expected_capability_ids" in error for error in errors)
+    assert any("expected_tool_ids" in error for error in errors)
+    assert any("expected_resource_ids" in error for error in errors)
+    assert any("expected_query_ids" in error for error in errors)
+
+
+def test_unexposed_consumption_objects_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    consumption = registry["consumptions"][0]
+    consumption["expected_capability_ids"] = []
+    consumption["expected_tool_ids"] = ["neos.health.read"]
+    consumption["expected_resource_ids"] = []
+    consumption["expected_query_ids"] = ["neos.health.query"]
+    registry["manifests"][0]["tool_ids"] = []
+    registry["manifests"][0]["query_ids"] = []
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unexposed expected tool" in error for error in errors)
+    assert any("Unexposed expected query" in error for error in errors)
+    assert any("Expected query resource missing" in error for error in errors)
+
+
+def test_unsafe_consumption_objects_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["tools"][0]["read_only"] = False
+    registry["resources"][0]["read_only"] = False
+    registry["queries"][0]["side_effects"] = True
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Unsafe expected tool" in error for error in errors)
+    assert any("Unsafe expected resource" in error for error in errors)
+    assert any("Unsafe expected query" in error for error in errors)
+
+
+def test_required_optional_and_subset_consumption_are_valid(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    consumption = registry["consumptions"][0]
+    consumption["required"] = True
+    consumption["expected_tool_ids"] = ["neos.health.read"]
+    consumption["expected_resource_ids"] = ["neos.health"]
+    consumption["expected_query_ids"] = ["neos.health.query"]
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    assert validate_mcp_contracts(tmp_path) == []
+
+
+def test_discovery_server_transport_bind_endpoint_and_priority_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    discovery = registry["discoveries"][0]
+    discovery["server_id"] = "missing-server"
+    discovery["transport"] = "grpc"
+    discovery["bind_scope"] = "global"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("discovery server reference" in error for error in errors)
+
+    discovery["server_id"] = "neos-engineering-read-server"
+    discovery["transport"] = "stdio"
+    discovery["bind_scope"] = "local-only"
+    discovery["discovery_mode"] = "localhost_endpoint"
+    discovery["endpoint_hint"] = "http://remote.example:8080"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("localhost" in error for error in errors)
+
+    discovery["discovery_mode"] = "local_registry"
+    discovery.pop("endpoint_hint")
+    duplicate = dict(discovery)
+    duplicate["id"] = "neos.engineering.read.other"
+    registry["discoveries"].append(duplicate)
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Ambiguous discovery priority" in error for error in errors)
+
+
+def test_discovery_duplicate_id_and_consumption_compatibility_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    registry_path = tmp_path / "registry/mcp.yaml"
+    registry = _load_yaml(registry_path)
+    registry["discoveries"].append(dict(registry["discoveries"][0]))
+    registry["consumptions"][0]["compatibility"]["minimum_server_version"] = "2.0.0"
+    registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Duplicate discovery id" in error for error in errors)
+    assert any("Incompatible server version" in error for error in errors)
