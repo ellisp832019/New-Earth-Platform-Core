@@ -1,0 +1,16 @@
+id: gaia.neos.health.read.authorization-decision.example
+version: 1.0.0
+correlation_id: gaia-neos-health-read-example-001
+subject_id: new-earth-platform-core-mcp-client
+server_id: neos-engineering-read-server
+capability_id: neos.engineering.read
+tool_id: neos.health.read
+authorization_policy_id: gaia.neos.engineering.read.allow
+decision: allow
+reason_code: policy_allow
+evaluated_at: "2030-01-01T10:00:00Z"
+approval_required: false
+audit_required: false
+metadata:
+  hypothetical: true
+  runtime: not-evaluated
