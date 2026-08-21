@@ -401,6 +401,8 @@ MCP_QUERY_OPERATION_SET = {
 MCP_FILTER_OPERATOR_SET = {"eq", "neq", "contains", "prefix", "in"}
 MCP_SORT_DIRECTION_SET = {"asc", "desc"}
 MCP_MANIFEST_EXPOSURE_MODE_SET = {"declared", "disabled", "planned"}
+MCP_DISCOVERY_MODE_SET = {"static", "local_registry", "stdio_command", "localhost_endpoint"}
+MCP_LOCAL_ENDPOINT_RE = re.compile(r"^https?://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/.*)?$")
 
 
 def _validate_semver_fields(contract_path: Path, data: dict[str, Any], fields: list[str]) -> list[str]:
@@ -438,6 +440,14 @@ def validate_mcp_server_manifest_contract_file(contract_path: Path, schema_path:
         return errors
     data = load_yaml(contract_path)
     return _validate_semver_fields(contract_path, data, ["version", "manifest_version"])
+
+
+def validate_mcp_server_discovery_contract_file(contract_path: Path, schema_path: Path) -> list[str]:
+    errors = validate_yaml_against_schema(contract_path, schema_path)
+    if errors:
+        return errors
+    data = load_yaml(contract_path)
+    return _validate_mcp_discovery_data(contract_path.parents[2], data, str(contract_path))
 
 
 def validate_mcp_tool_identifier(value: str) -> bool:
@@ -576,6 +586,44 @@ def _validate_mcp_manifest_data(root: Path, manifest: dict[str, Any], source: st
     return errors
 
 
+def _validate_mcp_discovery_data(root: Path, discovery: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-server-discovery.schema.json"
+    errors = validate_instance_against_schema(discovery, schema_path, source)
+    if errors:
+        return errors
+    errors = _validate_semver_fields(Path(source), discovery, ["version"])
+    mode = str(discovery["discovery_mode"])
+    if mode not in MCP_DISCOVERY_MODE_SET:
+        errors.append(f"{source}: unsupported MCP discovery mode: {mode}")
+    endpoint_hint = discovery.get("endpoint_hint")
+    if mode == "localhost_endpoint":
+        if not isinstance(endpoint_hint, str) or not MCP_LOCAL_ENDPOINT_RE.fullmatch(endpoint_hint):
+            errors.append(f"{source}: endpoint_hint must use localhost or 127.0.0.1")
+    elif endpoint_hint is not None:
+        errors.append(f"{source}: endpoint_hint is only valid for localhost_endpoint discovery")
+    if mode == "stdio_command" and not isinstance(discovery.get("command_id"), str):
+        errors.append(f"{source}: stdio_command discovery requires a controlled command_id")
+    return errors
+
+
+def _validate_mcp_consumption_data(root: Path, consumption: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-client-consumption.schema.json"
+    errors = validate_instance_against_schema(consumption, schema_path, source)
+    if errors:
+        return errors
+    errors = _validate_semver_fields(Path(source), consumption, ["version"])
+    compatibility = consumption["compatibility"]
+    errors += _validate_semver_fields(
+        Path(source),
+        compatibility,
+        ["minimum_server_version", "manifest_version"],
+    )
+    for capability_id, version in compatibility["capability_versions"].items():
+        if not validate_semver(str(version)):
+            errors.append(f"{source}: capability_versions.{capability_id} is not valid SemVer: {version}")
+    return errors
+
+
 def validate_mcp_capability_contract_file(contract_path: Path, schema_path: Path, _root: Path) -> list[str]:
     return validate_yaml_against_schema(contract_path, schema_path)
 
@@ -638,8 +686,11 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         return [f"Missing MCP registry: {registry_path}"]
 
     data = load_yaml(registry_path)
+    client_identity_path = root / "examples/mcp/mcp-client-identity.yaml"
     servers = data.get("servers")
     manifests = data.get("manifests")
+    consumptions = data.get("consumptions")
+    discoveries = data.get("discoveries")
     capabilities = data.get("capabilities")
     resources = data.get("resources")
     queries = data.get("queries")
@@ -652,6 +703,12 @@ def validate_mcp_contracts(root: Path) -> list[str]:
     if not isinstance(manifests, list):
         errors.append(f"{registry_path}: manifests must be a list")
         manifests = []
+    if not isinstance(consumptions, list):
+        errors.append(f"{registry_path}: consumptions must be a list")
+        consumptions = []
+    if not isinstance(discoveries, list):
+        errors.append(f"{registry_path}: discoveries must be a list")
+        discoveries = []
     if not isinstance(capabilities, list):
         errors.append(f"{registry_path}: capabilities must be a list")
         capabilities = []
@@ -667,10 +724,18 @@ def validate_mcp_contracts(root: Path) -> list[str]:
 
     server_map: dict[str, dict[str, Any]] = {}
     manifest_map: dict[str, dict[str, Any]] = {}
+    consumption_map: dict[str, dict[str, Any]] = {}
+    discovery_map: dict[str, dict[str, Any]] = {}
     capability_map: dict[str, dict[str, Any]] = {}
     resource_map: dict[str, dict[str, Any]] = {}
     query_map: dict[str, dict[str, Any]] = {}
     tool_map: dict[str, dict[str, Any]] = {}
+
+    client_map: dict[str, dict[str, Any]] = {}
+    if client_identity_path.exists():
+        client_data = load_yaml(client_identity_path)
+        if isinstance(client_data, dict) and isinstance(client_data.get("client_id"), str):
+            client_map[str(client_data["client_id"])] = client_data
 
     for index, server in enumerate(servers):
         if not isinstance(server, dict):
@@ -693,6 +758,32 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         else:
             manifest_map[manifest_id] = manifest
         errors += _validate_mcp_manifest_data(root, manifest, f"{registry_path}: manifests[{index}]")
+
+    for index, discovery in enumerate(discoveries):
+        if not isinstance(discovery, dict):
+            errors.append(f"{registry_path}: discoveries[{index}] must be an object")
+            continue
+        discovery_id = str(discovery.get("id", ""))
+        if discovery_id in discovery_map:
+            errors.append(f"Duplicate discovery id: {discovery_id}")
+        else:
+            discovery_map[discovery_id] = discovery
+        errors += _validate_mcp_discovery_data(root, discovery, f"{registry_path}: discoveries[{index}]")
+
+    for index, consumption in enumerate(consumptions):
+        if not isinstance(consumption, dict):
+            errors.append(f"{registry_path}: consumptions[{index}] must be an object")
+            continue
+        consumption_id = str(consumption.get("id", ""))
+        if consumption_id in consumption_map:
+            errors.append(f"Duplicate consumption id: {consumption_id}")
+        else:
+            consumption_map[consumption_id] = consumption
+        errors += _validate_mcp_consumption_data(
+            root,
+            consumption,
+            f"{registry_path}: consumptions[{index}]",
+        )
 
     for index, capability in enumerate(capabilities):
         if not isinstance(capability, dict):
@@ -958,6 +1049,152 @@ def validate_mcp_contracts(root: Path) -> list[str]:
                 errors.append(f"Query exposed without capability: {manifest_id} -> {query_id}")
             if query.get("read_only") is not True or query.get("side_effects") is not False:
                 errors.append(f"Unsafe query exposure: {manifest_id} -> {query_id}")
+
+    discovery_priorities: dict[tuple[str, int], str] = {}
+    for discovery_id, discovery in discovery_map.items():
+        server_id = str(discovery.get("server_id", ""))
+        priority = discovery.get("priority")
+        if server_id not in server_map:
+            errors.append(f"Orphan discovery server reference: {discovery_id} -> {server_id}")
+            continue
+        server = server_map[server_id]
+        if str(discovery.get("owner_system_id", "")) != str(server.get("owner_system_id", "")):
+            errors.append(f"Owner mismatch for discovery {discovery_id}: {discovery.get('owner_system_id')} != {server.get('owner_system_id')}")
+        if str(discovery.get("transport", "")) != str(server.get("transport", "")):
+            errors.append(f"Transport mismatch for discovery {discovery_id}: {discovery.get('transport')} != {server.get('transport')}")
+        if str(discovery.get("bind_scope", "")) != str(server.get("bind_scope", "")):
+            errors.append(f"Bind scope mismatch for discovery {discovery_id}: {discovery.get('bind_scope')} != {server.get('bind_scope')}")
+        if isinstance(priority, int):
+            priority_key = (server_id, priority)
+            if priority_key in discovery_priorities:
+                errors.append(
+                    f"Ambiguous discovery priority for {server_id}: {discovery_priorities[priority_key]} and {discovery_id}"
+                )
+            else:
+                discovery_priorities[priority_key] = discovery_id
+
+    def _reference_set(value: Any) -> set[str]:
+        return {str(item) for item in value} if isinstance(value, list) else set()
+
+    for consumption_id, consumption in consumption_map.items():
+        client_id = str(consumption.get("client_id", ""))
+        server_id = str(consumption.get("server_id", ""))
+        owner_system_id = str(consumption.get("owner_system_id", ""))
+        if client_id not in client_map:
+            errors.append(f"Orphan consumption client reference: {consumption_id} -> {client_id}")
+            continue
+        client = client_map[client_id]
+        if owner_system_id != str(client.get("owner_system_id", "")):
+            errors.append(f"Owner mismatch for consumption {consumption_id}: {owner_system_id} != {client.get('owner_system_id')}")
+        if server_id not in server_map:
+            errors.append(f"Orphan consumption server reference: {consumption_id} -> {server_id}")
+            continue
+        server = server_map[server_id]
+        manifest_id = str(consumption.get("expected_manifest_id", ""))
+        if manifest_id not in manifest_map:
+            errors.append(f"Orphan consumption manifest reference: {consumption_id} -> {manifest_id}")
+            continue
+        manifest = manifest_map[manifest_id]
+        if str(manifest.get("server_id", "")) != server_id:
+            errors.append(f"Server mismatch for consumption manifest {manifest_id}: {manifest.get('server_id')} != {server_id}")
+        if str(manifest.get("owner_system_id", "")) != str(server.get("owner_system_id", "")):
+            errors.append(f"Owner mismatch for expected manifest {manifest_id}: {manifest.get('owner_system_id')} != {server.get('owner_system_id')}")
+
+        discovery_id = str(consumption.get("discovery_id", ""))
+        if discovery_id not in discovery_map:
+            errors.append(f"Orphan consumption discovery reference: {consumption_id} -> {discovery_id}")
+        elif str(discovery_map[discovery_id].get("server_id", "")) != server_id:
+            errors.append(f"Server mismatch for discovery {discovery_id}: {discovery_map[discovery_id].get('server_id')} != {server_id}")
+
+        expected_capability_ids = _reference_set(consumption.get("expected_capability_ids"))
+        expected_tool_ids = _reference_set(consumption.get("expected_tool_ids"))
+        expected_resource_ids = _reference_set(consumption.get("expected_resource_ids"))
+        expected_query_ids = _reference_set(consumption.get("expected_query_ids"))
+        exposed_capability_ids = _reference_set(manifest.get("capability_ids"))
+        exposed_tool_ids = _reference_set(manifest.get("tool_ids"))
+        exposed_resource_ids = _reference_set(manifest.get("resource_ids"))
+        exposed_query_ids = _reference_set(manifest.get("query_ids"))
+
+        for capability_id in expected_capability_ids:
+            if capability_id not in capability_map:
+                errors.append(f"Orphan expected capability reference: {consumption_id} -> {capability_id}")
+                continue
+            capability = capability_map[capability_id]
+            if str(capability.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for expected capability {capability_id}: {capability.get('server_id')} != {server_id}")
+            if capability_id not in exposed_capability_ids:
+                errors.append(f"Unexposed expected capability: {consumption_id} -> {capability_id}")
+
+        for tool_id in expected_tool_ids:
+            if tool_id not in tool_map:
+                errors.append(f"Orphan expected tool reference: {consumption_id} -> {tool_id}")
+                continue
+            tool = tool_map[tool_id]
+            if str(tool.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for expected tool {tool_id}: {tool.get('server_id')} != {server_id}")
+            if tool_id not in exposed_tool_ids:
+                errors.append(f"Unexposed expected tool: {consumption_id} -> {tool_id}")
+            if str(tool.get("capability_id", "")) not in expected_capability_ids:
+                errors.append(f"Expected tool capability missing: {consumption_id} -> {tool_id}")
+            if tool.get("read_only") is not True or tool.get("side_effects") is not False:
+                errors.append(f"Unsafe expected tool: {consumption_id} -> {tool_id}")
+
+        for resource_id in expected_resource_ids:
+            if resource_id not in resource_map:
+                errors.append(f"Orphan expected resource reference: {consumption_id} -> {resource_id}")
+                continue
+            resource = resource_map[resource_id]
+            if str(resource.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for expected resource {resource_id}: {resource.get('server_id')} != {server_id}")
+            if resource_id not in exposed_resource_ids:
+                errors.append(f"Unexposed expected resource: {consumption_id} -> {resource_id}")
+            if resource.get("read_only") is not True:
+                errors.append(f"Unsafe expected resource: {consumption_id} -> {resource_id}")
+
+        for query_id in expected_query_ids:
+            if query_id not in query_map:
+                errors.append(f"Orphan expected query reference: {consumption_id} -> {query_id}")
+                continue
+            query = query_map[query_id]
+            if str(query.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for expected query {query_id}: {query.get('server_id')} != {server_id}")
+            if query_id not in exposed_query_ids:
+                errors.append(f"Unexposed expected query: {consumption_id} -> {query_id}")
+            if str(query.get("resource_id", "")) not in expected_resource_ids:
+                errors.append(f"Expected query resource missing: {consumption_id} -> {query_id}")
+            if str(query.get("capability_id", "")) not in expected_capability_ids:
+                errors.append(f"Expected query capability missing: {consumption_id} -> {query_id}")
+            if query.get("read_only") is not True or query.get("side_effects") is not False:
+                errors.append(f"Unsafe expected query: {consumption_id} -> {query_id}")
+
+        compatibility = consumption.get("compatibility")
+        if isinstance(compatibility, dict):
+            minimum_server_version = compatibility.get("minimum_server_version")
+            if (
+                isinstance(minimum_server_version, str)
+                and validate_semver(minimum_server_version)
+                and validate_semver(str(server.get("server_version", "")))
+                and Version(str(server["server_version"])) < Version(minimum_server_version)
+            ):
+                errors.append(f"Incompatible server version for consumption {consumption_id}: {server.get('server_version')} < {minimum_server_version}")
+            required_manifest_version = compatibility.get("manifest_version")
+            if isinstance(required_manifest_version, str) and str(manifest.get("manifest_version", "")) != required_manifest_version:
+                errors.append(f"Incompatible manifest version for consumption {consumption_id}: {manifest.get('manifest_version')} != {required_manifest_version}")
+            capability_versions = compatibility.get("capability_versions")
+            if isinstance(capability_versions, dict):
+                for capability_id, required_version in capability_versions.items():
+                    if capability_id not in expected_capability_ids:
+                        errors.append(f"Compatibility capability is not expected: {consumption_id} -> {capability_id}")
+                        continue
+                    capability = capability_map.get(str(capability_id))
+                    actual_version = capability.get("version") if capability else None
+                    if (
+                        isinstance(actual_version, str)
+                        and validate_semver(str(required_version))
+                        and validate_semver(actual_version)
+                        and Version(actual_version) < Version(str(required_version))
+                    ):
+                        errors.append(f"Incompatible capability version for consumption {consumption_id}: {capability_id}")
 
     return errors
 

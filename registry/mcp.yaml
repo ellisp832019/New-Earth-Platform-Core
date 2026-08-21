@@ -1,4 +1,46 @@
 registry_version: "1.0"
+consumptions:
+  - id: gaia.neos.engineering.read
+    version: 1.0.0
+    client_id: new-earth-platform-core-mcp-client
+    server_id: neos-engineering-read-server
+    owner_system_id: new-earth-platform-core
+    status: planned
+    required: false
+    expected_manifest_id: neos.engineering.read.manifest
+    expected_capability_ids:
+      - neos.engineering.read
+    expected_tool_ids:
+      - neos.health.read
+      - neos.project.summary.read
+    expected_resource_ids:
+      - neos.health
+      - neos.project.summary
+    expected_query_ids:
+      - neos.health.query
+      - neos.project.summary.query
+    compatibility:
+      minimum_server_version: 1.0.0
+      manifest_version: 1.0.0
+      capability_versions:
+        neos.engineering.read: 1.0.0
+    discovery_id: neos.engineering.read.local
+    metadata:
+      intended_consumer: gaia
+      runtime: declarative-only
+discoveries:
+  - id: neos.engineering.read.local
+    version: 1.0.0
+    server_id: neos-engineering-read-server
+    owner_system_id: neos
+    discovery_mode: local_registry
+    transport: stdio
+    bind_scope: local-only
+    status: declared
+    priority: 10
+    metadata:
+      purpose: local-first-neos-discovery
+      runtime: declarative-only
 manifests:
   - id: neos.engineering.read.manifest
     version: 1.0.0
