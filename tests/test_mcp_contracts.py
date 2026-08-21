@@ -605,7 +605,7 @@ def test_consumption_manifest_server_and_owner_mismatch_fail(tmp_path: Path) -> 
     assert any("consumption server reference" in error for error in errors)
 
     registry["consumptions"][0]["server_id"] = "neos-engineering-read-server"
-    registry["consumptions"][0]["owner_system_id"] = "gaia"
+    registry["consumptions"][0]["owner_system_id"] = "new-earth-platform-core"
     registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
     errors = validate_mcp_contracts(tmp_path)
     assert any("Owner mismatch for consumption" in error for error in errors)
@@ -818,7 +818,7 @@ def test_approver_authority_and_self_approval_fail(tmp_path: Path) -> None:
     errors = validate_mcp_contracts(tmp_path)
     assert any("Unknown approver authority" in error for error in errors)
 
-    registry["approval_policies"][0]["approver_system_id"] = "new-earth-platform-core"
+    registry["approval_policies"][0]["approver_system_id"] = "gaia"
     registry_path.write_text(yaml.safe_dump(registry, sort_keys=False), encoding="utf-8")
     errors = validate_mcp_contracts(tmp_path)
     assert any("Self-approval is not allowed" in error for error in errors)
@@ -1025,3 +1025,55 @@ def test_record_examples_do_not_contain_sensitive_fields() -> None:
     for path in (root / "examples/mcp").glob("mcp-*record-*.yaml"):
         data = _load_yaml(path)
         assert not forbidden.intersection(str(key).lower() for key in data)
+
+
+def test_gaia_client_is_registered_and_resolves_graph() -> None:
+    root = Path(__file__).resolve().parents[1]
+    registry = _load_yaml(root / "registry/mcp.yaml")
+    clients = {entry["client_id"]: entry for entry in registry["clients"]}
+    assert clients["gaia-mcp-client"]["owner_system_id"] == "gaia"
+    consumption = registry["consumptions"][0]
+    assert consumption["client_id"] == "gaia-mcp-client"
+    assert registry["authorization_policies"][0]["subject"]["id"] == "gaia-mcp-client"
+    assert validate_mcp_contracts(root) == []
+
+
+def test_invocation_type_is_required_when_target_condition_is_used(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    invocation_path = tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml"
+    invocation = _load_yaml(invocation_path)
+    del invocation["invocation_type"]
+    invocation_path.write_text(yaml.safe_dump(invocation, sort_keys=False), encoding="utf-8")
+    errors = validate_yaml_against_schema(
+        invocation_path,
+        tmp_path / "schemas/mcp-invocation-record.schema.json",
+    )
+    assert any("invocation_type" in error and "required" in error for error in errors)
+
+
+def test_duplicate_invocation_and_decision_record_ids_fail(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    shutil.copy2(
+        tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml",
+        tmp_path / "examples/mcp/mcp-invocation-record-gaia-neos-health-read-copy.yaml",
+    )
+    shutil.copy2(
+        tmp_path / "examples/mcp/mcp-authorization-decision-record-gaia-neos-health-read.yaml",
+        tmp_path / "examples/mcp/mcp-authorization-decision-record-gaia-neos-health-read-copy.yaml",
+    )
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Duplicate invocation record id" in error for error in errors)
+    assert any("Duplicate authorization decision record id" in error for error in errors)
+
+
+def test_disconnected_server_identity_is_rejected(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    _copy_repo_data(root, tmp_path)
+    identity_path = tmp_path / "examples/mcp/mcp-server-identity.yaml"
+    identity = _load_yaml(identity_path)
+    identity["server_id"] = "disconnected-server"
+    identity_path.write_text(yaml.safe_dump(identity, sort_keys=False), encoding="utf-8")
+    errors = validate_mcp_contracts(tmp_path)
+    assert any("Disconnected canonical server identity" in error for error in errors)

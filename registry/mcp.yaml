@@ -1,4 +1,13 @@
 registry_version: "1.0"
+clients:
+  - client_id: gaia-mcp-client
+    identity_ref: examples/mcp/mcp-client-identity-gaia.yaml
+    owner_system_id: gaia
+    status: planned
+  - client_id: new-earth-platform-core-mcp-client
+    identity_ref: examples/mcp/mcp-client-identity.yaml
+    owner_system_id: new-earth-platform-core
+    status: reference
 authorization_policies:
   - id: gaia.neos.engineering.read.allow
     version: 1.0.0
@@ -10,7 +19,7 @@ authorization_policies:
     priority: 200
     subject:
       type: client
-      id: new-earth-platform-core-mcp-client
+      id: gaia-mcp-client
     server_ids:
       - neos-engineering-read-server
     capability_ids:
@@ -38,7 +47,7 @@ authorization_policies:
     priority: 100
     subject:
       type: client
-      id: new-earth-platform-core-mcp-client
+      id: gaia-mcp-client
     server_ids:
       - neos-engineering-read-server
     capability_ids: []
@@ -60,7 +69,7 @@ authorization_policies:
     priority: 150
     subject:
       type: client
-      id: new-earth-platform-core-mcp-client
+      id: gaia-mcp-client
     server_ids:
       - neos-engineering-read-server
     capability_ids:
@@ -100,9 +109,9 @@ approval_policies:
 consumptions:
   - id: gaia.neos.engineering.read
     version: 1.0.0
-    client_id: new-earth-platform-core-mcp-client
+    client_id: gaia-mcp-client
     server_id: neos-engineering-read-server
-    owner_system_id: new-earth-platform-core
+    owner_system_id: gaia
     status: planned
     required: false
     expected_manifest_id: neos.engineering.read.manifest

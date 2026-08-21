@@ -3,7 +3,7 @@
   "$id": "https://new-earth.local/schemas/mcp-invocation-record.schema.json",
   "title": "New Earth Declarative MCP Invocation Record",
   "type": "object",
-  "required": ["id", "version", "correlation_id", "requester", "client_id", "server_id", "authorization_policy_id", "requested_at", "status", "result_class", "failure_class", "read_only", "side_effects", "source", "authority", "partial", "stale", "audit_required", "metadata"],
+  "required": ["id", "version", "correlation_id", "requester", "client_id", "server_id", "invocation_type", "authorization_policy_id", "requested_at", "status", "result_class", "failure_class", "read_only", "side_effects", "source", "authority", "partial", "stale", "audit_required", "metadata"],
   "properties": {
     "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*(?:_[a-z0-9]+)*)+$"},
     "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-.+][0-9A-Za-z.-]+)?$"},
