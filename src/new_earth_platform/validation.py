@@ -400,6 +400,7 @@ MCP_QUERY_OPERATION_SET = {
 }
 MCP_FILTER_OPERATOR_SET = {"eq", "neq", "contains", "prefix", "in"}
 MCP_SORT_DIRECTION_SET = {"asc", "desc"}
+MCP_MANIFEST_EXPOSURE_MODE_SET = {"declared", "disabled", "planned"}
 
 
 def _validate_semver_fields(contract_path: Path, data: dict[str, Any], fields: list[str]) -> list[str]:
@@ -429,6 +430,14 @@ def validate_mcp_server_identity_contract_file(contract_path: Path, schema_path:
         data,
         ["server_version", "capability_version", "schema_version"],
     )
+
+
+def validate_mcp_server_manifest_contract_file(contract_path: Path, schema_path: Path) -> list[str]:
+    errors = validate_yaml_against_schema(contract_path, schema_path)
+    if errors:
+        return errors
+    data = load_yaml(contract_path)
+    return _validate_semver_fields(contract_path, data, ["version", "manifest_version"])
 
 
 def validate_mcp_tool_identifier(value: str) -> bool:
@@ -556,6 +565,17 @@ def _validate_mcp_query_data(root: Path, query: dict[str, Any], source: str) -> 
     return errors
 
 
+def _validate_mcp_manifest_data(root: Path, manifest: dict[str, Any], source: str) -> list[str]:
+    schema_path = root / "schemas/mcp-server-manifest.schema.json"
+    errors = validate_instance_against_schema(manifest, schema_path, source)
+    if errors:
+        return errors
+    errors = _validate_semver_fields(Path(source), manifest, ["version", "manifest_version"])
+    if str(manifest["exposure_mode"]) not in MCP_MANIFEST_EXPOSURE_MODE_SET:
+        errors.append(f"{source}: unsupported MCP manifest exposure mode: {manifest['exposure_mode']}")
+    return errors
+
+
 def validate_mcp_capability_contract_file(contract_path: Path, schema_path: Path, _root: Path) -> list[str]:
     return validate_yaml_against_schema(contract_path, schema_path)
 
@@ -619,6 +639,7 @@ def validate_mcp_contracts(root: Path) -> list[str]:
 
     data = load_yaml(registry_path)
     servers = data.get("servers")
+    manifests = data.get("manifests")
     capabilities = data.get("capabilities")
     resources = data.get("resources")
     queries = data.get("queries")
@@ -628,6 +649,9 @@ def validate_mcp_contracts(root: Path) -> list[str]:
     if not isinstance(servers, list):
         errors.append(f"{registry_path}: servers must be a list")
         servers = []
+    if not isinstance(manifests, list):
+        errors.append(f"{registry_path}: manifests must be a list")
+        manifests = []
     if not isinstance(capabilities, list):
         errors.append(f"{registry_path}: capabilities must be a list")
         capabilities = []
@@ -642,6 +666,7 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         tools = []
 
     server_map: dict[str, dict[str, Any]] = {}
+    manifest_map: dict[str, dict[str, Any]] = {}
     capability_map: dict[str, dict[str, Any]] = {}
     resource_map: dict[str, dict[str, Any]] = {}
     query_map: dict[str, dict[str, Any]] = {}
@@ -657,6 +682,17 @@ def validate_mcp_contracts(root: Path) -> list[str]:
         else:
             server_map[server_id] = server
         errors += validate_instance_against_schema(server, root / "schemas/mcp-server-identity.schema.json", f"{registry_path}: servers[{index}]")
+
+    for index, manifest in enumerate(manifests):
+        if not isinstance(manifest, dict):
+            errors.append(f"{registry_path}: manifests[{index}] must be an object")
+            continue
+        manifest_id = str(manifest.get("id", ""))
+        if manifest_id in manifest_map:
+            errors.append(f"Duplicate manifest id: {manifest_id}")
+        else:
+            manifest_map[manifest_id] = manifest
+        errors += _validate_mcp_manifest_data(root, manifest, f"{registry_path}: manifests[{index}]")
 
     for index, capability in enumerate(capabilities):
         if not isinstance(capability, dict):
@@ -847,6 +883,81 @@ def validate_mcp_contracts(root: Path) -> list[str]:
                 errors.append(
                     f"Capability mismatch for query {query_id}: {query.get('capability_id')} != {capability_id}"
                 )
+
+    for manifest_id, manifest in manifest_map.items():
+        server_id = str(manifest.get("server_id", ""))
+        owner_system_id = str(manifest.get("owner_system_id", ""))
+        if server_id not in server_map:
+            errors.append(f"Orphan manifest server reference: {manifest_id} -> {server_id}")
+            continue
+        server = server_map[server_id]
+        if owner_system_id != str(server.get("owner_system_id", "")):
+            errors.append(f"Owner mismatch for manifest {manifest_id}: {owner_system_id} != {server.get('owner_system_id')}")
+        if str(manifest.get("transport", "")) != str(server.get("transport", "")):
+            errors.append(f"Transport mismatch for manifest {manifest_id}: {manifest.get('transport')} != {server.get('transport')}")
+        if str(manifest.get("bind_scope", "")) != str(server.get("bind_scope", "")):
+            errors.append(f"Bind scope mismatch for manifest {manifest_id}: {manifest.get('bind_scope')} != {server.get('bind_scope')}")
+
+        exposed_capability_ids = {str(value) for value in manifest.get("capability_ids", [])}
+        exposed_tool_ids = {str(value) for value in manifest.get("tool_ids", [])}
+        exposed_resource_ids = {str(value) for value in manifest.get("resource_ids", [])}
+        exposed_query_ids = {str(value) for value in manifest.get("query_ids", [])}
+
+        for capability_id in exposed_capability_ids:
+            if capability_id not in capability_map:
+                errors.append(f"Orphan manifest capability reference: {manifest_id} -> {capability_id}")
+                continue
+            capability = capability_map[capability_id]
+            if str(capability.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for manifest capability {capability_id}: {capability.get('server_id')} != {server_id}")
+            if str(capability.get("owner_system_id", "")) != owner_system_id:
+                errors.append(f"Owner mismatch for manifest capability {capability_id}: {capability.get('owner_system_id')} != {owner_system_id}")
+            if capability.get("read_only") is not True or capability.get("mode") != "read_only":
+                errors.append(f"Unsafe capability exposure: {manifest_id} -> {capability_id}")
+
+        for tool_id in exposed_tool_ids:
+            if tool_id not in tool_map:
+                errors.append(f"Orphan manifest tool reference: {manifest_id} -> {tool_id}")
+                continue
+            tool = tool_map[tool_id]
+            if str(tool.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for manifest tool {tool_id}: {tool.get('server_id')} != {server_id}")
+            if str(tool.get("owner_system_id", "")) != owner_system_id:
+                errors.append(f"Owner mismatch for manifest tool {tool_id}: {tool.get('owner_system_id')} != {owner_system_id}")
+            if str(tool.get("capability_id", "")) not in exposed_capability_ids:
+                errors.append(f"Tool exposed without capability: {manifest_id} -> {tool_id}")
+            if tool.get("read_only") is not True or tool.get("side_effects") is not False:
+                errors.append(f"Unsafe tool exposure: {manifest_id} -> {tool_id}")
+
+        for resource_id in exposed_resource_ids:
+            if resource_id not in resource_map:
+                errors.append(f"Orphan manifest resource reference: {manifest_id} -> {resource_id}")
+                continue
+            resource = resource_map[resource_id]
+            if str(resource.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for manifest resource {resource_id}: {resource.get('server_id')} != {server_id}")
+            if str(resource.get("owner_system_id", "")) != owner_system_id:
+                errors.append(f"Owner mismatch for manifest resource {resource_id}: {resource.get('owner_system_id')} != {owner_system_id}")
+            if str(resource.get("capability_id", "")) not in exposed_capability_ids:
+                errors.append(f"Resource exposed without capability: {manifest_id} -> {resource_id}")
+            if resource.get("read_only") is not True:
+                errors.append(f"Unsafe resource exposure: {manifest_id} -> {resource_id}")
+
+        for query_id in exposed_query_ids:
+            if query_id not in query_map:
+                errors.append(f"Orphan manifest query reference: {manifest_id} -> {query_id}")
+                continue
+            query = query_map[query_id]
+            if str(query.get("server_id", "")) != server_id:
+                errors.append(f"Server mismatch for manifest query {query_id}: {query.get('server_id')} != {server_id}")
+            if str(query.get("owner_system_id", "")) != owner_system_id:
+                errors.append(f"Owner mismatch for manifest query {query_id}: {query.get('owner_system_id')} != {owner_system_id}")
+            if str(query.get("resource_id", "")) not in exposed_resource_ids:
+                errors.append(f"Query exposed without resource: {manifest_id} -> {query_id}")
+            if str(query.get("capability_id", "")) not in exposed_capability_ids:
+                errors.append(f"Query exposed without capability: {manifest_id} -> {query_id}")
+            if query.get("read_only") is not True or query.get("side_effects") is not False:
+                errors.append(f"Unsafe query exposure: {manifest_id} -> {query_id}")
 
     return errors
 

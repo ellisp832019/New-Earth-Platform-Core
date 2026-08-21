@@ -1,0 +1,23 @@
+id: neos.engineering.read.manifest
+version: 1.0.0
+server_id: neos-engineering-read-server
+owner_system_id: neos
+status: declared
+manifest_version: 1.0.0
+exposure_mode: declared
+capability_ids:
+  - neos.engineering.read
+tool_ids:
+  - neos.health.read
+  - neos.project.summary.read
+resource_ids:
+  - neos.health
+  - neos.project.summary
+query_ids:
+  - neos.health.query
+  - neos.project.summary.query
+transport: stdio
+bind_scope: local-only
+metadata:
+  purpose: read-only-neos-engineering-exposure
+  runtime: declarative-only
