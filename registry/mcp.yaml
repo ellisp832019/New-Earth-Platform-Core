@@ -1,4 +1,172 @@
 registry_version: "1.0"
+export_graph:
+  format_version: "1.0.0"
+  contract_baseline_id: NE-MCP-READONLY-V1-DECLARATIVE-2026-08-21
+  entries:
+    - source_path: registry/mcp.yaml
+      bundle_path: registry/mcp.yaml
+      category: registry
+      required: true
+    - source_path: schemas/mcp-approval-policy.schema.json
+      bundle_path: schemas/mcp-approval-policy.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-authorization-decision-record.schema.json
+      bundle_path: schemas/mcp-authorization-decision-record.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-authorization-policy.schema.json
+      bundle_path: schemas/mcp-authorization-policy.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-capability.schema.json
+      bundle_path: schemas/mcp-capability.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-client-consumption.schema.json
+      bundle_path: schemas/mcp-client-consumption.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-client-identity.schema.json
+      bundle_path: schemas/mcp-client-identity.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-invocation-record.schema.json
+      bundle_path: schemas/mcp-invocation-record.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-query.schema.json
+      bundle_path: schemas/mcp-query.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-resource.schema.json
+      bundle_path: schemas/mcp-resource.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-server-discovery.schema.json
+      bundle_path: schemas/mcp-server-discovery.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-server-identity.schema.json
+      bundle_path: schemas/mcp-server-identity.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-server-manifest.schema.json
+      bundle_path: schemas/mcp-server-manifest.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp-tool.schema.json
+      bundle_path: schemas/mcp-tool.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp/empty-input.schema.json
+      bundle_path: schemas/mcp/empty-input.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp/neos-health-read.output.schema.json
+      bundle_path: schemas/mcp/neos-health-read.output.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp/neos-health-resource.schema.json
+      bundle_path: schemas/mcp/neos-health-resource.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp/neos-project-summary-query-parameters.schema.json
+      bundle_path: schemas/mcp/neos-project-summary-query-parameters.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp/neos-project-summary-read.output.schema.json
+      bundle_path: schemas/mcp/neos-project-summary-read.output.schema.json
+      category: schema
+      required: true
+    - source_path: schemas/mcp/neos-project-summary-resource.schema.json
+      bundle_path: schemas/mcp/neos-project-summary-resource.schema.json
+      category: schema
+      required: true
+    - source_path: examples/mcp/mcp-client-identity-gaia.yaml
+      bundle_path: contracts/identities/mcp-client-identity-gaia.yaml
+      category: identity
+      canonical_id: gaia-mcp-client
+      required: true
+    - source_path: examples/mcp/mcp-server-identity.yaml
+      bundle_path: contracts/identities/mcp-server-identity.yaml
+      category: identity
+      canonical_id: neos-engineering-read-server
+      required: true
+    - source_path: examples/mcp/mcp-capability-neos-engineering-read.yaml
+      bundle_path: contracts/capabilities/mcp-capability-neos-engineering-read.yaml
+      category: capability
+      canonical_id: neos.engineering.read
+      required: true
+    - source_path: examples/mcp/mcp-tool-neos-health-read.yaml
+      bundle_path: contracts/tools/mcp-tool-neos-health-read.yaml
+      category: tool
+      canonical_id: neos.health.read
+      required: true
+    - source_path: examples/mcp/mcp-tool-neos-project-summary-read.yaml
+      bundle_path: contracts/tools/mcp-tool-neos-project-summary-read.yaml
+      category: tool
+      canonical_id: neos.project.summary.read
+      required: true
+    - source_path: examples/mcp/mcp-resource-neos-health.yaml
+      bundle_path: contracts/resources/mcp-resource-neos-health.yaml
+      category: resource
+      canonical_id: neos.health
+      required: true
+    - source_path: examples/mcp/mcp-resource-neos-project-summary.yaml
+      bundle_path: contracts/resources/mcp-resource-neos-project-summary.yaml
+      category: resource
+      canonical_id: neos.project.summary
+      required: true
+    - source_path: examples/mcp/mcp-query-neos-health.yaml
+      bundle_path: contracts/queries/mcp-query-neos-health.yaml
+      category: query
+      canonical_id: neos.health.query
+      required: true
+    - source_path: examples/mcp/mcp-query-neos-project-summary.yaml
+      bundle_path: contracts/queries/mcp-query-neos-project-summary.yaml
+      category: query
+      canonical_id: neos.project.summary.query
+      required: true
+    - source_path: examples/mcp/mcp-server-manifest-neos-read.yaml
+      bundle_path: contracts/manifests/mcp-server-manifest-neos-read.yaml
+      category: manifest
+      canonical_id: neos.engineering.read.manifest
+      required: true
+    - source_path: examples/mcp/mcp-client-consumption-gaia-neos-read.yaml
+      bundle_path: contracts/consumptions/mcp-client-consumption-gaia-neos-read.yaml
+      category: consumption
+      canonical_id: gaia.neos.engineering.read
+      required: true
+    - source_path: examples/mcp/mcp-server-discovery-neos-local.yaml
+      bundle_path: contracts/discoveries/mcp-server-discovery-neos-local.yaml
+      category: discovery
+      canonical_id: neos.engineering.read.local
+      required: true
+    - source_path: examples/mcp/mcp-authorization-policy-gaia-neos-read.yaml
+      bundle_path: contracts/policies/mcp-authorization-policy-gaia-neos-read.yaml
+      category: policy
+      canonical_id: gaia.neos.engineering.read.allow
+      required: true
+    - source_path: examples/mcp/mcp-authorization-policy-neos-project-deny.yaml
+      bundle_path: contracts/policies/mcp-authorization-policy-neos-project-deny.yaml
+      category: policy
+      canonical_id: gaia.neos.project.summary.deny
+      required: true
+    - source_path: examples/mcp/mcp-authorization-policy-neos-project-approval.yaml
+      bundle_path: contracts/policies/mcp-authorization-policy-neos-project-approval.yaml
+      category: policy
+      canonical_id: gaia.neos.project.summary.approval
+      required: true
+    - source_path: examples/mcp/mcp-approval-policy-command-centre-elevated-read.yaml
+      bundle_path: contracts/policies/mcp-approval-policy-command-centre-elevated-read.yaml
+      category: policy
+      canonical_id: command-centre.elevated.read.approval
+      required: true
+  excluded_source_paths:
+    - examples/mcp/mcp-client-identity.yaml
+    - examples/mcp/mcp-invocation-record-gaia-neos-health-read.yaml
+    - examples/mcp/mcp-authorization-decision-record-gaia-neos-health-read.yaml
 clients:
   - client_id: gaia-mcp-client
     identity_ref: examples/mcp/mcp-client-identity-gaia.yaml
