@@ -2,18 +2,17 @@
 
 ## Decision
 
-**Mode:** `DESIGN_ONLY`
+**Mode:** `SAFE_EXPORTER_IMPLEMENTATION`
 
-MCP-02B defines the delivery boundary for future runtime consumers. It does not
-implement an exporter, verifier, installer, runtime client, runtime server,
-transport, policy evaluator, approval workflow, audit store, or write capability.
+MCP-02B defines the delivery boundary for future runtime consumers. The
+Platform Core exporter and offline verifier are now implemented. They do not
+install an artifact, implement a runtime client/server, provide transport,
+policy evaluation, approval workflow, audit storage, or write capability.
 
-The implementation decision is intentionally design-only because the current
-canonical MCP declarations live under `examples/mcp/`, while validation relies
-on fixed example paths and the registry does not enumerate every declaration
-file. Moving or silently rewriting those paths in an exporter would create a
-second contract system. MCP-02B therefore documents the safe export contract
-and makes canonical-input registration a prerequisite for implementation.
+The canonical export graph in `registry/mcp.yaml` now explicitly maps every
+source declaration to its deployment bundle path. The exporter consumes this
+graph after canonical validation and never globs `examples/mcp/` or schemas.
+Development-only reference and record examples remain excluded.
 
 ## Authority and Baseline
 
@@ -209,6 +208,13 @@ source-relative paths is necessary to achieve that, the export graph should
 retain those paths inside the generated artifact rather than inventing a second
 validator.
 
+The implemented verifier validates the registry shape, every listed JSON schema,
+and every bundled contract using the existing Platform Core schema and MCP
+contract validators against bundle-relative paths. It does not call
+`validate_repository`, because that repository-level validator intentionally
+expects development examples and non-MCP registries that are not part of the
+installed bundle.
+
 ## Output, Atomicity, and Safety
 
 Recommended repository-local generated output:
@@ -230,6 +236,22 @@ The target export model is:
 5. verify the completed temporary bundle;
 6. atomically rename it into a new versioned final directory; and
 7. leave the source tree and external repositories untouched.
+
+The implemented commands are:
+
+```text
+new-earth-platform mcp export-bundle --output <parent>
+new-earth-platform mcp verify-bundle --bundle <bundle-root>
+```
+
+Export defaults to `dist/mcp-contract-bundle/` under the selected repository
+root and finalizes at
+`new-earth-mcp-contract-bundle-v1/<baseline-id>/`. Existing final bundles are
+rejected with no overwrite or merge behavior. The exporter rejects dirty source
+trees, missing inputs, unsafe paths, and canonical validation failures before a
+final bundle is created. The verifier reports hash, manifest, payload-set, and
+bundle-relative contract-validation failures without requiring a Platform Core
+checkout.
 
 ## Windows Installation and Resolution
 
@@ -282,7 +304,7 @@ exit status for any mismatch. Neither command installs or activates a runtime.
 
 ## Implementation Gates and Test Strategy
 
-MCP-02B should not become `SAFE_EXPORTER_IMPLEMENTATION` until:
+The following gates are now closed for the exporter foundation:
 
 - the 16 runtime declaration paths are explicit and registry-linked;
 - the treatment of the two record examples and reference client is accepted;
@@ -291,7 +313,15 @@ MCP-02B should not become `SAFE_EXPORTER_IMPLEMENTATION` until:
 - no candidate input contains secrets or machine-specific paths; and
 - path/reparse/output safety can be tested entirely within Platform Core.
 
-The future exporter tests must cover valid export, manifest fields, baseline and
+The exporter creates `36` payload files: one registry, nineteen schemas, and
+sixteen contract declarations. `SHA256SUMS.txt` contains only those payloads.
+The manifest records the bundle identity, format, baseline, source commit,
+paths, SHA-256 algorithm, deterministic content root hash, and `read_only: true`.
+The root hash is SHA-256 over sorted UTF-8 lines of `bundle-relative-path`, two
+spaces, payload SHA-256, and LF; manifest and hash-control files are excluded
+to avoid circular hashing.
+
+The exporter tests cover valid export, manifest fields, baseline and
 commit pinning, registry and schema inclusion, declaration allowlisting,
 unrelated-example exclusion, missing/invalid input failure, deterministic
 hashes, changed/missing/extra file verification failure, traversal and absolute
@@ -301,7 +331,6 @@ secret/path scanning, and preservation of all existing MCP and full-suite tests.
 ## Boundary Confirmation
 
 This design adds no MCP runtime, network listener, client, server, tool/query
-execution, authorization runtime, approval runtime, audit database, or write
-capability. It does not modify NEOS, GAIA, or Command Centre. The next source
-slice is the narrow canonical export-graph registration and bundle exporter
-implementation only after the gates above are closed.
+execution, authorization runtime, approval runtime, audit database, installer,
+or write capability. It does not modify NEOS, GAIA, or Command Centre. The next
+source slice is MCP-02C, the NEOS read-only MCP provider adapter skeleton.

@@ -13,12 +13,15 @@ from .compatibility import load_rules
 from .governance import governance_index, governance_records, load_governance
 from .graph import load_dependencies, load_projects
 from .impact import declared_impact
+from .mcp_bundle import BundleError, export_bundle, verify_bundle
 from .models import Interface, Service, load_yaml
 from .paths import repo_root
 from .service import graph_report, graph_text, validate_repository
 from .validation import validate_requirement, validate_yaml_against_schema
 
 app = typer.Typer(no_args_is_help=True, help="New Earth Platform Core CLI")
+mcp_app = typer.Typer(no_args_is_help=True, help="MCP contract bundle commands")
+app.add_typer(mcp_app, name="mcp")
 console = Console()
 
 RootOption = Annotated[Path | None, typer.Option(help="Repository root")]
@@ -48,6 +51,34 @@ def validate_contract(path: Path) -> None:
             console.print(f"[red]{error}[/red]")
         raise typer.Exit(1)
     console.print(f"[green]Contract valid:[/green] {path}")
+
+
+@mcp_app.command("export-bundle")
+def mcp_export_bundle(
+    output: Annotated[Path | None, typer.Option(help="Output parent directory")] = None,
+    root: RootOption = None,
+) -> None:
+    """Export the deterministic, read-only MCP contract bundle."""
+    try:
+        bundle = export_bundle(root or repo_root(), output)
+    except BundleError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print(f"[green]MCP bundle exported:[/green] {bundle}")
+
+
+@mcp_app.command("verify-bundle")
+def mcp_verify_bundle(bundle: Annotated[Path, typer.Option(help="Bundle directory")]) -> None:
+    """Verify an MCP contract bundle without a Platform Core checkout."""
+    try:
+        manifest = verify_bundle(bundle)
+    except BundleError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print(
+        f"[green]MCP bundle verified:[/green] {bundle} "
+        f"({manifest['contract_baseline_id']})"
+    )
 
 
 @app.command()
