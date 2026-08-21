@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -58,9 +59,28 @@ def test_offline_verification_works_outside_repository(exported_bundle: Path, tm
     assert manifest["bundle_id"] == "new-earth-mcp-contract-bundle-v1"
 
 
-def test_dirty_source_export_is_rejected() -> None:
-    with pytest.raises(BundleError, match="DIRTY_SOURCE_TREE"):
-        export_bundle(ROOT, Path(".mcp-bundle-test-output"))
+def test_dirty_source_export_is_rejected(tmp_path: Path) -> None:
+    tracked_file = ROOT / "README.md"
+    original_bytes = tracked_file.read_bytes()
+    before = subprocess.run(
+        ["git", "-C", str(ROOT), "status", "--porcelain", "--untracked-files=all"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    try:
+        tracked_file.write_bytes(original_bytes + b"\n# temporary dirty-source test marker\n")
+        with pytest.raises(BundleError, match="DIRTY_SOURCE_TREE"):
+            export_bundle(ROOT, tmp_path / "output")
+    finally:
+        tracked_file.write_bytes(original_bytes)
+    after = subprocess.run(
+        ["git", "-C", str(ROOT), "status", "--porcelain", "--untracked-files=all"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert after == before
 
 
 def test_existing_final_bundle_is_rejected(exported_bundle: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
