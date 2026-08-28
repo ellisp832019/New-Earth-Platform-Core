@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/cap-01a-architecture.schema.json",
+  "title": "New Earth CAP-01A Module and Capability Architecture",
+  "type": "object",
+  "required": ["contract_version", "systems", "modules", "capabilities"],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "systems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/system"}
+    },
+    "modules": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/module"}
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/capability"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["planned", "declared", "active", "deprecated"]
+    },
+    "system": {
+      "type": "object",
+      "required": ["system_id", "name", "description", "owner", "status", "evidence"],
+      "properties": {
+        "system_id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "description": {"$ref": "#/$defs/text"},
+        "owner": {"$ref": "#/$defs/text"},
+        "status": {"$ref": "#/$defs/status"},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      },
+      "additionalProperties": false
+    },
+    "module": {
+      "type": "object",
+      "required": ["module_id", "system_id", "name", "purpose", "owner", "status", "user_facing", "evidence"],
+      "properties": {
+        "module_id": {"$ref": "#/$defs/id"},
+        "system_id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "purpose": {"$ref": "#/$defs/text"},
+        "owner": {"$ref": "#/$defs/text"},
+        "status": {"$ref": "#/$defs/status"},
+        "user_facing": {"type": "boolean"},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      },
+      "additionalProperties": false
+    },
+    "capability": {
+      "type": "object",
+      "required": ["capability_id", "module_id", "name", "purpose", "owner", "consumers", "authority_type", "provenance", "classification", "status", "evidence"],
+      "properties": {
+        "capability_id": {"$ref": "#/$defs/id"},
+        "module_id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "purpose": {"$ref": "#/$defs/text"},
+        "owner": {"$ref": "#/$defs/text"},
+        "consumers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/text"}
+        },
+        "authority_type": {"$ref": "#/$defs/text"},
+        "provenance": {
+          "type": "string",
+          "enum": ["Declared", "Observed", "Local", "Interpreted", "Operational", "Protected", "Indexed"]
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "LOCAL_ONLY",
+            "LOCAL_NOW_POTENTIAL_SHARED_LATER",
+            "SHARED_CANDIDATE",
+            "SHARED_CANONICAL",
+            "CONSUMED_EXTERNAL",
+            "ADAPTER_VIEW_ONLY",
+            "UNCLEAR_REVIEW_REQUIRED"
+          ]
+        },
+        "status": {"$ref": "#/$defs/status"},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

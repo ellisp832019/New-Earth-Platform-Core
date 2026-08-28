@@ -1,0 +1,33 @@
+contract_version: "1.0"
+systems:
+  - system_id: command-dashboard
+    name: New Earth Command Dashboard
+    description: Human-facing operational workspace for local dashboard work.
+    owner: New Earth Command Dashboard
+    status: declared
+    evidence:
+      - docs/project_control/evidence/2026-08-28/UIUX_WAVE7_OWNER_AUTHORITY_MATRIX.md
+modules:
+  - module_id: daily-work
+    system_id: command-dashboard
+    name: Daily Work
+    purpose: Focus today's work through daily focus and Top 3 selection.
+    owner: New Earth Command Dashboard
+    status: declared
+    user_facing: true
+    evidence:
+      - docs/project_control/evidence/2026-08-28/UIUX_WAVE7_MODULE_INVENTORY.md
+capabilities:
+  - capability_id: daily-focus
+    module_id: daily-work
+    name: Daily focus
+    purpose: Define the user's focus for today.
+    owner: New Earth Command Dashboard
+    consumers:
+      - command-dashboard
+    authority_type: canonical
+    provenance: Local
+    classification: LOCAL_ONLY
+    status: declared
+    evidence:
+      - docs/project_control/evidence/2026-08-28/UIUX_WAVE7_CAPABILITY_INVENTORY.md

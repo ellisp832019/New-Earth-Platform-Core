@@ -45,6 +45,62 @@ def validate_yaml_against_schema(yaml_path: Path, schema_path: Path) -> list[str
     return validate_instance_against_schema(instance, schema_path, yaml_path)
 
 
+CAP01A_CLASSIFICATIONS = {
+    "LOCAL_ONLY",
+    "LOCAL_NOW_POTENTIAL_SHARED_LATER",
+    "SHARED_CANDIDATE",
+    "SHARED_CANONICAL",
+    "CONSUMED_EXTERNAL",
+    "ADAPTER_VIEW_ONLY",
+    "UNCLEAR_REVIEW_REQUIRED",
+}
+CAP01A_PROVENANCE = {
+    "Declared",
+    "Observed",
+    "Local",
+    "Interpreted",
+    "Operational",
+    "Protected",
+    "Indexed",
+}
+
+
+def validate_cap01a_contract(root: Path, contract_path: Path | None = None) -> list[str]:
+    """Validate the minimal CAP-01A contract and its local references."""
+    path = contract_path or root / "examples/cap-01a/minimal-architecture.yaml"
+    schema = root / "schemas/cap-01a-architecture.schema.json"
+    errors = validate_yaml_against_schema(path, schema)
+    if errors:
+        return errors
+
+    document = load_yaml(path)
+    systems = document["systems"]
+    modules = document["modules"]
+    capabilities = document["capabilities"]
+    system_ids = [str(item["system_id"]) for item in systems]
+    module_ids = [str(item["module_id"]) for item in modules]
+    capability_ids = [str(item["capability_id"]) for item in capabilities]
+    errors += _duplicates(system_ids, "CAP-01A system id")
+    errors += _duplicates(module_ids, "CAP-01A module id")
+    errors += _duplicates(capability_ids, "CAP-01A capability id")
+
+    for module in modules:
+        if str(module["system_id"]) not in system_ids:
+            errors.append(
+                f"Unknown CAP-01A module system: {module['module_id']} -> {module['system_id']}"
+            )
+    for capability in capabilities:
+        if str(capability["module_id"]) not in module_ids:
+            errors.append(
+                f"Unknown CAP-01A capability module: {capability['capability_id']} -> {capability['module_id']}"
+            )
+        if str(capability["classification"]) not in CAP01A_CLASSIFICATIONS:
+            errors.append(f"Invalid CAP-01A classification: {capability['capability_id']}")
+        if str(capability["provenance"]) not in CAP01A_PROVENANCE:
+            errors.append(f"Invalid CAP-01A provenance: {capability['capability_id']}")
+    return errors
+
+
 def validate_project_ids(projects_path: Path, dependencies_path: Path) -> list[str]:
     projects = load_yaml(projects_path).get("projects", [])
     dependencies = load_yaml(dependencies_path).get("dependencies", [])
