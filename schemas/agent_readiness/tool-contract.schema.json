@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "new-earth://schemas/agent/tool-contract.schema.json",
+  "title": "New Earth Tool Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tool_id",
+    "purpose",
+    "owner",
+    "inputs",
+    "outputs",
+    "authority",
+    "side_effects",
+    "approval_requirements",
+    "evidence",
+    "failure_behaviour",
+    "timeout_seconds",
+    "audit"
+  ],
+  "properties": {
+    "tool_id": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "outputs": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "string"
+    },
+    "side_effects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approval_requirements": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "failure_behaviour": {
+      "type": "string"
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "audit": {
+      "type": "object"
+    }
+  }
+}

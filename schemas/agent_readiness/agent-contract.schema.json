@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "new-earth://schemas/agent/agent-contract.schema.json",
+  "title": "New Earth Agent Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "agent_id",
+    "objective_source",
+    "knowledge_source",
+    "reasoning_service",
+    "authority",
+    "tools",
+    "escalation_conditions",
+    "stop_conditions",
+    "acceptance_requirements"
+  ],
+  "properties": {
+    "agent_id": {
+      "type": "string"
+    },
+    "objective_source": {
+      "type": "string"
+    },
+    "knowledge_source": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reasoning_service": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "string"
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "escalation_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stop_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptance_requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "new-earth://schemas/agent/action-result.schema.json",
+  "title": "New Earth Action Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "action_id",
+    "status",
+    "actual_output",
+    "errors",
+    "resulting_state",
+    "evidence_refs",
+    "started_at",
+    "finished_at",
+    "validation_required"
+  ],
+  "properties": {
+    "action_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "FAILED",
+        "REJECTED",
+        "PARTIAL"
+      ]
+    },
+    "actual_output": {},
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resulting_state": {
+      "type": "object"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "validation_required": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "new-earth://schemas/agent/action-request.schema.json",
+  "title": "New Earth Action Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "action_id",
+    "tool_id",
+    "work_package_id",
+    "objective_id",
+    "requesting_lane",
+    "arguments",
+    "required_authority",
+    "expected_output",
+    "evidence_requirement"
+  ],
+  "properties": {
+    "action_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tool_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_package_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requesting_lane": {
+      "type": "string",
+      "minLength": 1
+    },
+    "arguments": {
+      "type": "object"
+    },
+    "required_authority": {
+      "type": "string",
+      "enum": [
+        "OBSERVE",
+        "RECOMMEND",
+        "PREPARE",
+        "EXECUTE_WITH_APPROVAL",
+        "AUTONOMOUS_PREAUTHORISED"
+      ]
+    },
+    "expected_output": {
+      "type": "object"
+    },
+    "evidence_requirement": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
