@@ -304,8 +304,8 @@ systems:
     canonical_name: New Earth Command Dashboard
     record_type: system
     architecture_role: OPERATIONS_UI
-    canonical_status: canonical_specialist
-    lifecycle: active
+    canonical_status: legacy
+    lifecycle: legacy
     maturity: development
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
@@ -313,8 +313,8 @@ systems:
       canonical_repo: New_Earth_Command_Dashboard
       current_location: New_Earth_Command_Dashboard
     contains_extractable_systems: true
-    release_independence: true
-    dependency_class: specialist_system
+    release_independence: false
+    dependency_class: legacy
     relationships:
       platform_core:
         kind: registered_in
@@ -329,19 +329,19 @@ systems:
         target: gaia
         notes: Dashboard can host Gaia-supported workflows.
       command_centre:
-        kind: extracted_from
+        kind: superseded_by
         target: command-centre
-        notes: Dashboard is a future operational extraction from Command Centre.
+        notes: Command Centre supersedes this legacy operator surface.
       dashboard:
-        kind: authoritative
-        target: new-earth-command-dashboard
-        notes: This record declares the future operations UI boundary.
-    recommended_action: Extract dashboard concerns out of Command Centre when the UI boundary is stable.
+        kind: not_applicable
+        target: null
+        notes: The legacy dashboard no longer owns the active operator boundary.
+    recommended_action: Retain as a legacy reference repository; Command Centre is the canonical human front door.
     architecture_notes:
-      - The dashboard is an active canonical repository and visual operations layer.
+      - The dashboard repository is retained as a legacy reference and is superseded operationally by Command Centre.
       - Planned internal extractions remain governed separately from the repository boundary.
     supersedes: []
-    superseded_by: []
+    superseded_by: ["command-centre"]
     overlaps_with: ["command-centre"]
 
   - id: microgrow
@@ -608,20 +608,20 @@ systems:
     superseded_by: []
     overlaps_with: []
 
-  - id: microgrow-ai-lab-omega-v2
+  - id: microgrow-ai-lab
     canonical_name: MicroGrow AI Lab Omega v2
     record_type: system
     architecture_role: LAB
-    canonical_status: placeholder
-    lifecycle: placeholder
+    canonical_status: canonical_specialist
+    lifecycle: developing
     maturity: prototype
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
-      canonical_repo: null
-      current_location: microgrow
+      canonical_repo: MicroGrow-AI-Lab-Omega-v2
+      current_location: MicroGrow-AI-Lab-Omega-v2
     contains_extractable_systems: false
-    release_independence: false
+    release_independence: true
     dependency_class: lab
     relationships:
       platform_core:
@@ -629,9 +629,9 @@ systems:
         target: new-earth-platform-core
         notes: The lab is declared before extraction.
       neos:
-        kind: not_applicable
-        target: null
-        notes: NEOS may later observe it after materialisation.
+        kind: observed_by
+        target: neos
+        notes: NEOS is the designated observer of the confirmed repository.
       gaia:
         kind: bridge_target
         target: gaia
@@ -644,10 +644,10 @@ systems:
         kind: bridge_target
         target: new-earth-command-dashboard
         notes: Dashboard is the future UI boundary.
-    recommended_action: Hold as a placeholder until the lab has a dedicated repository.
+    recommended_action: Preserve as a supporting experimental lab; no scope expansion during the rebase.
     architecture_notes:
-      - Current GitHub state is intentionally representable as a placeholder.
-      - This should not be mistaken for a live canonical repo.
+      - An independent repository is confirmed for this supporting experimental lab.
+      - Repository existence is confirmed; active programme priority remains governed separately.
     supersedes: []
     superseded_by: []
     overlaps_with: ["microgrow"]
@@ -656,16 +656,16 @@ systems:
     canonical_name: MicroGrow Field Scanner
     record_type: system
     architecture_role: PRODUCT
-    canonical_status: placeholder
-    lifecycle: planned
+    canonical_status: canonical
+    lifecycle: developing
     maturity: development
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
-      canonical_repo: null
-      current_location: microgrow
+      canonical_repo: microgrow-field-scanner
+      current_location: microgrow-field-scanner
     contains_extractable_systems: false
-    release_independence: false
+    release_independence: true
     dependency_class: planned_extraction
     relationships:
       platform_core:
@@ -673,9 +673,9 @@ systems:
         target: new-earth-platform-core
         notes: This product boundary is declared in Platform Core.
       neos:
-        kind: not_applicable
-        target: null
-        notes: Observed evidence is not available until the extraction exists.
+        kind: observed_by
+        target: neos
+        notes: NEOS is the designated observer of the confirmed repository.
       gaia:
         kind: bridge_target
         target: gaia
@@ -688,28 +688,28 @@ systems:
         kind: bridge_target
         target: new-earth-command-dashboard
         notes: Dashboard is the future control surface.
-    recommended_action: Extract from MicroGrow only after the dependency boundary is stable.
+    recommended_action: Preserve the confirmed product repository; feature work remains held during the rebase.
     architecture_notes:
-      - Represented as an intentional placeholder, not a live repo.
-      - This concept remains within the MicroGrow sphere.
+      - A dedicated product repository is confirmed and preserved.
+      - The product remains within the MicroGrow programme boundary.
     supersedes: []
     superseded_by: []
     overlaps_with: ["microgrow"]
 
-  - id: new-earth-omega-xr-os
+  - id: omega-xr-os
     canonical_name: NEW-EARTH---OMEGA-XR-OS
     record_type: system
     architecture_role: PROGRAMME
-    canonical_status: placeholder
-    lifecycle: planned
+    canonical_status: canonical_programme
+    lifecycle: developing
     maturity: prototype
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
-      canonical_repo: null
-      current_location: New Earth estate
+      canonical_repo: NEW-EARTH---OMEGA-XR-OS
+      current_location: NEW-EARTH---OMEGA-XR-OS
     contains_extractable_systems: true
-    release_independence: false
+    release_independence: true
     dependency_class: programme
     relationships:
       platform_core:
@@ -717,9 +717,9 @@ systems:
         target: new-earth-platform-core
         notes: The programme is declared in the governance model.
       neos:
-        kind: not_applicable
-        target: null
-        notes: NEOS can inspect it later when a repo exists.
+        kind: observed_by
+        target: neos
+        notes: NEOS is the designated observer of the confirmed repository.
       gaia:
         kind: bridge_target
         target: gaia
@@ -732,27 +732,27 @@ systems:
         kind: bridge_target
         target: new-earth-command-dashboard
         notes: Dashboard may show programme controls.
-    recommended_action: Hold as programme declaration and wait for a dedicated repo boundary.
+    recommended_action: Preserve the confirmed programme repository; execution remains parked during the rebase.
     architecture_notes:
       - Programme-level architecture can be refined before implementation begins.
     supersedes: []
     superseded_by: []
     overlaps_with: []
 
-  - id: new-earth-rehabilitation
+  - id: rehabilitation
     canonical_name: New-Earth---Rehabilitation
     record_type: system
     architecture_role: PROGRAMME
-    canonical_status: placeholder
-    lifecycle: planned
+    canonical_status: canonical_programme
+    lifecycle: developing
     maturity: prototype
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
-      canonical_repo: null
-      current_location: New Earth estate
+      canonical_repo: New-Earth---Rehabilitation
+      current_location: New-Earth---Rehabilitation
     contains_extractable_systems: true
-    release_independence: false
+    release_independence: true
     dependency_class: programme
     relationships:
       platform_core:
@@ -760,9 +760,9 @@ systems:
         target: new-earth-platform-core
         notes: The programme is declared in Platform Core.
       neos:
-        kind: not_applicable
-        target: null
-        notes: Observed evidence can be added when a repo exists.
+        kind: observed_by
+        target: neos
+        notes: NEOS is the designated observer of the confirmed repository.
       gaia:
         kind: bridge_target
         target: gaia
@@ -775,7 +775,7 @@ systems:
         kind: bridge_target
         target: new-earth-command-dashboard
         notes: Dashboard may surface operational views.
-    recommended_action: Keep as a programme declaration until a concrete repository boundary exists.
+    recommended_action: Preserve the confirmed programme repository; execution remains parked during the rebase.
     architecture_notes:
       - Programme declarations may consolidate multiple future repos.
     supersedes: []
@@ -786,16 +786,16 @@ systems:
     canonical_name: new_earth_website
     record_type: system
     architecture_role: PRODUCT
-    canonical_status: placeholder
-    lifecycle: planned
+    canonical_status: canonical
+    lifecycle: developing
     maturity: development
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
     repository:
-      canonical_repo: null
+      canonical_repo: new_earth_website
       current_location: new_earth_website
     contains_extractable_systems: false
-    release_independence: false
+    release_independence: true
     dependency_class: product
     relationships:
       platform_core:
@@ -803,9 +803,9 @@ systems:
         target: new-earth-platform-core
         notes: The website is declared even before it is fully materialised.
       neos:
-        kind: not_applicable
-        target: null
-        notes: Observed evidence is future work.
+        kind: observed_by
+        target: neos
+        notes: NEOS is the designated observer of the confirmed repository.
       gaia:
         kind: bridge_target
         target: gaia
@@ -818,9 +818,9 @@ systems:
         kind: bridge_target
         target: new-earth-command-dashboard
         notes: Dashboard may surface operational controls.
-    recommended_action: Hold as a product placeholder until a dedicated repo is confirmed.
+    recommended_action: Preserve the confirmed website repository; feature work remains held during the rebase.
     architecture_notes:
-      - This is a product declaration, not a live deployment claim.
+      - The product declaration points to the confirmed repository; deployment status remains separate.
     supersedes: []
     superseded_by: []
     overlaps_with: []

@@ -20,8 +20,8 @@ projects:
     name: Gaia
     family: intelligence
     type: ai-employee
-    repository: New-Earth-Gaia
-    status: planned
+    repository: New-Earth-AI-Employee
+    status: developing
     contract: examples/contracts/GAIA.NEW_EARTH_PROJECT.yaml
 
   - id: command-centre
@@ -45,7 +45,7 @@ projects:
     family: core
     type: operations-dashboard
     repository: New_Earth_Command_Dashboard
-    status: active
+    status: archived
     contract: examples/contracts/COMMAND_DASHBOARD.NEW_EARTH_PROJECT.yaml
 
   - id: microgrow

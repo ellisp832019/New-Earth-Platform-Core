@@ -77,17 +77,19 @@ def test_planned_extractions_are_represented_separately(tmp_path: Path) -> None:
     assert any("Planned extraction must not declare canonical_repo" in error for error in validate_governance(tmp_path))
 
 
-def test_dashboard_is_active_repo_with_internal_planned_extractions() -> None:
+def test_dashboard_is_legacy_repo_with_internal_planned_extractions() -> None:
     root = Path(__file__).resolve().parents[1]
     catalog = load_governance(root / "registry/governance.yaml")
     dashboard = governance_index(root / "registry/governance.yaml")["new-earth-command-dashboard"]
 
     assert dashboard.architecture_role == "OPERATIONS_UI"
-    assert dashboard.canonical_status == "canonical_specialist"
-    assert dashboard.lifecycle == "active"
+    assert dashboard.canonical_status == "legacy"
+    assert dashboard.lifecycle == "legacy"
+    assert dashboard.dependency_class == "legacy"
     assert dashboard.repository.canonical_repo == "New_Earth_Command_Dashboard"
     assert dashboard.repository.current_location == "New_Earth_Command_Dashboard"
-    assert dashboard.release_independence is True
+    assert dashboard.release_independence is False
+    assert dashboard.superseded_by == ["command-centre"]
     assert {
         record.id
         for record in catalog.planned_extractions
@@ -97,7 +99,6 @@ def test_dashboard_is_active_repo_with_internal_planned_extractions() -> None:
         "new-earth-backup-guardian",
     }
     assert validate_governance(root) == []
-
 
 def test_local_ai_runtime_is_registered_as_a_canonical_platform_service() -> None:
     root = Path(__file__).resolve().parents[1]
