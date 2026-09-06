@@ -157,9 +157,9 @@ systems:
         target: command-centre
         notes: Command Centre surfaces NEOS intelligence.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may later surface observed engineering state.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep observing and do not absorb Platform Core authority.
     architecture_notes:
       - NEOS reports observed truth, not declared truth.
@@ -201,9 +201,9 @@ systems:
         target: command-centre
         notes: Command Centre can host Gaia-facing operator flows.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard can surface Gaia-supported work packages.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Preserve governed recommendation, briefing, and coordination functions.
     architecture_notes:
       - Gaia reasons over declared state plus NEOS evidence.
@@ -245,9 +245,9 @@ systems:
         target: command-centre
         notes: Command Centre may surface runtime health, status, and availability.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may surface runtime status, models, and route explanations.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep the runtime boundary thin, local-first, and contract-driven.
     architecture_notes:
       - Local AI execution infrastructure belongs in the runtime, not Platform Core.
@@ -289,9 +289,9 @@ systems:
         target: command-centre
         notes: Command Centre owns the human-facing front door.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard is the richer visual operations layer.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep the shell thin and delegate heavy ops to domain systems.
     architecture_notes:
       - Command Centre is the front door, not the domain runtime.
@@ -319,15 +319,15 @@ systems:
       platform_core:
         kind: registered_in
         target: new-earth-platform-core
-        notes: Dashboard design is declared in Platform Core.
+        notes: Legacy dashboard identity is declared in Platform Core for reference.
       neos:
         kind: consumes_evidence
         target: neos
-        notes: Dashboard is expected to surface NEOS evidence.
+        notes: NEOS may observe the legacy dashboard repository as retained engineering evidence.
       gaia:
         kind: bridge_target
         target: gaia
-        notes: Dashboard can host Gaia-supported workflows.
+        notes: GAIA may reason about the legacy dashboard as retained implementation evidence; active workflows surface through Command Centre.
       command_centre:
         kind: superseded_by
         target: command-centre
@@ -377,9 +377,9 @@ systems:
         target: command-centre
         notes: Command Centre can surface MicroGrow operations.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard can host MicroGrow operational controls.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep declared product boundaries stable while extracting specialist tooling.
     architecture_notes:
       - MicroGrow is the product spine for related specialist systems.
@@ -421,9 +421,9 @@ systems:
         target: command-centre
         notes: Command Centre can surface the specialist control surface.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may host this control centre experience.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep the control surface focused on MicroGrow operations.
     architecture_notes:
       - Embedded specialist control surface for MicroGrow.
@@ -465,9 +465,9 @@ systems:
         target: command-centre
         notes: Command Centre can surface BioCalm status.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard can expose BioCalm operational views.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep as a product declaration; current GitHub state may remain a placeholder if needed.
     architecture_notes:
       - BioCalm remains an ordinary product in the estate.
@@ -509,9 +509,9 @@ systems:
         target: command-centre
         notes: Command Centre can surface this product.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may present operational controls for it.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep the product declaration stable and independently releasable.
     architecture_notes:
       - Product-level canonical system.
@@ -553,9 +553,9 @@ systems:
         target: command-centre
         notes: Command Centre can surface the product.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard can expose status views.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep the product declaration separate from tooling or shell concerns.
     architecture_notes:
       - Life OS is a product identity in Platform Core, but no confirmed independent GitHub repository is declared here.
@@ -597,9 +597,9 @@ systems:
         target: command-centre
         notes: Command Centre can surface lab state when needed.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may present lab controls and status.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Keep the lab a distinct experimental boundary.
     architecture_notes:
       - The lab is a specialist boundary and not a product runtime.
@@ -641,9 +641,9 @@ systems:
         target: command-centre
         notes: Command Centre may later surface it as an experiment.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard is the future UI boundary.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Preserve as a supporting experimental lab; no scope expansion during the rebase.
     architecture_notes:
       - An independent repository is confirmed for this supporting experimental lab.
@@ -685,9 +685,9 @@ systems:
         target: command-centre
         notes: Command Centre may later surface it.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard is the future control surface.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Preserve the confirmed product repository; feature work remains held during the rebase.
     architecture_notes:
       - A dedicated product repository is confirmed and preserved.
@@ -729,9 +729,9 @@ systems:
         target: command-centre
         notes: Command Centre can show programme status.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may show programme controls.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Preserve the confirmed programme repository; execution remains parked during the rebase.
     architecture_notes:
       - Programme-level architecture can be refined before implementation begins.
@@ -772,9 +772,9 @@ systems:
         target: command-centre
         notes: Command Centre can display programme status.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may surface operational views.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Preserve the confirmed programme repository; execution remains parked during the rebase.
     architecture_notes:
       - Programme declarations may consolidate multiple future repos.
@@ -815,9 +815,9 @@ systems:
         target: command-centre
         notes: Command Centre can show launch state.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may surface operational controls.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Preserve the confirmed website repository; feature work remains held during the rebase.
     architecture_notes:
       - The product declaration points to the confirmed repository; deployment status remains separate.
@@ -858,9 +858,9 @@ systems:
         target: command-centre
         notes: Command Centre may expose planner access.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard can provide planner status and controls.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Rename repository to the New Earth Planner canonical identity when governed.
     architecture_notes:
       - This record preserves the current repository state without renaming anything here.
@@ -1333,9 +1333,9 @@ planned_extractions:
         target: command-centre
         notes: Command Centre may show planned extraction status.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may expose the extraction once available.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Extract MicroGrow hub responsibilities into a dedicated service when ready.
     architecture_notes:
       - Future system carved out of MicroGrow.
@@ -1377,9 +1377,9 @@ planned_extractions:
         target: command-centre
         notes: Command Centre may host the control surface.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard is the intended visual host.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Extract project control responsibilities when the MicroGrow split is governed.
     architecture_notes:
       - Planned UI/control extraction from MicroGrow.
@@ -1419,12 +1419,12 @@ planned_extractions:
       command_centre:
         kind: extracted_from
         target: command-centre
-        notes: Validation engine is intended to split out of the dashboard/command-centre path.
+        notes: Command Centre is the operator surface; any future validation engine remains a separate specialist capability.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard remains the likely operator surface.
-    recommended_action: Extract validation logic into a dedicated engine only after the dashboard boundary is stable.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
+    recommended_action: Preserve this planned extraction as a future specialist engine; any implementation must follow the Command Centre boundary and current programme priorities.
     architecture_notes:
       - Planned validation engine; not yet an independent runtime.
     supersedes: []
@@ -1463,11 +1463,11 @@ planned_extractions:
       command_centre:
         kind: extracted_from
         target: command-centre
-        notes: Intended to separate from the dashboard/command-centre control plane.
+        notes: Command Centre is the operator surface; backup and recovery remain separate specialist guardrail tooling.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may host the operator interface before extraction.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Extract backup and recovery tooling into a dedicated guardrail service when required.
     architecture_notes:
       - Planned safeguard tooling, not a live canonical repo.
@@ -1509,9 +1509,9 @@ planned_extractions:
         target: command-centre
         notes: Command Centre may eventually expose librarian operations.
       dashboard:
-        kind: bridge_target
-        target: new-earth-command-dashboard
-        notes: Dashboard may eventually host librarian views.
+        kind: not_applicable
+        target: null
+        notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
     recommended_action: Split knowledge authority out of the runtime only after the curation boundary is stable.
     architecture_notes:
       - Document authority and filing taxonomy should live in the future librarian.
