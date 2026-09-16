@@ -1,0 +1,54 @@
+schema: new-earth.programme.v1
+version: 1.0.0
+
+programme:
+  programme_id: main-programme-control
+  lane_id: main-programme-control
+  name: Programme Definition Contract V1
+  objective: Prove that a portable programme definition can represent existing Programme Control work semantics without becoming live operational state.
+
+repository_bindings: []
+
+platform_contract_refs:
+  - platform-project-contract-v1
+
+work_packages:
+  - work_package_id: WP-MAIN-PROGRAMME-CONTROL-0006
+    title: Programme Definition Contract V1
+    objective: Establish the shared portable programme definition contract.
+    scope:
+      - Shared programme definition structure
+      - Existing Programme Control semantic compatibility
+    acceptance_criteria:
+      - The bundle validates against the Platform Core programme definition schema.
+      - The bundle contains no live execution, dispatch, approval-state or completion-state fields.
+      - Missing blockers cannot be interpreted as no blockers.
+    dependencies: []
+    blockers: []
+    authority_required: RECOMMEND
+    approval_required: true
+    execution_eligible: true
+    evidence_required:
+      - Contract schema validation result
+      - Contract test result
+    tasks:
+      - task_id: WP-MAIN-PROGRAMME-CONTROL-0006-T01
+        order: 1
+        title: Validate portable contract
+        objective: Validate the programme bundle against the shared Platform Core schema.
+        acceptance_criteria:
+          - The valid fixture passes Draft 2020-12 schema validation.
+          - Invalid fixtures fail closed.
+        blockers: []
+    controls:
+      stop_conditions:
+        - Stop if the accepted Platform Core source baseline is not exact and clean.
+        - Stop if any protected source state changes during this build.
+      rollback_boundary:
+        - Build only inside the isolated clone.
+        - Never modify Programme Control, NEOS, GAIA or Command Centre.
+        - Never commit, push, merge or alter the accepted source checkout.
+
+provenance:
+  source: chatgpt
+  author: peter

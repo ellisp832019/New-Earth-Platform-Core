@@ -10,6 +10,11 @@ interfaces:
     schema: schemas/project-contract.schema.json
     stability: experimental
 
+  - id: new-earth-programme-v1
+    owner: new-earth-platform-core
+    schema: schemas/programme-definition.schema.json
+    stability: experimental
+
   - id: neos-status-api
     owner: neos
     type: http
