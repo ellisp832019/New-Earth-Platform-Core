@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/enrollment-assessment.schema.json",
+  "title": "New Earth Enrollment Assessment V1",
+  "description": "Derived, attributable enrollment assessment. It reports proven admission progress and unresolved gates but does not itself grant operational authority.",
+  "type": "object",
+  "required": [
+    "schema",
+    "enrollment_id",
+    "assessment_provenance",
+    "baseline_assurance",
+    "overall_result",
+    "admission",
+    "gates",
+    "findings",
+    "final_authority",
+    "next_action",
+    "evidence_refs"
+  ],
+  "$defs": {
+    "gateResult": {
+      "type": "object",
+      "required": [
+        "gate",
+        "applicability",
+        "result",
+        "evidence_refs",
+        "findings"
+      ],
+      "properties": {
+        "gate": {
+          "enum": [
+            "DISCOVERED",
+            "IDENTIFIED",
+            "OBSERVED",
+            "CONTRACT-BOUND",
+            "CONSUMER-VERIFIED",
+            "BASELINED",
+            "GOVERNED"
+          ]
+        },
+        "applicability": {
+          "enum": [
+            "REQUIRED",
+            "NOT_APPLICABLE",
+            "UNKNOWN"
+          ]
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED",
+            "UNKNOWN",
+            "NOT_EVALUATED"
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "required": [
+        "finding_id",
+        "classification",
+        "gate",
+        "message",
+        "resolution_owner"
+      ],
+      "properties": {
+        "finding_id": {
+          "type": "string",
+          "pattern": "^EA-[A-Z0-9-]+-[0-9]{3}$"
+        },
+        "classification": {
+          "enum": [
+            "INVALID",
+            "FAIL",
+            "BLOCKED",
+            "UNKNOWN",
+            "INFO"
+          ]
+        },
+        "gate": {
+          "enum": [
+            "STRUCTURE",
+            "EVIDENCE",
+            "DISCOVERED",
+            "IDENTIFIED",
+            "OBSERVED",
+            "CONTRACT-BOUND",
+            "CONSUMER-VERIFIED",
+            "BASELINED",
+            "GOVERNED"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resolution_owner": {
+          "enum": [
+            "ENROLLMENT",
+            "PETER",
+            "NEOS",
+            "PLATFORM_CORE",
+            "COMPATIBILITY_VALIDATION",
+            "PROGRAMME_CONTROL"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "nextAction": {
+      "type": "object",
+      "required": [
+        "id",
+        "description",
+        "resolution_owner"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resolution_owner": {
+          "enum": [
+            "ENROLLMENT",
+            "PETER",
+            "NEOS",
+            "PLATFORM_CORE",
+            "COMPATIBILITY_VALIDATION",
+            "PROGRAMME_CONTROL"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "assessmentProvenance": {
+      "type": "object",
+      "required": [
+        "validator_version",
+        "evaluated_at",
+        "enrollment_sha256",
+        "evidence_sha256"
+      ],
+      "properties": {
+        "validator_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evaluated_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enrollment_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "evidence_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "baselineAssurance": {
+      "type": "object",
+      "required": [
+        "historical_acceptance",
+        "current_comparison",
+        "accepted_head",
+        "observed_head"
+      ],
+      "properties": {
+        "historical_acceptance": {
+          "enum": [
+            "ACCEPTED",
+            "NOT_ACCEPTED"
+          ]
+        },
+        "current_comparison": {
+          "enum": [
+            "MATCH",
+            "DRIFT",
+            "UNKNOWN",
+            "NOT_EVALUATED"
+          ]
+        },
+        "accepted_head": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "observed_head": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "admission": {
+      "type": "object",
+      "required": [
+        "last_proven_stage",
+        "candidate_stage",
+        "quarantined"
+      ],
+      "properties": {
+        "last_proven_stage": {
+          "enum": [
+            "NONE",
+            "DISCOVERED",
+            "IDENTIFIED",
+            "OBSERVED",
+            "CONTRACT-BOUND",
+            "CONSUMER-VERIFIED",
+            "BASELINED",
+            "GOVERNED"
+          ]
+        },
+        "candidate_stage": {
+          "anyOf": [
+            {
+              "enum": [
+                "DISCOVERED",
+                "IDENTIFIED",
+                "OBSERVED",
+                "CONTRACT-BOUND",
+                "CONSUMER-VERIFIED",
+                "BASELINED",
+                "GOVERNED"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quarantined": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "schema": {
+      "const": "new-earth.enrollment-assessment.v1"
+    },
+    "enrollment_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assessment_provenance": {
+      "$ref": "#/$defs/assessmentProvenance"
+    },
+    "baseline_assurance": {
+      "$ref": "#/$defs/baselineAssurance"
+    },
+    "overall_result": {
+      "enum": [
+        "VALID",
+        "INVALID",
+        "BLOCKED",
+        "UNKNOWN"
+      ]
+    },
+    "admission": {
+      "$ref": "#/$defs/admission"
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/gateResult"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "final_authority": {
+      "const": "peter"
+    },
+    "next_action": {
+      "$ref": "#/$defs/nextAction"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": false
+}

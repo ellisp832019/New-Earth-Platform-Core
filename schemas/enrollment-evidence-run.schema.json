@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/enrollment-evidence-run.schema.json",
+  "title": "New Earth Enrollment Evidence Run V1",
+  "description": "Manifest for one immutable-by-convention enrollment validation evidence run.",
+  "type": "object",
+  "required": [
+    "schema",
+    "run_id",
+    "created_at",
+    "runner_version",
+    "validator_version",
+    "source_paths",
+    "source_sha256",
+    "assessment_input_sha256",
+    "assessment_summary",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "new-earth.enrollment-evidence-run.v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runner_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "validator_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_paths": {
+      "type": "object",
+      "required": [
+        "enrollment",
+        "evidence"
+      ],
+      "properties": {
+        "enrollment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "source_sha256": {
+      "type": "object",
+      "required": [
+        "enrollment",
+        "evidence"
+      ],
+      "properties": {
+        "enrollment": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "evidence": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "assessment_input_sha256": {
+      "type": "object",
+      "required": [
+        "enrollment",
+        "evidence"
+      ],
+      "properties": {
+        "enrollment": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "evidence": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "assessment_summary": {
+      "type": "object",
+      "required": [
+        "overall_result",
+        "last_proven_stage",
+        "quarantined"
+      ],
+      "properties": {
+        "overall_result": {
+          "enum": [
+            "VALID",
+            "INVALID",
+            "BLOCKED",
+            "UNKNOWN"
+          ]
+        },
+        "last_proven_stage": {
+          "enum": [
+            "NONE",
+            "DISCOVERED",
+            "IDENTIFIED",
+            "OBSERVED",
+            "CONTRACT-BOUND",
+            "CONSUMER-VERIFIED",
+            "BASELINED",
+            "GOVERNED"
+          ]
+        },
+        "quarantined": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "artifact_sha256": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    }
+  },
+  "additionalProperties": false
+}

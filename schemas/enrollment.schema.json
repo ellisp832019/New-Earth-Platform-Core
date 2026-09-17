@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://new-earth.local/schemas/enrollment.schema.json",
+  "title": "New Earth Enrollment V1",
+  "description": "Portable enrollment intake contract. Describes a request to bring an existing or proposed subject into the New Earth estate. It does not assert observed repository truth, governance status, readiness, or execution authority.",
+  "type": "object",
+  "required": [
+    "schema",
+    "enrollment_id",
+    "enrollment_type",
+    "subject",
+    "provenance",
+    "repositories",
+    "programme",
+    "requested_authority",
+    "routing",
+    "evidence_refs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "new-earth.enrollment.v1"
+    },
+    "enrollment_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enrollment_type": {
+      "enum": [
+        "EXISTING_REPOSITORY",
+        "NEW_REPOSITORY_PROJECT",
+        "EXISTING_NEW_EARTH_PROJECT",
+        "NEW_PRODUCT_SYSTEM",
+        "NEW_PROGRAMME",
+        "IMPORTED_PROGRAMME_BUNDLE"
+      ]
+    },
+    "subject": {
+      "type": "object",
+      "required": [
+        "requested_name",
+        "canonical_id",
+        "purpose",
+        "owner_ref"
+      ],
+      "properties": {
+        "requested_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonical_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "created_by",
+        "source",
+        "created_at"
+      ],
+      "properties": {
+        "created_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_reference": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "role",
+          "candidate_path",
+          "repository_ref"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "candidate_path": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "repository_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "programme": {
+      "type": "object",
+      "required": [
+        "status",
+        "programme_ref",
+        "lane_ref",
+        "bundle_ref"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "programme_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lane_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bundle_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "requested_authority": {
+      "type": "object",
+      "required": [
+        "initial",
+        "human_approval_required"
+      ],
+      "properties": {
+        "initial": {
+          "enum": [
+            "OBSERVE",
+            "RECOMMEND",
+            "PREPARE"
+          ]
+        },
+        "human_approval_required": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "routing": {
+      "type": "object",
+      "required": [
+        "repository_admission_required",
+        "programme_definition_required",
+        "contract_review_required",
+        "consumer_verification_required"
+      ],
+      "properties": {
+        "repository_admission_required": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "programme_definition_required": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "contract_review_required": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "consumer_verification_required": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object"
+          }
+        ]
+      }
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
