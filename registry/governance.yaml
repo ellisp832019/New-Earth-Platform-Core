@@ -701,7 +701,7 @@ systems:
     record_type: system
     architecture_role: PROGRAMME
     canonical_status: canonical_programme
-    lifecycle: developing
+    lifecycle: planned
     maturity: prototype
     ownership:
       system_owner: New Earth Advanced Technologies Ltd
@@ -1298,6 +1298,277 @@ systems:
     superseded_by: []
     overlaps_with: []
 
+  - id: new-earth-communications
+    canonical_name: New Earth Communications
+    record_type: system
+    architecture_role: SERVICE
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-Communications
+      current_location: New-Earth-Communications
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Identity and declared architecture are registered in Platform Core.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS may observe implementation and repository evidence.
+      gaia:
+        kind: bridge_target
+        target: gaia
+        notes: GAIA may consume this system through governed future integration.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre may surface this system without owning its domain truth.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: The legacy dashboard does not own this system boundary.
+    recommended_action: Continue bounded communications hardening under human-approved
+      send authority.
+    architecture_notes:
+    - Communications remains a specialist system and does not own Programme Control
+      or Command Centre authority.
+    - Provider execution remains human-governed.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+  - id: new-earth-company-control
+    canonical_name: New Earth Company Control
+    record_type: system
+    architecture_role: OPERATIONS_UI
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: New-Earth-Company-Control
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Identity and declared architecture are registered in Platform Core.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: No observed engineering integration is claimed at this stage.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: No GAIA integration is claimed at this stage.
+      command_centre:
+        kind: bridge_target
+        target: command-centre
+        notes: Command Centre may surface this system without owning its domain truth.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: The legacy dashboard does not own this system boundary.
+    recommended_action: Keep as the local-first daily operational front door while canonical
+      programme and entity truth remain upstream.
+    architecture_notes:
+    - Programme Control remains canonical programme truth.
+    - Platform Core remains declared architecture truth.
+    - Git root was not independently verified during the Phase 20 audit; this declaration
+      preserves that evidence limitation.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+  - id: new-earth-hayley-conscious-living-app
+    canonical_name: New Earth Hayley Conscious Living App
+    record_type: system
+    architecture_role: PRODUCT
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-Hayley-Conscious-Living-App
+      current_location: New-Earth-Hayley-Conscious-Living-App
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: product
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Identity and declared architecture are registered in Platform Core.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: No observed engineering integration is claimed at this stage.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: No GAIA integration is claimed at this stage.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: No Command Centre integration is claimed at this stage.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: The legacy dashboard does not own this system boundary.
+    recommended_action: Keep as a creator-lane application related to Hayley Conscious
+      Living, not a separate Programme Control programme.
+    architecture_notes:
+    - The app consumes creator-lane truth; it does not own the creator programme.
+    - Creator content remains in the creator workspace.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+  - id: new-earth-uiux-audit-system
+    canonical_name: New Earth UI/UX Audit System
+    record_type: system
+    architecture_role: TOOLING
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-UIUX-Audit-System
+      current_location: New-Earth-UIUX-Audit-System
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Identity and declared architecture are registered in Platform Core.
+      neos:
+        kind: observed_by
+        target: neos
+        notes: NEOS may observe implementation and repository evidence.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: No GAIA integration is claimed at this stage.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: No Command Centre integration is claimed at this stage.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: The legacy dashboard does not own this system boundary.
+    recommended_action: Continue as bounded governed audit and evidence tooling with
+      human authority mandatory.
+    architecture_notes:
+    - The audit system does not replace Platform Core, NEOS, GAIA, Programme Control
+      or Command Centre.
+    - Execution remains approval bounded.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+  - id: new-earth-creator-omega
+    canonical_name: New Earth Creator Omega
+    record_type: system
+    architecture_role: TOOLING
+    canonical_status: canonical_specialist
+    lifecycle: developing
+    maturity: development
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: New-Earth-Creator-Omega
+      current_location: New-Earth-Creator-Omega
+    contains_extractable_systems: false
+    release_independence: true
+    dependency_class: specialist_system
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Identity and declared architecture are registered in Platform Core.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: No observed engineering integration is claimed at this stage.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: No GAIA integration is claimed at this stage.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: No Command Centre integration is claimed at this stage.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: The legacy dashboard does not own this system boundary.
+    recommended_action: Keep as a local-first creator workflow engine; live creator
+      content remains owned by creator workspaces.
+    architecture_notes:
+    - Software, schemas, workflows, tests, installers and documentation belong to this
+      repository.
+    - Live products, drafts, private notes and customer material remain outside the
+      repository.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+  - id: new-earth-orion
+    canonical_name: New Earth ORION
+    record_type: system
+    architecture_role: AI_SYSTEM
+    canonical_status: placeholder
+    lifecycle: planned
+    maturity: foundation
+    ownership:
+      system_owner: New Earth Advanced Technologies Ltd
+    repository:
+      canonical_repo: null
+      current_location: New-Earth-ORION
+    contains_extractable_systems: false
+    release_independence: false
+    dependency_class: prototype
+    relationships:
+      platform_core:
+        kind: registered_in
+        target: new-earth-platform-core
+        notes: Identity and declared architecture are registered in Platform Core.
+      neos:
+        kind: not_applicable
+        target: null
+        notes: No observed engineering integration is claimed at this stage.
+      gaia:
+        kind: not_applicable
+        target: null
+        notes: No GAIA integration is claimed at this stage.
+      command_centre:
+        kind: not_applicable
+        target: null
+        notes: No Command Centre integration is claimed at this stage.
+      dashboard:
+        kind: not_applicable
+        target: null
+        notes: The legacy dashboard does not own this system boundary.
+    recommended_action: Keep parked as future companion / peer-agent architecture until
+      explicit activation.
+    architecture_notes:
+    - ORION is future work only and must not become a competing control system.
+    - No active build or autonomous execution is authorised.
+    supersedes: []
+    superseded_by: []
+    overlaps_with: []
+
 planned_extractions:
   - id: microgrow-hub
     canonical_name: MicroGrow-Hub
@@ -1484,7 +1755,7 @@ planned_extractions:
     lifecycle: probable
     maturity: development
     ownership:
-      system_owner: New Earth Platform / Local AI Runtime
+      system_owner: New Earth Advanced Technologies Ltd
     repository:
       canonical_repo: null
       current_location: new-earth-local-ai-runtime
@@ -1512,10 +1783,11 @@ planned_extractions:
         kind: not_applicable
         target: null
         notes: Legacy dashboard is retained for reference only; Command Centre is the canonical operator surface.
-    recommended_action: Split knowledge authority out of the runtime only after the curation boundary is stable.
+    recommended_action: Treat this as an implementation candidate only; the Phase 20 Knowledge / Librarian domain remains distributed and is not owned by Local AI Runtime.
     architecture_notes:
-      - Document authority and filing taxonomy should live in the future librarian.
-      - The runtime should keep embeddings and semantic execution primitives only.
+      - The Phase 20 Knowledge / Librarian domain is distributed across Omega OS, Obsidian, CKCC, the Librarian capability and Local AI Runtime.
+      - Local AI Runtime owns replaceable embeddings, indexes and execution caches only.
+      - A future standalone Librarian extraction requires a separate governed decision.
     supersedes: []
     superseded_by: []
     overlaps_with: []

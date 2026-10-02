@@ -1,27 +1,23 @@
-﻿contract_version: "1.0"
-
+contract_version: '1.0'
 project:
-  id: omega-xr-os
-  name: New Earth Omega XR OS
-  family: xr
-  type: xr-platform
+  id: new-earth-communications
+  name: New Earth Communications
+  family: communications
+  type: communications-platform
   owner: New Earth Advanced Technologies Ltd
-  status: planned
-  maturity: prototype
-
+  status: developing
+  maturity: development
 repository:
   version: 0.1.0
   versioning: semver
   default_branch: main
   release_channel: development
-
 design:
   system: NEDS
-  version: "0.1"
-  shell: spatial-standard
-  personality: xr
+  version: '0.1'
+  shell: service-standard
+  personality: communications
   accessibility: required
-
 engineering:
   local_first: true
   logging: standard
@@ -29,18 +25,13 @@ engineering:
   ci: required
   testing: required
   documentation: required
-
 integrations:
-  neos: true
-  gaia: true
-  command_centre: true
-
+  neos: false
+  gaia: false
+  command_centre: false
 provides:
-  - xr-spatial-experience
-
-consumes:
-  - local-ai-runtime
-
+- communications-service
+consumes: []
 governance:
   owner_review: required
   architecture_review: required

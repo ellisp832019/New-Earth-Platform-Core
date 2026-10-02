@@ -1,0 +1,48 @@
+mapping_version: '1.0'
+namespace: new-earth-master-architecture
+mappings:
+- external_id: NE-APP-001
+  platform_core_id: new-earth-command-dashboard
+  canonical_name: New Earth Command Dashboard
+  target_kind: project_and_governance
+  mapping_state: existing
+- external_id: NE-FUT-001
+  platform_core_id: omega-xr-os
+  canonical_name: Omega XR OS
+  target_kind: project_and_governance
+  mapping_state: reconciled
+- external_id: NE-APP-002
+  platform_core_id: new-earth-communications
+  canonical_name: New Earth Communications
+  target_kind: project_and_governance
+  mapping_state: new
+- external_id: NE-APP-003
+  platform_core_id: new-earth-company-control
+  canonical_name: New Earth Company Control
+  target_kind: project_and_governance
+  mapping_state: new
+- external_id: NE-APP-004
+  platform_core_id: new-earth-hayley-conscious-living-app
+  canonical_name: New Earth Hayley Conscious Living App
+  target_kind: project_and_governance
+  mapping_state: new
+- external_id: NE-TOOL-010
+  platform_core_id: new-earth-uiux-audit-system
+  canonical_name: New Earth UI/UX Audit System
+  target_kind: project_and_governance
+  mapping_state: new
+- external_id: NE-PROD-006
+  platform_core_id: codex-app-todo
+  canonical_name: New Earth Planner
+  target_kind: governance_only
+  mapping_state: existing
+- external_id: NE-APP-005
+  platform_core_id: new-earth-creator-omega
+  canonical_name: New Earth Creator Omega
+  target_kind: project_and_governance
+  mapping_state: new
+- external_id: NE-FUT-002
+  platform_core_id: new-earth-orion
+  canonical_name: New Earth ORION
+  target_kind: project_and_governance
+  mapping_state: future

@@ -122,7 +122,7 @@ projects:
     family: xr
     type: xr-platform
     repository: NEW-EARTH---OMEGA-XR-OS
-    status: active
+    status: planned
     contract: examples/contracts/OMEGA_XR_OS.NEW_EARTH_PROJECT.yaml
   - id: new-earth-website
     name: New Earth Website
@@ -131,3 +131,46 @@ projects:
     repository: new_earth_website
     status: active
     contract: examples/contracts/WEBSITE.NEW_EARTH_PROJECT.yaml
+
+  - id: new-earth-communications
+    name: New Earth Communications
+    family: communications
+    type: communications-platform
+    repository: New-Earth-Communications
+    status: developing
+    contract: examples/contracts/COMMUNICATIONS.NEW_EARTH_PROJECT.yaml
+  - id: new-earth-company-control
+    name: New Earth Company Control
+    family: operations
+    type: business-operations-application
+    repository: New-Earth-Company-Control
+    status: developing
+    contract: examples/contracts/COMPANY_CONTROL.NEW_EARTH_PROJECT.yaml
+  - id: new-earth-hayley-conscious-living-app
+    name: New Earth Hayley Conscious Living App
+    family: creator
+    type: creator-application
+    repository: New-Earth-Hayley-Conscious-Living-App
+    status: developing
+    contract: examples/contracts/HAYLEY_CONSCIOUS_LIVING_APP.NEW_EARTH_PROJECT.yaml
+  - id: new-earth-uiux-audit-system
+    name: New Earth UI/UX Audit System
+    family: engineering
+    type: audit-tooling
+    repository: New-Earth-UIUX-Audit-System
+    status: developing
+    contract: examples/contracts/UIUX_AUDIT_SYSTEM.NEW_EARTH_PROJECT.yaml
+  - id: new-earth-creator-omega
+    name: New Earth Creator Omega
+    family: creator
+    type: creator-workflow-engine
+    repository: New-Earth-Creator-Omega
+    status: developing
+    contract: examples/contracts/CREATOR_OMEGA.NEW_EARTH_PROJECT.yaml
+  - id: new-earth-orion
+    name: New Earth ORION
+    family: intelligence
+    type: peer-agent
+    repository: New-Earth-ORION
+    status: planned
+    contract: examples/contracts/ORION.NEW_EARTH_PROJECT.yaml
